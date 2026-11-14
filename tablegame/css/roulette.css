@@ -1,0 +1,40 @@
+.rl-bets{display:grid;gap:6px}
+.rl-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;grid-auto-rows:52px}
+.rl-numbers{grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(2,51px);gap:3px}
+.rl .betbtn{min-width:0;justify-content:center;padding:3px 2px 17px;gap:1px}
+.rl .b-name{font-size:14px;line-height:16px;white-space:nowrap}
+.rl .b-odds{font-size:11px;line-height:12px}
+.rl .betbtn.red-door{background:linear-gradient(180deg,#d74943,#a92124);border-color:#8f2025}
+.rl .betbtn.black-door{background:linear-gradient(180deg,#343e46,#151d24);border-color:#111a20}
+.rl .betbtn.zero-door{background:linear-gradient(180deg,#37976a,#17613f);border-color:#124c33}
+.rl .red-door .b-name,.rl .black-door .b-name,.rl .zero-door .b-name,.rl .red-door .b-odds,.rl .black-door .b-odds,.rl .zero-door .b-odds,.rl .red-door .b-total,.rl .black-door .b-total,.rl .zero-door .b-total{color:#fff}
+.rl .betbtn.win{background:#e7f8ec;outline:2px solid #2fa14f}
+.rl .betbtn.win .b-name,.rl .betbtn.win .b-odds,.rl .betbtn.win .b-total{color:#157a33}
+.rl .betbtn:focus-visible{outline:2px solid #d9b56b;outline-offset:-3px}
+.rl-numbers .betbtn{padding:0;gap:0;border-radius:4px}
+.rl-numbers .betbtn[data-k="N0"]{grid-row:span 2}
+.rl-numbers .b-name{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:Consolas,monospace;font-size:18px;line-height:1}
+.rl-numbers .b-odds{position:absolute;top:2px;right:2px;font-size:7px;line-height:8px}
+.rl-numbers .b-user{left:2px;bottom:2px;transform:none;font-size:6px;line-height:9px;padding:0 1px;white-space:nowrap}
+.rl-numbers .b-total{right:2px;bottom:2px;font-size:6px;line-height:8px;white-space:nowrap}
+.rl .road{height:80px}
+.rl .road.big .bead.p{border-color:#151d24}
+.rl .road.big .bead.b{border-color:#a92124}
+.rl .road.big .bead.t{border-color:#24754d}
+.rl .road.numbers{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));grid-template-rows:repeat(5,14px);gap:2px}
+.rl .road.numbers .bead{width:100%;height:14px;border-radius:3px;font-family:Consolas,monospace;font-size:8px}
+.rl .road.numbers .rl-red{background:#a92124}
+.rl .road.numbers .rl-black{background:#151d24}
+.rl .road.numbers .rl-zero{background:#24754d}
+.rl .felt{height:230px}
+.roulette-stage{position:relative;height:178px;margin-top:6px;perspective:650px}
+.roulette-camera{position:absolute;left:50%;top:calc(50% - 7px);width:220px;height:220px;transform:translate(-50%,-50%) rotateX(36deg);transform-style:preserve-3d}
+.roulette-wheel{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,#31251c 57%,#cda85c 58% 60%,#5d3a24 61% 68%,#b78648 69% 71%,#32251a 72%);box-shadow:0 3px 0 #aa793e,0 7px 0 #4b2f20,0 11px 0 #241b16,0 17px 18px rgba(0,0,0,.45),inset 0 0 0 2px #dfc182,inset 0 0 0 5px #724b2e}
+.roulette-track{position:absolute;inset:6px;border:3px solid #c9a765;border-radius:50%;box-shadow:inset 0 0 0 3px #3a291e,inset 0 0 6px #090d0b;pointer-events:none}
+.roulette-rotor{position:absolute;inset:16px;will-change:transform;border-radius:50%;box-shadow:0 0 0 2px #d4b174}
+.roulette-rotor svg{display:block;width:100%;height:100%;overflow:visible}
+.roulette-rotor [data-pocket].winner path{fill:#f4d36a;stroke:#fff5be;stroke-width:3;filter:drop-shadow(0 0 5px #ffe46e)}
+.roulette-rotor [data-pocket].winner text{fill:#1b2318;font-size:17px}
+.roulette-hub{position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 28%,#d4b174,#9a6d36 38%,#4b2f20 75%);box-shadow:0 4px 0 #4b2f20,0 7px 8px rgba(0,0,0,.5),inset 0 0 0 2px #dfc182;pointer-events:none}
+.roulette-hub::after{content:'';position:absolute;left:50%;top:50%;width:17px;height:17px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 30% 20%,#fff4ce,#d4b174 45%,#724b2e);box-shadow:0 3px 0 #4b2f20,0 5px 5px rgba(0,0,0,.5)}
+.roulette-ball{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:radial-gradient(circle at 28% 23%,#fff 0 12%,#fff8e6 30%,#d4c3a2 68%,#76634b 100%);box-shadow:1px 3px 4px rgba(0,0,0,.85),0 0 4px rgba(255,244,206,.65),inset -2px -2px 3px rgba(67,50,31,.65),inset 1px 1px 2px rgba(255,255,255,.9);pointer-events:none;will-change:transform}

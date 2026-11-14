@@ -1,0 +1,49 @@
+.bb-table .felt{height:368px;padding:10px}
+.bb-arena{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;align-items:start}
+.bb-side{min-width:0;padding:5px;border:1px solid rgba(220,252,239,.28);border-radius:8px}
+.bb-side.banker{border-color:#ed817f;background:linear-gradient(180deg,rgba(173,43,51,.96),rgba(112,25,34,.96))}
+.bb-side.player{border-color:#75a9f3;background:linear-gradient(180deg,rgba(47,103,190,.96),rgba(28,64,131,.96))}
+.bb-side-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 3px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.5px}
+.bb-side-score{min-width:22px;padding:1px 5px;border-radius:10px;background:rgba(255,255,255,.16);text-align:center;font-size:11px;letter-spacing:0}
+.bb-cups{display:grid;gap:3px}
+.bb-cup{position:relative;height:150px;overflow:hidden}
+.bb-cup .glass-stage{position:absolute;left:50%;top:0;width:154px;height:148px;margin:0;transform:translateX(-50%) scale(.8);transform-origin:top center}
+.bb-cup .bb-back-rim{z-index:1}
+.bb-cup .glass-shell.glass-front{z-index:3}
+.bb-cup-result{position:absolute;left:50%;top:16px;z-index:4;transform:translateX(-50%)}
+.bb-cup-result[hidden]{display:none}
+.bb-result-die{width:28px;height:28px;gap:1px;padding:4px;border-radius:5px}
+.bb-side .glass-die{scale:1.08;transform-style:preserve-3d;will-change:transform}
+.bb-side .glass-die .dice-face{border-radius:5px;outline:1px solid rgba(255,255,255,.22);outline-offset:-1px}
+.bb-side.banker .glass-die .glass-front-face,.bb-side.banker .glass-die .glass-back-face{background:linear-gradient(145deg,#ffaaa0,#bd3d47 62%,#8d2632);border-color:#7d202a}
+.bb-side.banker .glass-die .glass-top-face,.bb-side.banker .glass-die .glass-bottom-face{background:linear-gradient(145deg,#ffc0b8,#dc6265 68%,#a62d38);border-color:#8f2933}
+.bb-side.banker .glass-die .glass-right-face,.bb-side.banker .glass-die .glass-left-face{background:linear-gradient(145deg,#d95b62,#8c2935);border-color:#70212a}
+.bb-side.banker .glass-die .dice-pip,.bb-side.banker .bb-result-die .dice-pip{background:radial-gradient(circle at 65% 70%,#fff,#ffe8e5 70%)}
+.bb-side.banker .bb-result-die{background:linear-gradient(145deg,#ffaaa0,#bd3d47 70%,#8d2632);border-color:#ffd0c9}
+.bb-side.player .glass-die .glass-front-face,.bb-side.player .glass-die .glass-back-face{background:linear-gradient(145deg,#a8ccff,#3979d1 62%,#2252a0);border-color:#1f4b91}
+.bb-side.player .glass-die .glass-top-face,.bb-side.player .glass-die .glass-bottom-face{background:linear-gradient(145deg,#c1dcff,#6399e9 68%,#2d62b2);border-color:#2859a4}
+.bb-side.player .glass-die .glass-right-face,.bb-side.player .glass-die .glass-left-face{background:linear-gradient(145deg,#5286d3,#214d98);border-color:#1c4180}
+.bb-side.player .glass-die .dice-pip,.bb-side.player .bb-result-die .dice-pip{background:radial-gradient(circle at 65% 70%,#fff,#e2edff 70%)}
+.bb-side.player .bb-result-die{background:linear-gradient(145deg,#a8ccff,#3979d1 70%,#2252a0);border-color:#c8ddff}
+.bb-bet-wrap{display:grid;gap:8px}
+.bb-bet-section{display:grid;gap:3px}
+.bb-side-bet-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bb-side-bet-section{padding:6px;border:1px solid;border-radius:8px;gap:5px}
+.bb-banker-bet-section{border-color:#e8b3b2;background:linear-gradient(180deg,#fff7f7,#fff)}
+.bb-player-bet-section{border-color:#b4c9ed;background:linear-gradient(180deg,#f5f9ff,#fff)}
+.bb-bet-title{color:#597078;font-size:10px;font-weight:800}
+.bb-banker-bet-section .bb-bet-title{color:#aa3e42}
+.bb-player-bet-section .bb-bet-title{color:#315f9e}
+.bb-bet-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:52px}
+.bb-side-bets{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:52px;gap:4px}
+.bb-bet-grid .betbtn{min-width:0;justify-content:center;padding:5px 2px}
+.bb-bet-grid .b-name{font-size:12px;line-height:15px}
+.bb-bet-grid .b-odds{font-size:9px;line-height:11px}
+.bb-side-bets .betbtn{padding:5px 1px}
+.bb-side-bets .b-name{font-size:9px;line-height:11px}
+.bb-side-bets .b-user{left:2px;padding:0 2px;font-size:7px;line-height:10px}
+.bb-side-bets .b-total{right:2px;font-size:7px;line-height:10px}
+.bb-bet-grid .betbtn.win{background:#e7f8ec;outline:2px solid #2fa14f}
+.bb-bet-grid .betbtn.win .b-name,.bb-bet-grid .betbtn.win .b-odds{color:#157a33}
+.bb-road{height:80px}
+@media(max-width:500px){.bb-side-bet-groups{grid-template-columns:1fr}}

@@ -5,349 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Table Game</title>
 <link rel="icon" href="data:,">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:#222}
-.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,#16616c,#0e4a53);color:#fff;padding:8px 14px;height:52px}
-.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;letter-spacing:.3px;user-select:none;white-space:nowrap;flex:none}
-.top-right{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:9px;min-width:0;flex:1}
-.chip-sel{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.09);height:44px;padding:2px 7px;border-radius:24px;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
-.chip-sel::-webkit-scrollbar{display:none}
-.chip-sel>span{font-size:11px;opacity:.85;margin-right:2px;white-space:nowrap;flex:none}
-.chip{position:relative;width:38px;height:38px;flex:none;border:1px solid rgba(255,255,255,.65);border-radius:50%;cursor:pointer;display:grid;place-items:center;font-family:inherit;font-size:10px;font-weight:800;color:#fff;
-  background:repeating-conic-gradient(#fff7e7 0deg 12deg,var(--chip-color) 12deg 45deg);box-shadow:0 2px 3px rgba(0,0,0,.35);transition:transform .15s,box-shadow .15s}
-.chip::before{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--chip-color);border:1px solid rgba(255,255,255,.5)}
-.chip span{position:relative;z-index:1;line-height:1;white-space:nowrap;text-shadow:0 1px 1px rgba(0,0,0,.4)}
-.chip:hover{transform:translateY(-1px);box-shadow:0 3px 6px rgba(0,0,0,.45)}
-.chip.on{outline:2px solid #ffd75e;outline-offset:1px;box-shadow:0 0 9px rgba(255,215,94,.55)}
-.chip:focus-visible{outline:2px solid #fff;outline-offset:1px}
-.icobtn{width:32px;height:32px;flex:none;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:.15s}
-.icobtn:hover{background:rgba(255,255,255,.25)}
-.profile{display:flex;align-items:center;gap:7px;flex:none;white-space:nowrap;background:rgba(255,255,255,.12);border-radius:18px;padding:3px 11px 3px 4px;cursor:pointer}
-.avatar{width:26px;height:26px;border-radius:50%;background:#f0b429;color:#5b3a00;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
-.balance{font-weight:600;font-size:13.5px;transition:color .3s}
-.balance.up{color:#7ee787}.balance.down{color:#ff9d9d}
-.sidebar{position:fixed;left:0;top:52px;bottom:0;width:76px;background:#fff;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:7px;box-shadow:1px 0 4px rgba(0,0,0,.07);z-index:40}
-.side-ic{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#7a8a8f;cursor:pointer;transition:.15s}
-.side-ic:hover{background:#eef4f6;color:#16616c}
-.side-ic.active{background:#16616c;color:#fff}
-.side-sep{width:36px;height:1px;background:#e2e8ec;margin:2px 0}
-.side-tab{width:60px;border:none;background:transparent;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;color:#7a8a8f;cursor:pointer;transition:.15s;font-family:inherit}
-.side-tab:hover{background:#eef4f6;color:#16616c}
-.side-tab.active{background:#16616c;color:#fff}
-.side-tab .st-ic{display:flex;align-items:center;justify-content:center;height:20px}
-.side-tab .st-lb{font-size:9px;font-weight:700;letter-spacing:.2px}
-.main{margin-left:76px;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;max-width:1750px}
-.table-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(15,60,70,.12);display:flex;flex-direction:column}
-.card-head{background:linear-gradient(180deg,#1a6670,#12535c);color:#fff;padding:8px 12px;display:flex;justify-content:space-between;align-items:center}
-.card-title{min-width:0}
-.title-row{display:flex;align-items:center;gap:8px}
-.t-name{font-weight:700;font-size:15px;white-space:nowrap}
-.t-id{font-size:11px;opacity:.75}
-.head-right{display:flex;align-items:center;gap:8px}
-.pbadge{background:rgba(255,255,255,.16);color:#fff;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;padding:0 6px;flex:none;transition:transform .3s}
-.pbadge svg{flex:none}
-.pbadge.pulse{animation:badgePulse .6s}
-@keyframes badgePulse{50%{transform:scale(1.18)}}
-.autobtn{width:27px;height:27px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;transition:.15s;user-select:none}
-.autobtn:hover{background:rgba(255,255,255,.4)}
-.autobtn.paused{background:#ffd75e;color:#5b3a00}
-.felt{margin:10px 10px 0;background:radial-gradient(ellipse at 30% 20%,#2d8f5f,#14603e 75%);border-radius:12px;padding:12px 12px 13px;height:200px;border:1px solid #0d4a2f;box-shadow:inset 0 0 24px rgba(0,0,0,.25);overflow:hidden}
-.f-status{display:flex;align-items:center;justify-content:center;height:20px;color:#eafff2;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.f-result{font-size:16px;font-weight:800;letter-spacing:.3px;line-height:1}
-.f-result.rp{color:#5b8def}.f-result.rb{color:#ef5b57}.f-result.rt{color:#c9f7d9}
-.hands{display:flex;flex-direction:column;gap:6px;margin-top:7px}
-.hand{position:relative;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:10px;padding:6px 44px 6px 10px}
-.hand[data-hand="p"]{background:linear-gradient(180deg,#2b5fe0,#1d4ed8)}
-.hand[data-hand="b"]{background:linear-gradient(180deg,#c62828,#a11212)}
-[data-hand="p"] .hz{color:#a9c5ff}
-[data-hand="b"] .hz{color:#ffc4c4}
-.hand.win{background:rgba(255,214,90,.25);outline:1px solid rgba(255,214,90,.75);animation:glowPulse 1.1s infinite}
-@keyframes glowPulse{50%{box-shadow:0 0 10px rgba(255,214,90,.85)}}
-.h-label{font-size:11px;letter-spacing:.8px;color:#d9f2e4;font-weight:700;width:54px;flex:none}
-.h-cards{display:flex;gap:6px;flex:1;min-height:56px;align-items:center}
-.hz{font-size:36px;font-weight:700;opacity:.38;flex:none;line-height:1;user-select:none}
-.pcard{position:relative;width:40px;height:57px;background:#fff;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,.35);flex:none;display:flex;align-items:center;justify-content:center}
-.pcard b{position:absolute;top:4px;left:5px;font-size:13px;line-height:1;font-weight:800}
-.pcard i{font-style:normal;font-size:23px;line-height:1}
-.pcard.red{color:#d0342c}
-.pcard.back{background:repeating-linear-gradient(45deg,#12507e 0 4px,#0c3a5f 4px 8px);border:1.5px solid rgba(255,255,255,.55)}
-.pcard.deal{animation:dealIn .28s ease}
-.pcard.flip{animation:flipIn .5s ease}
-@keyframes dealIn{from{transform:translateY(-16px);opacity:0}}
-@keyframes flipIn{from{transform:rotateY(90deg)}}
-.pcard.ghost{background:rgba(0,0,0,.22);border:1px dashed rgba(255,255,255,.45);box-shadow:none}
-.pcard.old{filter:grayscale(.65) brightness(.92)}
-.h-score{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:#fff;color:#0e4a2f;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center}
-.bet-wrap{padding:10px 10px 0}
-.bet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.betbtn,.minibtn{position:relative;border:1px solid #cfe0ea;background:linear-gradient(180deg,#f2f8fc,#e2eef6);border-radius:8px;padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;transition:.15s}
-.betbtn:hover,.minibtn:hover{background:#d7e9f5;border-color:#9fc4da}
-.betbtn[data-k="P"]{background:linear-gradient(180deg,#5b8def,#2f6be0);border-color:#1d4ed8}
-.betbtn[data-k="P"]:hover{background:#4d81ee;border-color:#173ea8}
-.betbtn[data-k="P"] .b-name,.betbtn[data-k="P"] .b-odds{color:#fff}
-.betbtn[data-k="B"]{background:linear-gradient(180deg,#ef5b57,#d32f2f);border-color:#b71c1c}
-.betbtn[data-k="B"]:hover{background:#e04a46;border-color:#a61c1c}
-.betbtn[data-k="P"]::after{content:'閒'}
-.betbtn[data-k="B"]::after{content:'莊'}
-.betbtn[data-k="P"]::after,.betbtn[data-k="B"]::after{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#fff;opacity:.17;pointer-events:none;z-index:0;user-select:none}
-.betbtn[data-k="P"] .b-name,.betbtn[data-k="P"] .b-odds,.betbtn[data-k="B"] .b-name,.betbtn[data-k="B"] .b-odds{position:relative;z-index:1}
-.betbtn[data-k="P"] .b-total,.betbtn[data-k="P"] .b-user,.betbtn[data-k="B"] .b-total,.betbtn[data-k="B"] .b-user{z-index:1}
-.betbtn[data-k="B"] .b-name,.betbtn[data-k="B"] .b-odds{color:#fff}
-.betbtn[data-k="P"] .b-total,.betbtn[data-k="B"] .b-total{color:rgba(255,255,255,.85)}
-.betbtn[data-k="T"]{background:linear-gradient(180deg,#ecf8ef,#d9efe0);border-color:#9cd3ae}
-.betbtn[data-k="T"]:hover{background:#c5e8d0;border-color:#7cc39a}
-.betbtn:active,.minibtn:active{transform:scale(.97)}
-.betbtn.win,.minibtn.win{outline:2px solid #2fa14f;background:#e7f8ec}
-.betbtn.win .b-name,.betbtn.win .b-odds{color:#157a33}
-.betbtn.lose,.minibtn.lose{opacity:.5}
-.locked .betbtn,.locked .minibtn{pointer-events:none}
-.b-name{font-size:11.5px;font-weight:600;color:#16323a}
-.b-odds{font-size:11px;color:#0e6d8f;font-weight:700}
-.b-total{position:absolute;bottom:2px;right:5px;font-size:9.5px;color:#5a7180;font-weight:700}
-.b-user{position:absolute;bottom:2px;left:4px;background:radial-gradient(circle at 35% 30%,#ffe28a,#e2a71c);color:#5b3a00;font-size:9.5px;font-weight:800;border-radius:9px;padding:0 5px;line-height:14px;box-shadow:0 1px 2px rgba(0,0,0,.3)}
-.side-wrap{padding:8px 10px 0}
-.sec-title{font-size:11px;color:#5a7180;font-weight:700;margin:2px 2px 5px;display:flex;align-items:center;gap:6px}
-.sec-title::after{content:'';flex:1;height:1px;background:#e2e8ec}
-.side-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
-.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:5px}
-.minibtn{padding:3px 2px;gap:0}
-.minibtn:not(.legend){flex-direction:row;align-items:flex-start;justify-content:center;gap:3px;padding-top:2px}
-.minibtn .b-name{font-size:9px;line-height:10px;white-space:nowrap}
-.minibtn .b-odds{font-size:9px;line-height:10px;white-space:nowrap}
-.minibtn .b-total{line-height:10px}
-.minibtn .b-user{font-size:9px;line-height:10px;padding:0 3px}
-.stats{border-top:1px solid #eef2f4;padding:6px 10px 8px;margin-top:6px}
-.tabs{display:flex;gap:2px;background:#eef2f4;border-radius:8px;padding:2px;margin-bottom:4px}
-.tab{flex:1;text-align:center;font-size:10px;font-weight:600;color:#5a7180;padding:3px 2px;border-radius:6px;cursor:pointer;transition:.15s}
-.tab:hover{color:#16616c}
-.tab.active{background:#16616c;color:#fff}
-.road{display:grid;grid-template-columns:repeat(20,13px);gap:2px;justify-content:space-between;height:73px;overflow:hidden}
-.road.pb{display:block}
-.road.big{display:grid;grid-template-columns:none;grid-template-rows:repeat(6,11px);grid-auto-columns:11px;gap:0;justify-content:start;align-content:start;height:80px;border:1px solid #dbe3e7;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
-  background:repeating-linear-gradient(90deg,transparent 0 10px,#dbe3e7 10px 11px),repeating-linear-gradient(180deg,transparent 0 10px,#dbe3e7 10px 11px),#fff}
-.road.big::-webkit-scrollbar{height:4px}
-.road.big::-webkit-scrollbar-thumb{background:#c3d2d8;border-radius:2px}
-.road.big .bead{width:9px;height:9px;margin:1px;border:1.5px solid;background:#fff}
-.road.big .bead.p{border-color:#1d4ed8}
-.road.big .bead.b{border-color:#b91c1c}
-.road.big .bead.t{border-color:#2fa14f}
-.road.big .bead.slash::after{background:#c58a21}
-.road.big .pair{position:absolute;width:3px;height:3px;border-radius:50%;z-index:1}
-.road.big .pair.banker{left:-2px;top:-2px;background:#b91c1c}
-.road.big .pair.player{right:-2px;bottom:-2px;background:#1d4ed8}
-.road.big .tie-count{position:absolute;inset:-1px;color:#14603e;font-size:6px;line-height:8px;text-align:center;z-index:1}
-.bead{width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6.5px;font-weight:700;color:#fff;position:relative}
-.bead.empty{background:#e8edf1}
-.bead.p{background:#1d4ed8}.bead.b{background:#b91c1c}.bead.t{background:#2fa14f}
-.bead.t2{background:#e04848}.bead.x2{background:#2f6fed}.bead.h2{background:#9fb3bc}
-.bead.slash::after{content:'';position:absolute;width:130%;height:1.5px;background:#fff;transform:rotate(45deg)}
-.bead.tslash::after{content:'';position:absolute;width:130%;height:1.5px;background:#2fa14f;transform:rotate(-45deg)}
-.pb-row{display:flex;align-items:center;gap:7px;font-size:10.5px;margin:4px 0;color:#41555e}
-.pb-row .lbl{width:66px;flex:none}
-.pb-row .pct{width:44px;text-align:right;flex:none;font-weight:600}
-.pb-bar{flex:1;height:15px;background:#eef2f4;border-radius:5px;overflow:hidden}
-.pb-fill{height:100%;border-radius:5px;transition:width .4s}
-.summary{font-size:10.5px;color:#41555e;text-align:center;margin-top:4px;font-weight:600}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:rgba(20,40,45,.93);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;transition:.25s;z-index:100;pointer-events:none}
-.toast.show{opacity:1}
-/* ---- Xóc đĩa ---- */
-.bet-grid{grid-template-rows:repeat(2,52px)}
-.xd .bet-grid{grid-template-rows:52px 60px}
-.side-grid{grid-template-rows:46px}
-.mini-grid{grid-auto-rows:26px}
-.minibtn.legend{pointer-events:none;background:#f3f6f8;border-color:#e2e8ec;color:#7a8a8f;font-weight:600;cursor:default;font-size:10px;justify-content:center}
-.betbtn[data-k="C"]{background:linear-gradient(180deg,#fdecec,#f8d7d7);border-color:#e8a5a5}
-.betbtn[data-k="C"]:hover{background:#f5c3c3;border-color:#df8585}
-.betbtn[data-k="L"]{background:linear-gradient(180deg,#e9f2fe,#d2e3fd);border-color:#9dbdf0}
-.betbtn[data-k="L"]:hover{background:#c3d9fc;border-color:#7fa8e8}
-.betbtn[data-k="T"]{background:linear-gradient(180deg,#fdf3e4,#f8e3c2);border-color:#e8c98d}
-.betbtn[data-k="T"]:hover{background:#f6ddb0;border-color:#dfb46e}
-.betbtn[data-k="X"]{background:linear-gradient(180deg,#e8f6f6,#d3ecec);border-color:#9dd2d2}
-.betbtn[data-k="X"]:hover{background:#c4e5e5;border-color:#7fc0c0}
-.xd .road.pb .pb-row{margin:1px 0;font-size:10px}
-.b-ico{display:grid;grid-template-columns:repeat(4,7px);gap:2px;margin:2px 0 3px}
-.b-ico i{width:7px;height:7px;border-radius:50%}
-.b-ico i.r{background:radial-gradient(circle at 35% 30%,#ff8a80,#c62828);border:1px solid #7f1d1d}
-.b-ico i.w{background:radial-gradient(circle at 35% 30%,#fff,#cfd8dc);border:1px solid #78909c}
-.xd .side-grid .b-ico{margin:1px 0 2px}
-.xd .minibtn.legend{grid-column:span 2}
-.xd .betbtn{padding:4px 4px}
-.xd .betbtn .b-name{font-size:11px}
-.xd .side-grid .betbtn{padding:3px 4px}
-.betbtn[data-k="2D"],.betbtn[data-k="DM"]{background:linear-gradient(180deg,#ecf8ef,#d9efe0);border-color:#9cd3ae}
-.betbtn[data-k="2D"]:hover,.betbtn[data-k="DM"]:hover{background:#c5e8d0;border-color:#7cc39a}
-.dish{position:relative;height:148px;margin-top:6px;display:flex;align-items:center;justify-content:center}
-.plate{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:138px;height:138px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  transition:transform 1.1s cubic-bezier(.2,.75,.3,1);
-  background:radial-gradient(circle at 50% 40%,#fffdf6 0%,#f6eeda 46%,#e9ddc0 58%,#d9cbab 100%);
-  box-shadow:0 5px 12px rgba(0,0,0,.32), inset 0 0 0 4px #fdf9ee, inset 0 0 0 5px #d3c49f, inset 0 4px 8px rgba(255,255,255,.7)}
-.plate::after{content:'';position:absolute;inset:14px;border-radius:50%;box-shadow:inset 0 2px 5px rgba(0,0,0,.12), inset 0 -2px 6px rgba(255,255,255,.5)}
-.coins{display:grid;grid-template-columns:25px 25px;gap:8px;z-index:1}
-.coin{width:25px;height:25px;border-radius:50%}
-.coin.red{background:radial-gradient(circle at 36% 30%,#ff8a80,#c62828 70%);border:1.5px solid #7f1d1d;box-shadow:0 1.5px 3px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.18)}
-.coin.white{background:radial-gradient(circle at 36% 30%,#ffffff,#cfd8dc 70%);border:1.5px solid #78909c;box-shadow:0 1.5px 3px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.6)}
-.coin.old{opacity:.55}
-.lid{position:absolute;left:50%;top:50%;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;
-  background:
-    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='44'%20height='44'%20viewBox='0%200%2044%2044'%3E%3Cg%20fill='rgba(255,255,255,0.5)'%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(72%2022%2022)'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(144%2022%2022)'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(216%2022%2022)'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(288%2022%2022)'/%3E%3C/g%3E%3Ccircle%20cx='22'%20cy='22'%20r='3.2'%20fill='%23ffd75e'/%3E%3Cpath%20d='M36%2031c-4-6-2-13%204-17-6%202-9%208-9%2014z'%20fill='rgba(255,255,255,0.42)'/%3E%3Cpath%20d='M8%2031c4-6%202-13-4-17%206%202%209%208%209%2014z'%20fill='rgba(255,255,255,0.42)'/%3E%3C/svg%3E") center/46px 46px,
-    radial-gradient(circle at 50% 40%, rgba(255,255,255,.35) 0 15%, rgba(255,255,255,0) 34%),
-    radial-gradient(circle at 50% 36%, #8fc6f2 0%, #4d9de0 42%, #2a70b5 100%);
-  border:2px solid #1d5a99;
-  box-shadow:0 8px 18px rgba(0,0,0,.45), inset 0 -6px 12px rgba(20,60,110,.4), inset 0 6px 10px rgba(255,255,255,.35);
-  transition:transform 1.1s cubic-bezier(.2,.75,.3,1);z-index:2}
-.lid::before{content:'';position:absolute;left:50%;top:50%;width:62px;height:62px;transform:translate(-50%,-50%);border-radius:50%;
-  background:
-    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='44'%20height='44'%20viewBox='0%200%2044%2044'%3E%3Cg%20fill='rgba(255,255,255,0.5)'%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(72%2022%2022)'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(144%2022%2022)'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(216%2022%2022)'/%3E%3Cellipse%20cx='22'%20cy='11'%20rx='4'%20ry='6.5'%20transform='rotate(288%2022%2022)'/%3E%3C/g%3E%3Ccircle%20cx='22'%20cy='22'%20r='3.2'%20fill='%23ffd75e'/%3E%3Cpath%20d='M36%2031c-4-6-2-13%204-17-6%202-9%208-9%2014z'%20fill='rgba(255,255,255,0.42)'/%3E%3Cpath%20d='M8%2031c4-6%202-13-4-17%206%202%209%208%209%2014z'%20fill='rgba(255,255,255,0.42)'/%3E%3C/svg%3E") center/40px 40px no-repeat,
-    radial-gradient(circle at 50% 42%, #b9ddfa 0%, #5a9fdd 55%, #3a7cc0 100%);
-  border:2px solid #1d5a99;box-shadow:inset 0 2px 5px rgba(255,255,255,.5), 0 2px 4px rgba(0,0,0,.35)}
-.lid::after{content:'';position:absolute;inset:12px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.55)}
-.dish.open .lid{transform:translate(-138px,0) rotate(-3deg)}
-.dish.shake{animation:dishShake .35s linear infinite}
-.dish.shake .lid{animation:lidRattle .3s ease-in-out infinite}
-@keyframes dishShake{0%,100%{transform:rotate(0) translate(0,0)}12%{transform:rotate(-15deg) translate(-4px,2px)}26%{transform:rotate(11deg) translate(3px,-3px)}40%{transform:rotate(-13deg) translate(-2px,3px)}54%{transform:rotate(15deg) translate(4px,1px)}68%{transform:rotate(-9deg) translate(-3px,-2px)}82%{transform:rotate(10deg) translate(2px,3px)}}
-@keyframes lidRattle{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(3px,-2px) rotate(-5deg)}50%{transform:translate(-3px,2px) rotate(4deg)}75%{transform:translate(2px,2px) rotate(-3deg)}}
-.slot-machine{position:relative;height:148px;margin-top:6px;padding:9px 11px;border:2px solid #d9b56b;border-radius:12px;display:flex;flex-direction:column;justify-content:space-between;
-  background:linear-gradient(180deg,#203c37,#102e2b);box-shadow:inset 0 0 0 2px #675335,inset 0 2px 9px rgba(255,255,255,.12),0 5px 9px rgba(0,0,0,.35)}
-.slot-header{display:flex;align-items:center;justify-content:space-between;color:#f3d896;font-size:10px;font-weight:800;letter-spacing:1px}
-.slot-tag{font-size:8px;letter-spacing:2px;color:#e7bd68}
-.slot-display{position:relative;padding:5px;border:1px solid #b58b47;border-radius:8px;background:#0a1916;box-shadow:inset 0 2px 7px #000}
-.slot-reels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-.slot-three .slot-reels{grid-template-columns:repeat(3,minmax(0,1fr))}
-.slot-three .bet-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,60px)}
-.slot-three .side-wrap>.sec-title{display:none}
-.slot-three .side-grid{grid-template-rows:25px}
-.slot-three .mini-grid{display:none}
-.slot-three .betbtn{gap:1px;justify-content:center;padding:4px 6px 17px}
-.slot-three .betbtn .b-name{font-size:12px;line-height:14px}
-.slot-three .betbtn .b-odds{line-height:12px}
-.slot-three .b-ico{grid-template-columns:repeat(3,7px);margin:0 0 1px}
-.slot-three .betbtn[data-k="R"]{background:linear-gradient(180deg,#fdecec,#f8d7d7);border-color:#e8a5a5}
-.slot-three .betbtn[data-k="R"]:hover{background:#f5c3c3;border-color:#df8585}
-.slot-three .betbtn[data-k="R"].win{background:#e7f8ec}
-.slot-rule{display:flex;align-items:center;justify-content:center;color:#5a7180;font-size:11px;text-align:center}
-.slot-reel{position:relative;height:64px;overflow:hidden;border-radius:4px;background:#fff7e7;box-shadow:inset 0 0 0 1px #dbc89f}
-.slot-reel::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(74,44,12,.25),transparent 28% 72%,rgba(74,44,12,.25))}
-.slot-strip{display:flex;flex-direction:column}
-.slot-symbol{height:64px;flex:none;display:flex;align-items:center;justify-content:center}
-.slot-symbol .coin{width:32px;height:32px;flex:none}
-.slot-footer{display:flex;align-items:center;justify-content:space-between;gap:6px;color:#d8c59e;font-size:9px}
-.slot-lights{display:flex;gap:5px}
-.slot-lights i{width:5px;height:5px;border-radius:50%;background:#f3c867;box-shadow:0 0 4px rgba(243,200,103,.45)}
-.slot-machine.empty .slot-strip{visibility:hidden}
-.slot-machine.empty .slot-reel::after{content:'—';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a58c63;font-size:24px}
-.slot-machine.shake .slot-reel:not(.stopped) .slot-strip{animation:slotSpin var(--spin-speed) linear infinite;animation-delay:var(--spin-delay);filter:blur(.6px)}
-.slot-machine .slot-reel.stopped .slot-strip{animation:slotSettle .24s ease-out}
-.slot-machine.shake .slot-lights i{animation:slotLight .4s steps(2,end) infinite}
-.slot-machine.shake .slot-lights i:nth-child(even){animation-delay:-.2s}
-.slot-machine.open{box-shadow:inset 0 0 0 2px #675335,0 0 12px rgba(243,200,103,.35)}
-@keyframes slotSpin{from{transform:translateY(-128px)}to{transform:translateY(0)}}
-@keyframes slotSettle{0%{transform:translateY(-5px)}55%{transform:translateY(2px)}100%{transform:translateY(0)}}
-@keyframes slotLight{50%{opacity:.3}}
-@media (prefers-reduced-motion:reduce){.slot-machine .slot-strip,.slot-machine .slot-lights i{animation:none!important;filter:none!important}}
-.cell4{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:1px;width:13px;height:13px;border-radius:50%;overflow:hidden;background:#b7c3c9}
-.cell4.cell3{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr}
-.cell4 .d4.red{background:#e04848}
-.cell4 .d4.white{background:#f7f9fa}
-.cell4.empty{background:#e8edf1}
-.tx .bet-wrap{padding-bottom:17px}
-.tx-bets{display:grid;gap:6px}
-.tx .bet-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:68px}
-.tx-parity-grid,.tx-single-grid{display:grid;gap:6px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:68px}
-.tx-single-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:60px}
-.tx .betbtn{justify-content:center;gap:2px;padding:5px 4px 18px;min-width:0}
-.tx .betbtn .b-name{font-size:14px;line-height:16px;white-space:nowrap}
-.tx .betbtn .b-odds{font-size:12px;line-height:14px;white-space:nowrap}
-.tx .betbtn[data-k="A"]{background:linear-gradient(180deg,#ecf8ef,#d9efe0);border-color:#9cd3ae}
-.tx .betbtn[data-k="A"]:hover{background:#c5e8d0;border-color:#7cc39a}
-.tx .betbtn.win{background:#e7f8ec}
-.tx-single-grid .betbtn{padding:3px 1px 26px;gap:0}
-.tx-single-grid .betbtn .b-name{font-size:16px;line-height:18px}
-.tx-single-grid .betbtn .b-odds{font-size:8px;line-height:10px}
-.tx-single-grid .b-user{bottom:14px;left:50%;transform:translateX(-50%);padding:0 3px;font-size:8px;line-height:10px;white-space:nowrap}
-.tx-single-grid .b-total{bottom:2px;right:3px;font-size:8px;line-height:10px;white-space:nowrap}
-.tx .betbtn:focus-visible{outline:2px solid #16616c;outline-offset:-3px}
-.tx .road{height:80px}
-.tx .road.pb .pb-row{font-size:10px}
-.tx .plate{width:150px;height:118px;background:radial-gradient(ellipse at 40% 32%,#fffdf6 0%,#f6eeda 48%,#e9ddc0 60%,#d9cbab 100%);box-shadow:0 2px 0 #d5c8aa,0 5px 0 #b3a181,0 7px 0 #8c7a5b,0 12px 14px rgba(0,0,0,.35),inset 0 0 0 4px #fdf9ee,inset 0 0 0 6px #d3c49f,inset 0 4px 8px rgba(255,255,255,.7)}
-.tx .plate::after{inset:12px 15px;box-shadow:inset 0 3px 6px rgba(90,68,30,.18),inset 0 -2px 3px #fffdf6}
-.tx .lid{width:126px;height:124px;margin:-74px 0 0 -63px;border-radius:50% 50% 48% 48% / 58% 58% 42% 42%;background:radial-gradient(ellipse at 34% 25%,rgba(255,255,255,.68),transparent 42%),radial-gradient(ellipse at 45% 24%,#acd9fa 0%,#529fdf 43%,#256aa9 76%,#123f70 100%);border:1px solid #245f98;box-shadow:0 7px 9px rgba(0,0,0,.4),inset -8px -12px 16px rgba(11,46,81,.3),inset 5px 4px 9px rgba(255,255,255,.4)}
-.tx .lid::before{width:26px;height:23px;top:26px;background:radial-gradient(ellipse at 32% 20%,#d5ecff,#77b5e7 45%,#2c73b1 80%);border:1px solid #2d6395;box-shadow:0 4px 0 #1b527e,2px 8px 6px rgba(14,45,71,.32),inset 0 2px 3px rgba(255,255,255,.7)}
-.tx .lid::after{inset:auto -1px -1px;height:98px;border-radius:50%;border:3px solid #99c8ea;border-bottom-color:#32638c;box-shadow:inset 0 -3px 0 #d6e9f6;clip-path:inset(62% 0 0 0)}
-.tx .dish.open .lid{transform:translate(-151px,-3px) rotate(-3deg)}
-.dice-set{position:relative;width:96px;height:90px;z-index:1;perspective:500px}
-.dice{position:absolute;width:32px;height:32px}
-.dice:nth-child(1){left:9px;top:6px;--dice-angle:-13deg}
-.dice:nth-child(2){left:55px;top:13px;--dice-angle:9deg}
-.dice:nth-child(3){left:31px;top:51px;--dice-angle:-4deg}
-.dice::before{content:'';position:absolute;inset:8px -5px -7px;background:rgba(60,43,19,.35);border-radius:9px;filter:blur(4px);transform:translate(2px,4px)}
-.dice-cube{position:relative;display:block;width:32px;height:32px;transform-style:preserve-3d;transform:rotateX(-52deg) rotateY(calc(-24deg + var(--dice-angle)))}
-.dice-face{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;padding:5px;border:1px solid #c4bba7;border-radius:5px;backface-visibility:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
-.dice-front{transform:translateZ(16px);background:linear-gradient(145deg,#fffefa,#eee7d7)}
-.dice-top{transform:rotateX(90deg) translateZ(16px);background:linear-gradient(150deg,#fffefb,#f5efdf)}
-.dice-right{transform:rotateY(90deg) translateZ(16px);background:linear-gradient(120deg,#e2d9c5,#bfb29c)}
-.dice-pip{border-radius:50%;background:radial-gradient(circle at 65% 70%,#48515a,#10171d 70%);box-shadow:inset 0 1px 1px rgba(0,0,0,.75),0 1px 0 rgba(255,255,255,.7)}
-.dice-face.red-pips .dice-pip{background:radial-gradient(circle at 65% 70%,#e75847,#9e1c15 70%)}
-.glass-stage{position:relative;height:148px;margin-top:6px;perspective:700px}
-.glass-camera{position:absolute;left:50%;top:116px;width:0;height:0;transform:rotateX(-25deg) rotateY(-12deg);transform-style:preserve-3d}
-.glass-floor{position:absolute;left:-77px;top:-77px;width:154px;height:154px;border-radius:50%;transform:rotateX(90deg);background:radial-gradient(circle at 35% 30%,#dce9e8,#8ba9aa 62%,#4b6c72 100%);box-shadow:inset 0 0 0 3px #c8dddf,inset 0 0 0 5px #587b82,0 3px 0 #38555b}
-.glass-shell{position:absolute;left:50%;top:4px;width:154px;height:144px;transform:translateX(-50%);pointer-events:none}
-.glass-rear{position:absolute;inset:32px 0;border:1px solid rgba(204,244,247,.4);border-top:0;border-bottom:0;background:linear-gradient(90deg,rgba(224,255,255,.14),rgba(224,255,255,.025) 18% 82%,rgba(224,255,255,.12))}
-.glass-front{z-index:3}
-.glass-front::before{content:'';position:absolute;inset:32px 0;border-left:2px solid rgba(220,252,255,.72);border-right:2px solid rgba(190,239,242,.6);background:linear-gradient(90deg,rgba(200,244,249,.18),transparent 15% 83%,rgba(200,244,249,.15))}
-.glass-front::after{content:'';position:absolute;left:13px;top:37px;bottom:32px;width:9px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.46),rgba(255,255,255,.1));border-radius:50%;box-shadow:116px 0 0 -3px rgba(240,255,255,.35)}
-.glass-rim{position:absolute;left:0;width:154px;height:64px;border:2px solid rgba(201,243,247,.72);border-radius:50%;box-shadow:inset 0 0 0 2px rgba(146,212,218,.24),0 1px 1px rgba(5,52,48,.25);background:radial-gradient(ellipse at 32% 30%,rgba(240,255,255,.11),transparent 68%)}
-.glass-rim.top{top:0}
-.glass-rim.bottom{bottom:0;border-bottom:3px solid #b3d7dc;background:transparent}
-.glass-base{position:absolute;left:50%;top:117px;width:166px;height:31px;transform:translateX(-50%);border-radius:50%;background:linear-gradient(180deg,#abc8cc,#58777e 52%,#304e55);box-shadow:0 5px 8px rgba(0,0,0,.4),inset 0 -3px 0 #203f48}
-.glass-die{position:absolute;left:-15.84px;top:-15.84px;width:31.68px;height:31.68px;transform-style:preserve-3d}
-.glass-die .dice-face{border-radius:4px}
-.glass-die .glass-front-face{transform:translateZ(15.84px);background:linear-gradient(145deg,#fffefa,#e8e0ce)}
-.glass-die .glass-back-face{transform:rotateY(180deg) translateZ(15.84px);background:linear-gradient(145deg,#f8f2e5,#d1c6b1)}
-.glass-die .glass-top-face{transform:rotateX(90deg) translateZ(15.84px);background:linear-gradient(145deg,#fffefb,#f5efdf)}
-.glass-die .glass-bottom-face{transform:rotateX(-90deg) translateZ(15.84px);background:linear-gradient(145deg,#eee7d7,#bdae95)}
-.glass-die .glass-right-face{transform:rotateY(90deg) translateZ(15.84px);background:linear-gradient(145deg,#e9e0ce,#b8aa92)}
-.glass-die .glass-left-face{transform:rotateY(-90deg) translateZ(15.84px);background:linear-gradient(145deg,#f5efdf,#d3c7b0)}
-.glass-die-shadow{position:absolute;left:-17px;top:-17px;width:34px;height:34px;border-radius:40%;background:rgba(18,35,35,.65);pointer-events:none}
-@media (prefers-reduced-motion:reduce){.tx .dish,.tx .lid{animation:none!important;transition:none!important}}
-.rl-bets{display:grid;gap:6px}
-.rl-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;grid-auto-rows:52px}
-.rl-numbers{grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;grid-auto-rows:51px}
-.rl .betbtn{min-width:0;justify-content:center;padding:3px 2px 17px;gap:1px}
-.rl .b-name{font-size:14px;line-height:16px;white-space:nowrap}
-.rl .b-odds{font-size:11px;line-height:12px}
-.rl .betbtn.red-door{background:linear-gradient(180deg,#d74943,#a92124);border-color:#8f2025}
-.rl .betbtn.black-door{background:linear-gradient(180deg,#343e46,#151d24);border-color:#111a20}
-.rl .red-door .b-name,.rl .black-door .b-name,.rl .red-door .b-odds,.rl .black-door .b-odds,.rl .red-door .b-total,.rl .black-door .b-total{color:#fff}
-.rl .betbtn.win{background:#e7f8ec;outline:2px solid #2fa14f}
-.rl .betbtn.win .b-name,.rl .betbtn.win .b-odds,.rl .betbtn.win .b-total{color:#157a33}
-.rl .betbtn:focus-visible{outline:2px solid #d9b56b;outline-offset:-3px}
-.rl-numbers .betbtn{padding:2px 0 22px;gap:0;border-radius:4px}
-.rl-numbers .b-name{font-family:Consolas,monospace;font-size:12px;line-height:13px}
-.rl-numbers .b-odds{font-size:7px;line-height:8px}
-.rl-numbers .b-user{left:50%;bottom:12px;transform:translateX(-50%);font-size:6px;line-height:9px;padding:0 1px;white-space:nowrap}
-.rl-numbers .b-total{right:1px;bottom:2px;font-size:6px;line-height:8px;white-space:nowrap}
-.rl .road{height:80px}
-.rl .road.big .bead.p{border-color:#151d24}
-.rl .road.big .bead.b{border-color:#a92124}
-.rl .road.big .bead.t{border-color:#24754d}
-.rl .road.numbers{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));grid-template-rows:repeat(5,14px);gap:2px}
-.rl .road.numbers .bead{width:100%;height:14px;border-radius:3px;font-family:Consolas,monospace;font-size:8px}
-.rl .road.numbers .rl-red{background:#a92124}
-.rl .road.numbers .rl-black{background:#151d24}
-.rl .road.numbers .rl-zero{background:#24754d}
-.roulette-stage{position:relative;height:148px;margin-top:6px;perspective:650px}
-.roulette-camera{position:absolute;left:50%;top:calc(50% - 7px);width:188px;height:188px;transform:translate(-50%,-50%) rotateX(36deg);transform-style:preserve-3d}
-.roulette-wheel{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,#31251c 57%,#cda85c 58% 60%,#5d3a24 61% 68%,#b78648 69% 71%,#32251a 72%);box-shadow:0 3px 0 #aa793e,0 7px 0 #4b2f20,0 11px 0 #241b16,0 17px 18px rgba(0,0,0,.45),inset 0 0 0 2px #dfc182,inset 0 0 0 5px #724b2e}
-.roulette-track{position:absolute;inset:6px;border:3px solid #c9a765;border-radius:50%;box-shadow:inset 0 0 0 3px #3a291e,inset 0 0 6px #090d0b;pointer-events:none}
-.roulette-rotor{position:absolute;inset:16px;will-change:transform;border-radius:50%;box-shadow:0 0 0 2px #d4b174}
-.roulette-rotor svg{display:block;width:100%;height:100%;overflow:visible}
-.roulette-hub{position:absolute;left:50%;top:50%;width:57px;height:57px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 28%,#d4b174,#9a6d36 38%,#4b2f20 75%);box-shadow:0 4px 0 #4b2f20,0 7px 8px rgba(0,0,0,.5),inset 0 0 0 2px #dfc182;pointer-events:none}
-.roulette-hub::after{content:'';position:absolute;left:50%;top:50%;width:15px;height:15px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 30% 20%,#fff4ce,#d4b174 45%,#724b2e);box-shadow:0 3px 0 #4b2f20,0 5px 5px rgba(0,0,0,.5)}
-.roulette-ball{position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;border-radius:50%;background:radial-gradient(circle at 28% 23%,#fff,#fff6de 32%,#b5a58b 80%);box-shadow:1px 2px 2px rgba(0,0,0,.8);pointer-events:none;will-change:transform}
-@media (max-width:900px){.chip-sel>span{display:none}}
-</style>
+<link rel="stylesheet" href="css/baccarat.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/xocdia.css">
+<link rel="stylesheet" href="css/taixiu.css">
+<link rel="stylesheet" href="css/bacbo.css">
+<link rel="stylesheet" href="css/roulette.css">
+<link rel="stylesheet" href="css/dragon-tiger.css">
+<link rel="stylesheet" href="css/fantan.css">
+<link rel="stylesheet" href="css/monopoly.css">
 </head>
 <body>
 <header class="topbar">
@@ -366,7 +32,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:
     <div class="icobtn" title="Ngôn ngữ">🇬🇧</div>
     <div class="profile" title="Tài khoản">
       <span class="avatar">T</span>
-      <span class="balance" id="bal">INH 0.00</span>
+      <span class="balance" id="bal">0.00</span>
     </div>
     <div class="icobtn" title="Menu">☰</div>
   </div>
@@ -377,9 +43,14 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:
   <div class="side-ic active" title="Game bàn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><rect x="8" y="3" width="14" height="12" rx="2"/><path d="M8 15h14"/></svg></div>
   <div class="side-sep"></div>
   <button class="side-tab active" data-cat="bac"><span class="st-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 9l4 3-4 3"/></svg></span><span class="st-lb">Baccarat</span></button>
+  <button class="side-tab" data-cat="bb"><span class="st-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/><circle cx="7" cy="7" r="1"/><circle cx="17" cy="17" r="1"/></svg></span><span class="st-lb">Bac Bo</span></button>
+  <button class="side-tab" data-cat="ab"><span class="st-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 17h8M8 12h8"/></svg></span><span class="st-lb">Andar Bahar</span></button>
   <button class="side-tab" data-cat="xd"><span class="st-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8.5" cy="8.5" r="2.1"/><circle cx="15.5" cy="8.5" r="2.1"/><circle cx="8.5" cy="15.5" r="2.1"/><circle cx="15.5" cy="15.5" r="2.1"/></svg></span><span class="st-lb">Xóc Đĩa</span></button>
   <button class="side-tab" data-cat="xd-slot"><span class="st-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="16" height="14" rx="2"/><path d="M7 8v8M11 8v8M15 8v8M19 14h2V6"/><circle cx="21" cy="4" r="1.5"/></svg></span><span class="st-lb">Xóc Đĩa Slot</span></button>
   <button class="side-tab" data-cat="tx"><span class="st-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><g fill="currentColor" stroke="none"><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="8" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="8" cy="16" r="1.5"/><circle cx="16" cy="16" r="1.5"/></g></svg></span><span class="st-lb">Tài Xỉu</span></button>
+  <button class="side-tab" data-cat="monopoly"><span class="st-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 17 17 7M7 7h.01M17 17h.01"/></svg></span><span class="st-lb">Monopoly</span></button>
+  <button class="side-tab" data-cat="dt"><span class="st-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="15" rx="1.5" transform="rotate(-8 3 4)"/><rect x="13" y="4" width="8" height="15" rx="1.5" transform="rotate(8 13 4)"/><path d="M7 8h2M15 8h2"/></svg></span><span class="st-lb">Long Hổ</span></button>
+  <button class="side-tab" data-cat="ft"><span class="st-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1.5 11h-11L5 8Z"/><path d="M8 8a4 4 0 0 1 8 0"/><circle cx="9" cy="12" r=".7" fill="currentColor"/><circle cx="12" cy="14" r=".7" fill="currentColor"/><circle cx="15" cy="12" r=".7" fill="currentColor"/></svg></span><span class="st-lb">Fantan</span></button>
   <div class="side-sep"></div>
   <button class="side-tab" data-cat="rl"><span class="st-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v5M21 12h-5M12 21v-5M3 12h5M5.6 5.6l3.5 3.5M18.4 5.6l-3.5 3.5M18.4 18.4l-3.5-3.5M5.6 18.4l3.5-3.5"/></svg></span><span class="st-lb">Roulette</span></button>
   <div class="side-ic" title="Nạp tiền"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg></div>
@@ -13445,7 +13116,7 @@ return { World, Body, Box, Vec3, Quaternion, Material, ContactMaterial };
 const CFG = { startBalance: 100_000_000, chips: [5_000,10_000,20_000,50_000,100_000,200_000,500_000,1_000_000,5_000_000,10_000_000], betTime: 12, resultTime: 5 };
 const TABLES = [
   { name:'Baccarat T1',    id:'186269422', players:10, nc:false },
-  { name:'Baccarat NC T1', id:'186269411', players:24, nc:true,  autoBtn:true },
+  { name:'Baccarat NC T1', id:'186269411', players:24, nc:true, autoBtn:true, showAutoBtn:false },
   { name:'Baccarat T2',    id:'186269439', players:25, nc:false },
   { name:'Baccarat T3',    id:'186269452', players:39, nc:false },
   { name:'Baccarat T4',    id:'186269440', players:25, nc:false },
@@ -13481,7 +13152,7 @@ function fmtChips(n){
 function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2200); }
 function setBalance(flash){
-  const el = $('#bal'); el.textContent = 'INH ' + fmtMoney(balance);
+  const el = $('#bal'); el.textContent = fmtMoney(balance);
   if (flash){ el.classList.remove('up','down'); void el.offsetWidth;
     el.classList.add(flash>0?'up':'down'); setTimeout(()=>el.classList.remove('up','down'),1200); }
 }
@@ -13628,7 +13299,7 @@ class GameTable {
     el.innerHTML =
       '<div class="card-head"><div class="card-title">' +
         '<div class="title-row"><div class="t-name">' + this.name + '</div><div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">' + this.players + '</span></div></div><div class="t-id"># ' + this.id + '</div></div>' +
-        (this.autoBtn ? '<div class="head-right"><div class="autobtn" title="Tạm dừng / tiếp tục">▶</div></div>' : '') +
+        (this.autoBtn && this.showAutoBtn !== false ? '<div class="head-right"><div class="autobtn" title="Tạm dừng / tiếp tục">▶</div></div>' : '') +
       '</div>' +
       '<div class="felt">' +
         '<div class="f-status"></div>' +
@@ -13682,7 +13353,7 @@ class GameTable {
   /* ---------- PHASE: ĐẶT CƯỢC ---------- */
   startBetting(){
     this.clearTimers();
-    this.phase = 'BETTING'; this.tLeft = CFG.betTime - this.firstBet; this.firstBet = 0;
+    this.phase='BETTING'; this.tLeft=CFG.betTime-this.firstBet; this.firstBet=0;
     this.user = {}; this.bots = {};
     this.setLocked(false);
     this.renderAll();
@@ -13780,7 +13451,7 @@ class GameTable {
     if (this.hist.length > 110) this.hist.pop();
     this.setLocked(true);
     this.renderAll();
-    if (uwin > 0) toast(this.name + ': Bạn thắng +' + fmtMoney(uwin) + ' INH');
+    if (uwin > 0) toast(this.name + ': Bạn thắng +' + fmtMoney(uwin));
     this.resultTick();
   }
   resultTick(){
@@ -13829,7 +13500,7 @@ class GameTable {
     this.$fStatus.innerHTML = s;
   }
   cardHtml(c, cls){
-    return '<span class="pcard' + (c.s<2?'':' red') + (cls?' '+cls:'') + '"><b>' + RANKS[c.r] + '</b><i>' + SUITS[c.s] + '</i></span>';
+    return '<span class="pcard' + (c.s===1||c.s===2?' red':'') + (cls?' '+cls:'') + '"><b>' + RANKS[c.r] + '</b><i>' + SUITS[c.s] + '</i><b class="rank-bottom">' + RANKS[c.r] + '</b></span>';
   }
   renderCards(){
     const ph = this.phase;
@@ -13915,6 +13586,206 @@ class GameTable {
     this.renderStatus(); this.renderCards(); this.renderBetGrid(); this.renderSideGrid();
     this.renderStats(); this.renderBadge();
   }
+}
+/* ================= GAME ENGINE: ANDAR BAHAR ================= */
+const AB_OPTS = [{k:'A',n:'Andar',o:'1.90'},{k:'B',n:'Bahar',o:'1.90'}];
+const AB_COUNT_OPTS = [
+  {k:'C1',n:'1–5 lá',min:1,max:5,o:2},
+  {k:'C2',n:'6–10 lá',min:6,max:10,o:3},
+  {k:'C3',n:'11–15 lá',min:11,max:15,o:4},
+  {k:'C4',n:'16–20 lá',min:16,max:20,o:5},
+  {k:'C5',n:'21–25 lá',min:21,max:25,o:8},
+  {k:'C6',n:'26–30 lá',min:26,max:30,o:12},
+  {k:'C7',n:'31–35 lá',min:31,max:35,o:20},
+  {k:'C8',n:'36–40 lá',min:36,max:40,o:40},
+  {k:'C9',n:'41–45 lá',min:41,max:45,o:110},
+  {k:'C10',n:'46–49 lá',min:46,max:49,o:800}
+];
+function makeAndarBaharRound(){
+  const deck=[];
+  for(let r=0;r<13;r++)for(let s=0;s<4;s++)deck.push({r,s});
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+  const middle=deck.pop(),deals=[];
+  let side='A';
+  while(deck.length){
+    const card=deck.pop();
+    deals.push({side,card});
+    if(card.r===middle.r)break;
+    side=side==='A'?'B':'A';
+  }
+  return {middle,deals,winner:deals[deals.length-1].side};
+}
+function andarBaharCard(card,extra='',faceDown=false){
+  if(faceDown)return '<span class="pcard back'+(extra?' '+extra:'')+'" aria-label="Lá bài úp"></span>';
+  return '<span class="pcard'+(card.s===1||card.s===2?' red':'')+(extra?' '+extra:'')+'" aria-label="'+RANKS[card.r]+SUITS[card.s]+'"><b>'+RANKS[card.r]+'</b><i>'+SUITS[card.s]+'</i><b class="rank-bottom">'+RANKS[card.r]+'</b></span>';
+}
+class AndarBaharTable{
+  constructor(cfg){
+    Object.assign(this,cfg);
+    this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);this.resLeft=CFG.resultTime;
+    this.user={};this.bots={};this.timers=[];this.round=null;this.lastRound=null;this.lastRes=null;this.dealt=[];
+    this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>Math.random()<.5?'A':'B');
+    this.build();this.renderAll();this.startBetting();
+    setInterval(()=>this.fluctuate(),15000);
+  }
+  schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
+  clearTimers(){this.timers.forEach(clearTimeout);this.timers=[];}
+  build(){
+    const el=document.createElement('section');
+    el.className='table-card ab';
+    el.setAttribute('aria-label',this.name);
+    el.innerHTML=
+      '<div class="card-head"><div class="card-title"><div class="title-row"><div class="t-name">'+this.name+'</div><div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">'+this.players+'</span></div></div><div class="t-id"># '+this.id+'</div></div></div>'+
+      '<div class="felt"><div class="f-status"></div><div class="ab-board"><div class="ab-middle"><span class="ab-label">LÁ CHỦ</span><div class="ab-middle-card"></div></div><div class="ab-lanes"><span class="ab-label">ANDAR</span><div class="ab-lane andar"><div class="h-cards ab-andar-cards"></div></div><div class="ab-lane bahar"><div class="h-cards ab-bahar-cards"></div></div><span class="ab-label">BAHAR</span></div></div></div>'+
+      '<div class="bet-wrap"><div class="bet-grid"></div><div class="ab-count-bets"><div class="ab-count-head"><span>CƯỢC SỐ LÁ ĐƯỢC CHIA</span><span class="ab-deck-count" aria-live="polite"></span></div><div class="ab-count-grid"></div></div></div>'+
+      '<div class="stats"><div class="sec-title">Kết quả 100 ván trước</div><div class="road big"></div><div class="summary"></div></div>';
+    document.getElementById('tables').appendChild(el);
+    this.el=el;this.$status=el.querySelector('.f-status');this.$badge=el.querySelector('.pbadge');
+    this.$middle=el.querySelector('.ab-middle-card');this.$andar=el.querySelector('.ab-andar-cards');this.$bahar=el.querySelector('.ab-bahar-cards');
+    this.$betWrap=el.querySelector('.bet-wrap');this.$betGrid=el.querySelector('.bet-grid');
+    this.$countGrid=el.querySelector('.ab-count-grid');this.$deckCount=el.querySelector('.ab-deck-count');
+    this.$road=el.querySelector('.road');this.$summary=el.querySelector('.summary');
+    this.$betWrap.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)this.placeBet(b.dataset.k);});
+  }
+  startBetting(){
+    this.clearTimers();this.phase='BETTING';this.tLeft=CFG.betTime-this.firstBet;this.firstBet=0;this.user={};this.bots={};
+    this.$betWrap.classList.remove('locked');this.renderAll();
+    for(let i=0;i<this.players;i++)this.schedule(()=>{if(this.phase==='BETTING')this.botBet();},Math.random()*6000);
+    this.tick();
+  }
+  tick(){
+    if(this.phase!=='BETTING')return;
+    if(this.tLeft<=0){this.lock();return;}
+    this.renderStatus();this.schedule(()=>{this.tLeft--;this.tick();},1000);
+  }
+  botBet(){
+    if(this.phase!=='BETTING')return;
+    const k=Math.random()<.5?'A':'B';
+    this.bots[k]=(this.bots[k]||0)+(1+Math.floor(Math.random()*20))*1_000_000;
+    this.renderBetGrid();
+  }
+  fluctuate(){
+    if(this.phase!=='BETTING')return;
+    this.players=Math.max(6,Math.min(60,this.players+(Math.random()<.5?-1:1)));
+    this.$badge.querySelector('.p-count').textContent=this.players;
+  }
+  placeBet(k){
+    if(this.phase!=='BETTING')return;
+    if(balance<selectedChip){toast('Không đủ số dư');return;}
+    balance-=selectedChip;this.user[k]=(this.user[k]||0)+selectedChip;
+    setBalance();this.renderBetGrid();this.renderCountBets();
+  }
+  lock(){
+    this.clearTimers();this.phase='DEALING';this.round=makeAndarBaharRound();this.dealt=[];
+    this.middleFaceDown=true;this.middleRevealing=false;this.sideDealCountdown=0;
+    this.$betWrap.classList.add('locked');this.renderAll();this.schedule(()=>this.revealMiddle(),450);
+  }
+  revealMiddle(){
+    if(this.phase!=='DEALING'||!this.middleFaceDown)return;
+    this.middleFaceDown=false;this.middleRevealing=true;this.renderCards();this.renderStatus();
+    this.schedule(()=>{
+      this.middleRevealing=false;this.sideDealCountdown=2;this.renderCards();this.renderStatus();
+      this.schedule(()=>{
+        this.sideDealCountdown=1;this.renderStatus();
+        this.schedule(()=>{this.sideDealCountdown=0;this.dealStep();},1000);
+      },1000);
+    },520);
+  }
+  dealStep(){
+    if(this.phase!=='DEALING')return;
+    const deal=this.round.deals[this.dealt.length];
+    if(!deal){this.finish();return;}
+    const dealtCard={...deal,faceDown:true,revealing:false};
+    this.dealt.push(dealtCard);this.renderCards();this.renderStatus();
+    this.schedule(()=>{
+      dealtCard.faceDown=false;dealtCard.revealing=true;this.renderCards();
+      this.schedule(()=>{dealtCard.revealing=false;this.dealStep();},520);
+    },280);
+  }
+  finish(){
+    if(this.phase!=='DEALING')return;
+    this.clearTimers();this.lastRound=this.round;this.lastRes=this.round.winner;
+    this.hist.unshift(this.lastRes);if(this.hist.length>110)this.hist.pop();
+    this.phase='RESULT';this.resLeft=CFG.resultTime;
+    let profit=0;
+    for(const option of AB_OPTS)if(option.k===this.lastRes&&this.user[option.k]){
+      balance+=this.user[option.k]*1.9;profit+=this.user[option.k]*.9;
+    }
+    const dealtCount=this.round.deals.length;
+    for(const option of AB_COUNT_OPTS){
+      const stake=this.user[option.k]||0;
+      if(stake&&dealtCount>=option.min&&dealtCount<=option.max){
+        balance+=stake*(option.o+1);profit+=stake*option.o;
+      }
+    }
+    setBalance(profit>0?1:0);this.$betWrap.classList.add('locked');this.renderAll();
+    if(profit>0)toast(this.name+': Bạn thắng +'+fmtMoney(profit));
+    this.resultTick();
+  }
+  resultTick(){
+    if(this.phase!=='RESULT')return;
+    if(this.resLeft<=0){this.startBetting();return;}
+    this.renderStatus();this.schedule(()=>{this.resLeft--;this.resultTick();},1000);
+  }
+  renderStatus(){
+    if(this.phase==='BETTING'){
+      this.$status.textContent='Đặt cược — còn '+this.tLeft+'s'+(this.lastRes?' · Ván trước: '+(this.lastRes==='A'?'Andar':'Bahar')+' thắng':'');
+    }else if(this.phase==='DEALING'){
+      if(this.middleFaceDown)this.$status.textContent='Đang chia lá chủ';
+      else if(this.middleRevealing)this.$status.textContent='Đang lật lá chủ';
+      else if(this.sideDealCountdown)this.$status.textContent='Lá chủ đã mở — chia bài sau '+this.sideDealCountdown+'s';
+      else this.$status.textContent='Đang chia bài — '+this.dealt.length+' / 49 lá';
+    }else{
+      this.$status.innerHTML='<span class="f-result '+(this.lastRes==='A'?'rp':'rb')+'">'+(this.lastRes==='A'?'ANDAR':'BAHAR')+' THẮNG</span> · Ván mới sau '+this.resLeft+'s';
+    }
+  }
+  renderCards(){
+    const betting=this.phase==='BETTING',source=betting?this.lastRound:this.round;
+    const deals=betting?(source?source.deals:[]):this.phase==='DEALING'?this.dealt:(source?source.deals:[]);
+    const extra=betting?'old':'';
+    let middleExtra=extra;
+    if(this.phase==='DEALING'&&this.middleFaceDown)middleExtra+=' deal';
+    if(this.phase==='DEALING'&&this.middleRevealing)middleExtra+=' flip';
+    this.$middle.innerHTML=source?andarBaharCard(source.middle,middleExtra.trim(),this.phase==='DEALING'&&this.middleFaceDown):'<span class="pcard ghost" aria-hidden="true"></span>';
+    const renderSide=side=>{
+      const cards=deals.filter(d=>d.side===side);
+      const lastMatch=source?source.deals.findIndex(d=>d.card.r===source.middle.r):-1;
+      return cards.map(d=>{
+        let cls=extra;
+        if(this.phase==='DEALING'&&d===this.dealt[this.dealt.length-1]&&d.faceDown)cls+=' deal';
+        if(this.phase==='DEALING'&&d.revealing)cls+=' flip';
+        const globalIndex=deals.indexOf(d);
+        if(this.phase==='RESULT'&&globalIndex===lastMatch)cls+=' ab-match';
+        return andarBaharCard(d.card,cls.trim(),this.phase==='DEALING'&&d.faceDown);
+      }).join('')||'<span class="pcard ghost" aria-hidden="true"></span>';
+    };
+    this.$andar.innerHTML=renderSide('A');this.$bahar.innerHTML=renderSide('B');
+    const dealtCount=betting?(source?source.deals.length:0):this.dealt.length;
+    this.$deckCount.textContent='ĐÃ CHIA '+dealtCount+' / 49';
+  }
+  renderBetGrid(){
+    this.$betGrid.innerHTML=AB_OPTS.map(o=>{
+      const state=this.phase==='RESULT'?(o.k===this.lastRes?' win':' lose'):'';
+      const user=this.user[o.k]||0,bot=this.bots[o.k]||0;
+      return '<button type="button" class="betbtn '+state+'" data-k="'+o.k+'" aria-label="Cược '+o.n+'; trả '+o.o+' lần vốn"><span class="b-name">'+o.n+'</span><span class="b-odds">'+o.o+'</span>'+(bot?'<span class="b-total">'+fmtChips(bot)+'</span>':'')+(user?'<span class="b-user">'+fmtChips(user)+'</span>':'')+'</button>';
+    }).join('');
+  }
+  renderCountBets(){
+    const dealtCount=this.round?this.round.deals.length:0;
+    this.$countGrid.innerHTML=AB_COUNT_OPTS.map(o=>{
+      const state=this.phase==='RESULT'?(dealtCount>=o.min&&dealtCount<=o.max?' win':' lose'):'';
+      const user=this.user[o.k]||0;
+      return '<button type="button" class="ab-count-btn'+state+'" data-k="'+o.k+'" aria-label="Cược '+o.min+' đến '+o.max+' lá; trả '+o.o+' lần tiền cược"><span class="ab-count-range">'+o.n+'</span><span class="ab-count-odds">'+o.o+':1</span>'+(user?'<span class="b-user">'+fmtChips(user)+'</span>':'')+'</button>';
+    }).join('');
+  }
+  renderStats(){
+    const history=this.hist.slice(0,100),andar=history.filter(w=>w==='A').length,bahar=history.length-andar;
+    this.$road.innerHTML=renderBigRoad(history.slice().reverse().map(w=>({w:w==='A'?'P':'B',label:w==='A'?'Andar':'Bahar'})));
+    this.$road.scrollLeft=this.$road.scrollWidth;
+    this.$summary.textContent='Andar '+andar+' · Bahar '+bahar;
+  }
+  renderBadge(){this.$badge.querySelector('.p-count').textContent=this.players;}
+  renderAll(){this.renderStatus();this.renderCards();this.renderBetGrid();this.renderCountBets();this.renderStats();this.renderBadge();}
 }
 /* ================= GAME ENGINE: XÓC ĐĨA ================= */
 const XOCDIA = [
@@ -14170,7 +14041,7 @@ class XocDiaTable {
     if (this.hist.length > 110) this.hist.pop();
     this.setLocked(true);
     this.renderAll();
-    if (uwin > 0) toast(this.name + ': Bạn thắng +' + fmtMoney(uwin) + ' INH');
+    if (uwin > 0) toast(this.name + ': Bạn thắng +' + fmtMoney(uwin));
     this.resultTick();
   }
   resultTick(){
@@ -14322,7 +14193,7 @@ function txMult(k, res){
   return res.winner===k ? 1 : -1;
 }
 function diceHtml(value, index){
-  const face = (n, side)=>'<span class="dice-face dice-' + side + (n===1||n===4?' red-pips':'') + '" aria-hidden="true">' +
+  const face = (n, side)=>'<span class="dice-face dice-' + side + (n===1?' single-pip':'') + (n===1||n===4?' red-pips':'') + '" aria-hidden="true">' +
     DICE_PIPS[n].map(p=>'<i class="dice-pip" style="grid-column:' + ((p-1)%3+1) + ';grid-row:' + (Math.floor((p-1)/3)+1) + '"></i>').join('') + '</span>';
   return '<span class="dice" data-value="' + value + '" role="img" aria-label="Xí ngầu ' + (index+1) + ': ' + value + ' điểm"><span class="dice-cube">' +
     face(7-DICE_SIDES[value][0],'front') + face(value,'top') + face(DICE_SIDES[value][1],'right') + '</span></span>';
@@ -14334,14 +14205,16 @@ const GLASS_FACES = [
 ];
 function glassDiceHtml(index){
   return '<div class="glass-die" role="img" aria-label="Xí ngầu '+(index+1)+'">'+GLASS_FACES.map(f=>
-    '<span class="dice-face glass-'+f.side+'-face'+(f.value===1||f.value===4?' red-pips':'')+'" data-face="'+f.value+'" aria-hidden="true">'+DICE_PIPS[f.value].map(p=>
+    '<span class="dice-face glass-'+f.side+'-face'+(f.value===1?' single-pip':'')+(f.value===1||f.value===4?' red-pips':'')+'" data-face="'+f.value+'" aria-hidden="true">'+DICE_PIPS[f.value].map(p=>
       '<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>'
     ).join('')+'</span>'
   ).join('')+'</div>';
 }
+const GLASS_SHAKE_DURATION=4, GLASS_MAX_DURATION=10;
 class GlassDiceSimulation {
-  constructor(stage){
-    this.stage=stage; this.scale=88; this.time=0; this.quietTime=0; this.restPoses=null; this.frame=null; this.running=false;
+  constructor(stage,count=3,shakeDuration=GLASS_SHAKE_DURATION,snapOnSettle=true){
+    this.stage=stage; this.count=count; this.shakeDuration=shakeDuration; this.snapOnSettle=snapOnSettle;
+    this.scale=88; this.time=0; this.quietTime=0; this.restPoses=null; this.frame=null; this.running=false;
     this.world=new CANNON.World({gravity:new CANNON.Vec3(0,-9.81,0),allowSleep:false});
     this.world.solver.iterations=20; this.world.solver.tolerance=1e-7;
     const diceMaterial=new CANNON.Material('ivory'), floorMaterial=new CANNON.Material('base'), wallMaterial=new CANNON.Material('glass');
@@ -14355,7 +14228,8 @@ class GlassDiceSimulation {
       wall.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0),angle); this.world.addBody(wall);
     }
     this.world.addBody(new CANNON.Body({mass:0,material:wallMaterial,shape:new CANNON.Box(new CANNON.Vec3(1,.04,1)),position:new CANNON.Vec3(0,1.04,0)}));
-    this.bodies=[[-.38,-.23],[.38,-.23],[0,.4]].map(([x,z],i)=>{
+    const starts=count===1?[[0,0]]:count===2?[[-.32,0],[.32,0]]:[[-.38,-.23],[.38,-.23],[0,.4]];
+    this.bodies=starts.map(([x,z],i)=>{
       const body=new CANNON.Body({mass:.035,shape:new CANNON.Box(new CANNON.Vec3(.18,.18,.18)),material:diceMaterial,position:new CANNON.Vec3(x,.181,z),linearDamping:.06,angularDamping:.08,allowSleep:true,sleepSpeedLimit:.1,sleepTimeLimit:.75});
       if(i===1)body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
       if(i===2)body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),Math.PI/2);
@@ -14376,13 +14250,24 @@ class GlassDiceSimulation {
   }
   step(dt){
     this.time+=dt;
-    if(this.time<2){
-      const envelope=1-this.time/2, a=.035, omega=32;
+    if(this.time<this.shakeDuration){
+      const envelope=1-this.time/this.shakeDuration, a=.075, omega=48;
       this.floor.position.y=-.04+a*envelope*envelope*Math.sin(omega*this.time);
-      this.floor.velocity.y=a*(envelope*envelope*omega*Math.cos(omega*this.time)-envelope*Math.sin(omega*this.time));
+      this.floor.velocity.y=a*(envelope*envelope*omega*Math.cos(omega*this.time)-(2*envelope/this.shakeDuration)*Math.sin(omega*this.time));
     } else {this.floor.position.y=-.04;this.floor.velocity.set(0,0,0);}
+    if(this.time<this.shakeDuration&&this.time>=this.nextJolt){
+      this.nextJolt+=.28;
+      this.bodies.forEach(body=>{
+        body.wakeUp();
+        body.velocity.x+=(Math.random()-.5)*2.2;
+        body.velocity.y=Math.max(body.velocity.y,2.8+Math.random()*.8);
+        body.velocity.z+=(Math.random()-.5)*2.2;
+        body.angularVelocity.set((Math.random()-.5)*44,(Math.random()-.5)*44,(Math.random()-.5)*44);
+      });
+    }
     this.world.step(dt);
-    if(this.time<=2)return false;
+    if(this.time>=GLASS_MAX_DURATION)return true;
+    if(this.time<=this.shakeDuration)return false;
     const quiet=this.restPoses&&this.bodies.every((body,i)=>{
       const pose=this.restPoses[i],q=body.quaternion,r=pose.quaternion;
       return body.position.distanceSquared(pose.position)<.000016&&Math.abs(q.x*r.x+q.y*r.y+q.z*r.z+q.w*r.w)>.99996;
@@ -14393,14 +14278,39 @@ class GlassDiceSimulation {
     if(this.time>2.8&&this.quietTime>.75){this.bodies.forEach(body=>body.sleep());return true;}
     return false;
   }
-  isUpright(){
-    return this.bodies.every(body=>GLASS_FACES.some(f=>body.quaternion.vmult(new CANNON.Vec3(...f.normal)).y>.98));
+  straightenDice(){
+    const up=new CANNON.Vec3(0,1,0);
+    let needsReposition=false;
+    this.bodies.forEach((body,i)=>{
+      let topFace=GLASS_FACES[0], highest=-Infinity;
+      GLASS_FACES.forEach(face=>{
+        const normal=new CANNON.Vec3(...face.normal);
+        body.quaternion.vmult(normal,normal);
+        if(normal.y>highest){highest=normal.y;topFace=face;}
+      });
+      body.quaternion.setFromVectors(new CANNON.Vec3(...topFace.normal),up);
+      if(Math.hypot(body.position.x,body.position.z)>.52)needsReposition=true;
+      for(let j=0;j<i;j++){
+        const other=this.bodies[j];
+        if(Math.abs(body.position.x-other.position.x)<.37&&Math.abs(body.position.z-other.position.z)<.37)needsReposition=true;
+      }
+      body.position.y=.181;
+      body.velocity.set(0,0,0); body.angularVelocity.set(0,0,0);
+    });
+    if(needsReposition){
+      const positions=this.bodies.length===1?[[0,0]]:this.bodies.length===2?[[-.32,0],[.32,0]]:[[-.38,-.23],[.38,-.23],[0,.4]];
+      positions.forEach(([x,z],i)=>this.bodies[i].position.set(x,.181,z));
+    }
+    this.bodies.forEach(body=>{
+      body.aabbNeedsUpdate=true; body.sleep();
+    });
+    this.render();
   }
   start(onSettled,onMotionChange){
-    this.stop(); this.time=0; this.quietTime=0; this.restPoses=null; this.floor.position.y=-.04; this.floor.velocity.set(0,0,0);
+    this.stop(); this.time=0; this.quietTime=0; this.restPoses=null; this.nextJolt=.12; this.floor.position.y=-.04; this.floor.velocity.set(0,0,0);
     this.bodies.forEach(body=>{
-      body.wakeUp(); body.velocity.set((Math.random()-.5)*1.3,2.5+Math.random()*.9,(Math.random()-.5)*1.3);
-      body.angularVelocity.set((Math.random()-.5)*24,(Math.random()-.5)*24,(Math.random()-.5)*24);
+      body.wakeUp(); body.velocity.set((Math.random()-.5)*2.2,3.4+Math.random()*1.3,(Math.random()-.5)*2.2);
+      body.angularVelocity.set((Math.random()-.5)*40,(Math.random()-.5)*40,(Math.random()-.5)*40);
     });
     this.running=true; const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
     let previous=performance.now(),accumulator=0,driveEnded=false;
@@ -14409,10 +14319,11 @@ class GlassDiceSimulation {
       if(!this.running)return;
       accumulator+=Math.min(.08,(now-previous)/1000);previous=now;let settled=false;
       while(accumulator>=1/240){settled=this.step(1/240);accumulator-=1/240;if(settled)break;}
-      if(!driveEnded&&this.time>=2){driveEnded=true;onMotionChange();}
+      if(!driveEnded&&this.time>=this.shakeDuration){driveEnded=true;onMotionChange();}
       if(!reduced||settled)this.render();
       if(settled){
-        if(!this.isUpright()){this.start(onSettled,onMotionChange);return;}
+        if(this.snapOnSettle)this.straightenDice();
+        else {this.bodies.forEach(body=>body.sleep());this.render();}
         this.running=false;this.frame=null;onSettled(this.readValues());
       } else this.frame=requestAnimationFrame(animate);
     };
@@ -14430,6 +14341,170 @@ class GlassDiceSimulation {
       this.shadows[i].style.transform='translate3d('+(p.x*s)+'px,'+(-floorTop*s-.3)+'px,'+(p.z*s)+'px) rotateX(90deg) scale('+(1+height*.7)+')';
       this.shadows[i].style.opacity=.45/(1+height*3);this.shadows[i].style.filter='blur('+(1+height*3)+'px)';
     });
+  }
+}
+const BB_OPTS=[
+  {k:'P',n:'Player',o:'2.00',group:'main'},
+  {k:'T',n:'Hòa',o:'8.00',group:'main'},
+  {k:'B',n:'Banker',o:'2.00',group:'main'},
+  {k:'BE',n:'Chẵn',o:'2.00',group:'B'},
+  {k:'BO',n:'Lẻ',o:'2.00',group:'B'},
+  {k:'BH',n:'Tài',o:'2.00',group:'B'},
+  {k:'BL',n:'Xỉu',o:'2.00',group:'B'},
+  {k:'PE',n:'Chẵn',o:'2.00',group:'P'},
+  {k:'PO',n:'Lẻ',o:'2.00',group:'P'},
+  {k:'PH',n:'Tài',o:'2.00',group:'P'},
+  {k:'PL',n:'Xỉu',o:'2.00',group:'P'}
+];
+function bbAnalyze(values){
+  const bankerTotal=values[0]+values[1], playerTotal=values[2]+values[3];
+  return {values:values.slice(),bankerTotal,playerTotal,winner:bankerTotal>playerTotal?'B':playerTotal>bankerTotal?'P':'T'};
+}
+function bbMult(key,res){
+  if(key==='B'||key==='P')return key===res.winner?1:-1;
+  if(key==='T')return res.winner==='T'?7:-1;
+  const total=key[0]==='B'?res.bankerTotal:key[0]==='P'?res.playerTotal:null;
+  if(total===null)return -1;
+  if(key[1]==='E')return total%2===0?1:-1;
+  if(key[1]==='O')return total%2===1?1:-1;
+  if(key[1]==='H')return total>=8?1:-1;
+  if(key[1]==='L')return total<=6?1:-1;
+  return -1;
+}
+function bbResultDieHtml(value,index){
+  return '<span class="glass-result-die bb-result-die'+(value===1?' single-pip':'')+(value===1||value===4?' red-pips':'')+'" role="img" aria-label="Xúc xắc '+(index+1)+': '+value+' điểm">'+
+    DICE_PIPS[value].map(p=>'<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>').join('')+
+    '</span>';
+}
+class BacBoTable {
+  constructor(cfg){
+    Object.assign(this,cfg);
+    this.phase='BETTING'; this.tLeft=CFG.betTime; this.firstBet=Math.floor(Math.random()*8);
+    this.resLeft=CFG.resultTime; this.values=[null,null,null,null]; this.lastRes=null;
+    this.user={}; this.bots={}; this.timers=[]; this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>{
+      return bbAnalyze(Array.from({length:4},()=>1+Math.floor(Math.random()*6)));
+    });
+    this.build();
+    this.simulations=[...this.el.querySelectorAll('.bb-cup .glass-stage')].map((stage,index)=>
+      new GlassDiceSimulation(stage,1,index%2===0?6:4,false));
+    this.startBetting();
+    setInterval(()=>this.fluctuate(),15000);
+  }
+  schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
+  clearTimers(){this.timers.forEach(clearTimeout);this.timers=[];}
+  build(){
+    const el=document.createElement('section');
+    el.className='table-card bb-table'; el.setAttribute('aria-label',this.name);
+    const cup=(side,index)=>'<div class="bb-cup"><div class="glass-stage" role="img" aria-label="Lồng kính '+side+', xúc xắc '+(index%2+1)+'"><div class="glass-shell"><div class="glass-rear"></div></div>'+
+      '<div class="glass-base"></div><div class="glass-shell bb-back-rim"><div class="glass-rim bottom"></div></div><div class="glass-camera"></div><div class="glass-shell glass-front"><div class="glass-rim top"></div></div></div><div class="bb-cup-result" hidden></div></div>';
+    el.innerHTML='<div class="card-head"><div class="card-title"><div class="title-row"><div class="t-name">'+this.name+'</div>'+
+      '<div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 0 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">'+this.players+'</span></div></div><div class="t-id"># '+this.id+'</div></div></div>'+
+      '<div class="felt"><div class="f-status"></div><div class="bb-arena">'+
+      '<section class="bb-side banker"><div class="bb-side-head">BANKER <span class="bb-side-score" data-score="B">–</span></div><div class="bb-cups">'+cup('Banker',0)+cup('Banker',1)+'</div></section>'+
+      '<section class="bb-side player"><div class="bb-side-head">PLAYER <span class="bb-side-score" data-score="P">–</span></div><div class="bb-cups">'+cup('Player',2)+cup('Player',3)+'</div></section>'+
+      '</div></div><div class="bet-wrap bb-bet-wrap">'+
+      '<div class="bb-bet-section"><div class="bb-bet-title">Kết quả ván</div><div class="bet-grid bb-bet-grid bb-main-bets"></div></div>'+
+      '<div class="bb-side-bet-groups">'+
+      '<div class="bb-bet-section bb-side-bet-section bb-banker-bet-section"><div class="bb-bet-title">Banker · tổng 2 viên</div><div class="bet-grid bb-bet-grid bb-side-bets" data-group="B"></div></div>'+
+      '<div class="bb-bet-section bb-side-bet-section bb-player-bet-section"><div class="bb-bet-title">Player · tổng 2 viên</div><div class="bet-grid bb-bet-grid bb-side-bets" data-group="P"></div></div></div></div>'+
+      '<div class="stats"><div class="sec-title">Kết quả 100 ván trước</div><div class="road bb-road"></div><div class="summary"></div></div>';
+    document.getElementById('tables').appendChild(el);
+    this.el=el; this.$status=el.querySelector('.f-status');
+    this.$betWrap=el.querySelector('.bb-bet-wrap'); this.$mainBets=el.querySelector('.bb-main-bets');
+    this.$bankerBets=el.querySelector('[data-group="B"]'); this.$playerBets=el.querySelector('[data-group="P"]');
+    this.$road=el.querySelector('.bb-road'); this.$summary=el.querySelector('.summary');
+    this.$betWrap.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)this.placeBet(b.dataset.k);});
+  }
+  startBetting(){
+    this.clearTimers(); this.phase='BETTING'; this.tLeft=CFG.betTime-this.firstBet; this.firstBet=0;
+    this.user={}; this.bots={}; this.$betWrap.classList.remove('locked'); this.renderAll();
+    for(let i=0;i<this.players;i++)this.schedule(()=>{if(this.phase==='BETTING')this.botBet();},Math.random()*6000);
+    this.tick();
+  }
+  tick(){
+    if(this.phase!=='BETTING')return;
+    if(this.tLeft<=0){this.lock();return;}
+    this.renderStatus(); this.schedule(()=>{this.tLeft--;this.tick();},1000);
+  }
+  botBet(){
+    const k=BB_OPTS[Math.floor(Math.random()*BB_OPTS.length)].k;
+    this.bots[k]=(this.bots[k]||0)+(1+Math.floor(Math.random()*20))*1_000_000;
+    this.renderBets();
+  }
+  fluctuate(){
+    if(this.phase!=='BETTING')return;
+    this.players=Math.max(6,Math.min(60,this.players+(Math.random()<.5?-1:1)));
+    this.el.querySelector('.p-count').textContent=this.players;
+  }
+  placeBet(k){
+    if(this.phase!=='BETTING')return;
+    if(balance<selectedChip){toast('Không đủ số dư');return;}
+    balance-=selectedChip; this.user[k]=(this.user[k]||0)+selectedChip;
+    setBalance(); this.renderBets();
+  }
+  lock(){
+    this.clearTimers(); this.phase='SHAKING'; this.values=[null,null,null,null]; this.finishedDice=0;
+    this.$betWrap.classList.add('locked'); this.renderBets(); this.renderStatus(); this.renderScores();
+    this.simulations.forEach((sim,index)=>sim.start(values=>{
+      if(this.phase!=='SHAKING')return;
+      this.values[index]=values[0]; this.finishedDice++; this.renderScores();
+      if(this.finishedDice===this.simulations.length)this.finish();
+    },()=>{}));
+  }
+  finish(){
+    this.lastRes=bbAnalyze(this.values); this.phase='RESULT'; this.resLeft=CFG.resultTime;
+    let profit=0;
+    for(const k in this.user){
+      const m=bbMult(k,this.lastRes);
+      if(m>0){balance+=this.user[k]*(1+m);profit+=this.user[k]*m;}
+    }
+    setBalance(profit>0?1:0);
+    this.hist.unshift(this.lastRes); if(this.hist.length>110)this.hist.pop();
+    this.$betWrap.classList.add('locked'); this.renderAll();
+    if(profit>0)toast(this.name+': Bạn thắng +'+fmtMoney(profit));
+    this.resultTick();
+  }
+  resultTick(){
+    if(this.phase!=='RESULT')return;
+    if(this.resLeft<=0){this.startBetting();return;}
+    this.renderStatus(); this.schedule(()=>{this.resLeft--;this.resultTick();},1000);
+  }
+  renderStatus(){
+    if(this.phase==='BETTING')this.$status.textContent='Đặt cược — còn '+this.tLeft+'s';
+    else if(this.phase==='SHAKING')this.$status.textContent='Đang lắc xúc xắc…';
+    else{
+      const r=this.lastRes, name=r.winner==='B'?'Banker thắng':r.winner==='P'?'Player thắng':'Hòa';
+      this.$status.innerHTML='<span class="f-result '+(r.winner==='B'?'rb':r.winner==='P'?'rp':'rt')+'">'+name+'</span> · Banker '+r.bankerTotal+' – '+r.playerTotal+' Player · Ván mới sau '+this.resLeft+'s';
+    }
+  }
+  renderScores(){
+    this.el.querySelectorAll('.bb-cup-result').forEach((el,index)=>{
+      const value=this.values[index]; el.hidden=value===null; el.innerHTML=value===null?'':bbResultDieHtml(value,index%2);
+    });
+    const banker=this.values[0]===null||this.values[1]===null?'–':this.values[0]+this.values[1];
+    const player=this.values[2]===null||this.values[3]===null?'–':this.values[2]+this.values[3];
+    this.el.querySelector('[data-score="B"]').textContent=banker;
+    this.el.querySelector('[data-score="P"]').textContent=player;
+  }
+  renderBets(){
+    const renderGroup=(group,target)=>{target.innerHTML=BB_OPTS.filter(o=>o.group===group).map(o=>{
+      const state=this.phase==='RESULT'?(bbMult(o.k,this.lastRes)>0?' win':' lose'):'';
+      const user=this.user[o.k]||0, bots=this.bots[o.k]||0;
+      const label=o.group==='main'?o.n:(o.group==='B'?'Banker':'Player')+' '+o.n.toLowerCase();
+      return '<button type="button" class="betbtn'+state+'" data-k="'+o.k+'" aria-label="Cược '+label+', trả '+o.o+' lần vốn"><span class="b-name">'+o.n+'</span><span class="b-odds">'+o.o+'</span>'+
+        (user?'<span class="b-user">'+fmtChips(user)+'</span>':'')+(bots?'<span class="b-total">'+fmtChips(bots)+'</span>':'')+'</button>';
+    }).join('');};
+    renderGroup('main',this.$mainBets); renderGroup('B',this.$bankerBets); renderGroup('P',this.$playerBets);
+  }
+  renderStats(){
+    const history=this.hist.slice(0,100);
+    this.$road.classList.add('big');
+    this.$road.innerHTML=renderBigRoad(history.slice().reverse().map(r=>({w:r.winner,label:r.winner==='B'?'Banker':r.winner==='P'?'Player':'Hòa'})));
+    this.$road.scrollLeft=this.$road.scrollWidth;
+    this.$summary.textContent='Banker '+history.filter(r=>r.winner==='B').length+' · Player '+history.filter(r=>r.winner==='P').length+' · Hòa '+history.filter(r=>r.winner==='T').length;
+  }
+  renderAll(){
+    this.renderStatus(); this.renderBets(); this.renderScores(); this.renderStats();
   }
 }
 class TaiXiuTable {
@@ -14455,13 +14530,14 @@ class TaiXiuTable {
       '<div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">' + this.players + '</span></div></div>' +
       '<div class="t-id"># ' + this.id + '</div></div></div>' +
       '<div class="felt"><div class="f-status"></div>'+(this.glass?
-        '<div class="glass-stage" aria-label="Ống thủy tinh với ba xúc xắc"><div class="glass-shell"><div class="glass-rear"></div></div><div class="glass-base"></div><div class="glass-camera"></div><div class="glass-shell glass-front"><div class="glass-rim top"></div><div class="glass-rim bottom"></div></div></div>':
+        '<div class="glass-stage" aria-label="Ống thủy tinh với ba xúc xắc"><div class="glass-shell"><div class="glass-rear"></div></div><div class="glass-base"></div><div class="glass-camera"></div><div class="glass-shell glass-front"><div class="glass-rim top"></div><div class="glass-rim bottom"></div></div><div class="glass-result" role="group" aria-label="Kết quả xúc xắc" hidden></div></div>':
         '<div class="dish"><div class="plate"><div class="dice-set" aria-hidden="true"></div></div><div class="lid"></div></div>')+'</div>' +
       '<div class="bet-wrap"><div class="tx-bets"></div></div>' +
       '<div class="stats"><div class="sec-title">Thống kê 100 ván trước</div><div class="tabs"></div><div class="road"></div><div class="summary"></div></div>';
     document.getElementById('tables').appendChild(el);
     this.el = el;
     this.$fStatus = el.querySelector('.f-status'); this.$dish = el.querySelector('.dish');
+    this.$glassResult = el.querySelector('.glass-result');
     this.$dice = el.querySelector('.dice-set'); this.$betWrap = el.querySelector('.bet-wrap');
     this.$betGrid = el.querySelector('.tx-bets'); this.$badge = el.querySelector('.pbadge');
     this.$tabs = el.querySelector('.tabs'); this.$road = el.querySelector('.road'); this.$summary = el.querySelector('.summary');
@@ -14470,6 +14546,7 @@ class TaiXiuTable {
   }
   startBetting(){
     this.clearTimers();
+    if(this.$glassResult)this.$glassResult.hidden=true;
     this.phase = 'BETTING'; this.tLeft = CFG.betTime-this.firstBet; this.firstBet = 0;
     this.user = {}; this.bots = {}; this.$betWrap.classList.remove('locked');
     this.renderAll();
@@ -14502,7 +14579,10 @@ class TaiXiuTable {
     if(this.glass){
       this.clearTimers();this.phase='SHAKING';this.roll=null;
       this.$betWrap.classList.add('locked');this.renderBetGrid();this.renderStatus();
-      this.sim.start(dice=>{this.roll=dice;this.finish();},()=>this.renderStatus());
+      this.sim.start(dice=>{
+        this.roll=dice;this.phase='REVEAL';this.showGlassResult(dice);this.renderStatus();
+        this.schedule(()=>{this.$glassResult.hidden=true;this.finish();},2000);
+      },()=>this.renderStatus());
       return;
     }
     this.clearTimers(); this.phase = 'SHAKING'; this.roll = txRoll();
@@ -14532,7 +14612,7 @@ class TaiXiuTable {
     setBalance(uwin>0?1:0);
     this.hist.unshift(this.lastRes); if(this.hist.length>110) this.hist.pop();
     this.$betWrap.classList.add('locked'); this.renderAll();
-    if(uwin>0) toast(this.name+': Bạn thắng +'+fmtMoney(uwin)+' INH');
+    if(uwin>0) toast(this.name+': Bạn thắng +'+fmtMoney(uwin));
     this.resultTick();
   }
   resultTick(){
@@ -14543,7 +14623,8 @@ class TaiXiuTable {
   }
   renderStatus(){
     if(this.phase==='BETTING') this.$fStatus.textContent = 'Đặt cược — còn '+this.tLeft+'s';
-    else if(this.phase==='SHAKING') this.$fStatus.textContent = this.glass?(this.sim.time<2?'Đang rung xúc xắc…':'Xúc xắc đang nảy và giảm tốc…'):this.$dish.classList.contains('open')?'Đang mở bát…':this.$dish.classList.contains('shake')?'Đang lắc xí ngầu…':'Chờ mở bát…';
+    else if(this.glass&&this.phase==='REVEAL') this.$fStatus.textContent = 'Kết quả xúc xắc';
+    else if(this.phase==='SHAKING') this.$fStatus.textContent = this.glass?(this.sim.time<GLASS_SHAKE_DURATION?'Đang rung xúc xắc…':'Xúc xắc đang nảy và giảm tốc…'):this.$dish.classList.contains('open')?'Đang mở bát…':this.$dish.classList.contains('shake')?'Đang lắc xí ngầu…':'Chờ mở bát…';
     else {
       const r = this.lastRes, cls = r.winner==='T'?'rb':r.winner==='X'?'rp':'rt';
       this.$fStatus.innerHTML = '<span class="f-result '+cls+'">'+TX_NAMES[r.winner]+'</span> · '+r.total+' điểm · Ván mới sau '+this.resLeft+'s';
@@ -14554,6 +14635,14 @@ class TaiXiuTable {
     const dice = this.roll || [1,1,1];
     this.$dice.innerHTML = dice.map(diceHtml).join('');
     this.$dice.setAttribute('aria-hidden','true'); this.$dish.classList.remove('open');
+  }
+  showGlassResult(dice){
+    this.$glassResult.innerHTML=dice.map((value,index)=>
+      '<div class="glass-result-die'+(value===1?' single-pip':'')+(value===1||value===4?' red-pips':'')+'" role="img" aria-label="Xí ngầu '+(index+1)+': '+value+' điểm">'+
+      DICE_PIPS[value].map(p=>'<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>').join('')+
+      '</div>'
+    ).join('');
+    this.$glassResult.hidden=false;
   }
   renderBetGrid(){
     this.$betGrid.innerHTML = [['main','bet-grid'],['parity','tx-parity-grid'],['single','tx-single-grid']].map(([row,cls])=>
@@ -14587,19 +14676,202 @@ class TaiXiuTable {
   }
   renderAll(){ this.renderStatus(); this.renderDish(); this.renderBetGrid(); this.renderStats(); }
 }
+const MONOPOLY_OPTS = [
+  {k:'T',n:'TÀI',range:'8–12',o:2}, {k:'7',n:'7',range:'7',o:4}, {k:'X',n:'XỈU',range:'2–6',o:2}
+];
+const MONOPOLY_PAYOUTS = {2:'3.5×',3:'3×',4:'2.5×',5:'2×',6:'1.5×',7:'4×',8:'2×',9:'2×',10:'2.5×',11:'3×',12:'3.5×'};
+const MONOPOLY_TRACK = [
+  {number:7,row:1,column:1},{number:8,row:1,column:2},{number:9,row:1,column:3},{number:10,row:1,column:4},
+  {number:11,row:2,column:4},{number:12,row:3,column:4},{number:1,go:true,row:4,column:4},
+  {number:4,row:4,column:1},{number:3,row:4,column:2},{number:2,row:4,column:3},
+  {number:6,row:2,column:1},{number:5,row:3,column:1}
+];
+const MONOPOLY_ROUTE = [1,2,3,4,5,6,7,8,9,10,11,12];
+const MONOPOLY_NAMES = {X:'Xỉu',7:'7',T:'Tài'};
+function monopolyRoll(){return [1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)];}
+function monopolyResult(dice){
+  const total=dice[0]+dice[1];
+  return {dice:dice.slice(),total,winner:total<7?'X':total>7?'T':'7'};
+}
+function monopolyMultiplier(key,result){
+  if(key==='X')return result.total<7?2:-1;
+  if(key==='7')return result.total===7?4:-1;
+  if(key==='T')return result.total>7?2:-1;
+  const exactOdds=parseFloat(MONOPOLY_PAYOUTS[key]);
+  if(Number.isFinite(exactOdds))return result.total===Number(key)?exactOdds:-1;
+  return -1;
+}
+class MonopolyTable{
+  constructor(){
+    this.name='Monopoly Xúc xắc';this.id='186269611';this.players=32;
+    this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);this.resLeft=CFG.resultTime;
+    this.roll=monopolyRoll();this.lastRes=null;this.user={};this.bots={};this.timers=[];this.tab='res';
+    this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>monopolyResult(monopolyRoll()));
+    this.build();this.startBetting();
+    setInterval(()=>this.fluctuate(),15000);
+  }
+  schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
+  clearTimers(){this.timers.forEach(clearTimeout);this.timers=[];}
+  build(){
+    const el=document.createElement('section');
+    el.className='table-card monopoly';
+    el.setAttribute('aria-label',this.name);
+    el.innerHTML=
+      '<div class="card-head"><div class="card-title"><div class="title-row"><div class="t-name">'+this.name+'</div><div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">'+this.players+'</span></div></div><div class="t-id"># '+this.id+'</div></div></div>'+
+      '<div class="felt"><div class="f-status"></div><div class="mono-board"><div class="mono-track"></div><div class="mono-tray"><div class="mono-sim-stage glass-stage" role="img" aria-label="Lồng kính với hai xúc xắc"><div class="glass-camera"></div></div><div class="mono-last" aria-live="polite">Chờ kết quả</div></div></div></div>'+
+      '<div class="bet-wrap"><div class="mono-main-bets"></div></div>'+
+      '<div class="stats"><div class="sec-title">Thống kê 100 ván trước</div><div class="tabs"></div><div class="road"></div><div class="summary"></div></div>';
+    document.getElementById('tables').appendChild(el);
+    this.el=el;this.$status=el.querySelector('.f-status');this.$badge=el.querySelector('.pbadge');
+    this.$track=el.querySelector('.mono-track');
+    this.$tray=el.querySelector('.mono-tray');this.$last=el.querySelector('.mono-last');
+    this.$betWrap=el.querySelector('.bet-wrap');this.$mainBets=el.querySelector('.mono-main-bets');
+    this.$tabs=el.querySelector('.tabs');this.$road=el.querySelector('.road');this.$summary=el.querySelector('.summary');
+    this.$betWrap.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)this.placeBet(b.dataset.k);});
+    this.$track.addEventListener('click',e=>{const tile=e.target.closest('.mono-number-bet');if(tile)this.placeBet(tile.dataset.number);});
+    this.$tabs.addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(t){this.tab=t.dataset.tab;this.renderStats();}});
+    this.renderTrack();
+    this.sim=new GlassDiceSimulation(el.querySelector('.mono-sim-stage'),2,GLASS_SHAKE_DURATION,false);
+  }
+  renderTrack(){
+    this.$track.innerHTML=MONOPOLY_TRACK.map(tile=>{
+      const position='grid-row:'+tile.row+';grid-column:'+tile.column;
+      return tile.go?
+        '<span class="mono-tile mono-tile-go" data-number="'+tile.number+'" aria-label="GO, '+tile.number+'" style="'+position+'"><b>GO</b><small class="mono-go-arrow" aria-hidden="true">←</small></span>':
+        '<button type="button" class="mono-tile mono-number-bet mono-tile-'+(tile.number<7?'blue':tile.number===7?'green':'red')+'" data-number="'+tile.number+'" style="'+position+'"><b>'+tile.number+'</b><small>'+MONOPOLY_PAYOUTS[tile.number]+'</small></button>';
+    }).join('');
+    this.renderTrackBets();
+  }
+  renderTrackBets(){
+    this.$track.querySelectorAll('.mono-number-bet').forEach(tile=>{
+      const number=tile.dataset.number,stake=this.user[number]||0;
+      tile.disabled=this.phase!=='BETTING';
+      tile.setAttribute('aria-pressed',String(stake>0));
+      tile.setAttribute('aria-label','Cược tổng '+number+', trả '+MONOPOLY_PAYOUTS[number]+', đã cược '+fmtChips(stake));
+      tile.title='Cược tổng '+number+' · '+MONOPOLY_PAYOUTS[number]+' · Đã cược '+fmtChips(stake);
+      let stakeLabel=tile.querySelector('.mono-tile-stake');
+      if(stake){
+        if(!stakeLabel){stakeLabel=document.createElement('small');stakeLabel.className='mono-tile-stake';tile.appendChild(stakeLabel);}
+        stakeLabel.textContent=fmtChips(stake);
+      }else if(stakeLabel)stakeLabel.remove();
+    });
+  }
+  startBetting(){
+    this.clearTimers();this.phase='BETTING';this.tLeft=CFG.betTime-this.firstBet;this.firstBet=0;
+    this.user={};this.bots={};this.roll=monopolyRoll();this.$betWrap.classList.remove('locked');
+    this.renderTrackBets();
+    this.renderAll();
+    for(let i=0;i<this.players;i++)this.schedule(()=>{if(this.phase==='BETTING')this.botBet();},Math.random()*6000);
+    this.tick();
+  }
+  tick(){
+    if(this.phase!=='BETTING')return;
+    if(this.tLeft<=0){this.lock();return;}
+    this.renderStatus();this.schedule(()=>{this.tLeft--;this.tick();},1000);
+  }
+  botBet(){
+    const option=MONOPOLY_OPTS[Math.floor(Math.random()*MONOPOLY_OPTS.length)];
+    this.bots[option.k]=(this.bots[option.k]||0)+(1+Math.floor(Math.random()*20))*1_000_000;
+    this.renderBetGrid();
+  }
+  fluctuate(){
+    if(this.phase!=='BETTING')return;
+    this.players=Math.max(6,Math.min(60,this.players+(Math.random()<.5?-1:1)));
+    this.$badge.querySelector('.p-count').textContent=this.players;
+  }
+  placeBet(key){
+    if(this.phase!=='BETTING')return;
+    if(balance<selectedChip){toast('Không đủ số dư');return;}
+    balance-=selectedChip;this.user[key]=(this.user[key]||0)+selectedChip;
+    setBalance();this.renderBetGrid();this.renderTrackBets();
+  }
+  animateTrackResult(total){
+    this.$track.querySelectorAll('.mono-tile-active,.mono-tile-result').forEach(tile=>tile.classList.remove('mono-tile-active','mono-tile-result'));
+    const resultIndex=MONOPOLY_ROUTE.indexOf(total);
+    if(resultIndex<0)return;
+    MONOPOLY_ROUTE.slice(0,resultIndex+1).forEach((number,index)=>{
+      this.schedule(()=>{
+        this.$track.querySelectorAll('.mono-tile-active').forEach(tile=>tile.classList.remove('mono-tile-active'));
+        const tile=this.$track.querySelector('.mono-tile[data-number="'+number+'"]');
+        if(tile)tile.classList.add(index===resultIndex?'mono-tile-result':'mono-tile-active');
+      },index*180);
+    });
+  }
+  lock(){
+    this.clearTimers();this.phase='SHAKING';this.$betWrap.classList.add('locked');
+    this.renderBetGrid();this.renderTrackBets();this.renderStatus();
+    this.sim.start(dice=>{
+      this.$tray.classList.remove('shaking');this.roll=dice;
+      this.lastRes=monopolyResult(this.roll);this.$last.textContent=this.roll[0]+' + '+this.roll[1]+' = '+this.lastRes.total+' · '+MONOPOLY_NAMES[this.lastRes.winner];
+      this.animateTrackResult(this.lastRes.total);
+      this.finish();
+    },()=>{
+      this.$tray.classList.toggle('shaking',this.sim.time<GLASS_SHAKE_DURATION);
+      this.renderStatus();
+    });
+  }
+  finish(){
+    this.phase='RESULT';this.resLeft=CFG.resultTime;
+    let profit=0;
+    for(const key in this.user){
+      const stake=this.user[key],multiplier=monopolyMultiplier(key,this.lastRes);
+      if(multiplier>0){balance+=stake*multiplier;profit+=stake*(multiplier-1);}
+    }
+    setBalance(profit>0?1:0);this.hist.unshift(this.lastRes);if(this.hist.length>110)this.hist.pop();
+    this.$betWrap.classList.add('locked');this.renderAll();
+    if(profit>0)toast(this.name+': Bạn thắng +'+fmtMoney(profit));
+    this.resultTick();
+  }
+  resultTick(){
+    if(this.phase!=='RESULT')return;
+    if(this.resLeft<=0){this.startBetting();return;}
+    this.renderStatus();this.schedule(()=>{this.resLeft--;this.resultTick();},1000);
+  }
+  renderStatus(){
+    if(this.phase==='BETTING')this.$status.textContent='Đặt cược — còn '+this.tLeft+'s';
+    else if(this.phase==='SHAKING')this.$status.textContent=this.sim.time<GLASS_SHAKE_DURATION?'Đang lắc xúc xắc…':'Xúc xắc đang nảy và giảm tốc…';
+    else this.$status.innerHTML='<span class="f-result '+(this.lastRes.winner==='X'?'rp':this.lastRes.winner==='T'?'rb':'rt')+'">'+MONOPOLY_NAMES[this.lastRes.winner]+'</span> · '+this.lastRes.total+' điểm · Ván mới sau '+this.resLeft+'s';
+  }
+  renderBetGrid(){
+    const render=option=>{
+      const stake=this.user[option.k]||0,total=this.bots[option.k]||0;
+      const result=this.phase==='RESULT'?(monopolyMultiplier(option.k,this.lastRes)>0?' win':' lose'):'';
+      return '<button type="button" class="betbtn'+result+'" data-k="'+option.k+'" aria-label="Cược '+option.n+' tổng '+option.range+', trả '+option.o+' lần vốn"><span class="b-name">'+option.n+'</span><span class="b-range">'+option.range+'</span><span class="b-odds">'+option.o+'×</span>'+(total?'<span class="b-total">'+fmtChips(total)+'</span>':'')+(stake?'<span class="b-user">'+fmtChips(stake)+'</span>':'')+'</button>';
+    };
+    this.$mainBets.innerHTML=MONOPOLY_OPTS.map(render).join('');
+  }
+  renderStats(){
+    const history=this.hist.slice(0,100),count=key=>history.filter(item=>item.winner===key).length;
+    this.$tabs.innerHTML=[['res','Kết quả'],['rate','Tỷ lệ'],['points','Điểm số']].map(([key,label])=>'<span class="tab'+(this.tab===key?' active':'')+'" data-tab="'+key+'">'+label+'</span>').join('');
+    let body='';
+    if(this.tab==='res')body=renderBigRoad(history.slice().reverse().map(item=>({w:item.winner==='X'?'P':item.winner==='T'?'B':'A',label:MONOPOLY_NAMES[item.winner]})));
+    else if(this.tab==='rate'){
+      body=['X','7','T'].map((key,i)=>'<div class="pb-row"><span class="lbl">'+MONOPOLY_NAMES[key]+'</span><div class="pb-bar"><div class="pb-fill" style="width:'+(history.length?count(key)/history.length*100:0)+'%;background:'+['#1d4ed8','#2fa14f','#b91c1c'][i]+'"></div></div><span class="pct">'+(history.length?count(key)/history.length*100:0).toFixed(1)+'%</span></div>').join('');
+    }else{
+      for(let i=0;i<100;i++){const item=history[i];body+=item?'<span class="bead '+(item.winner==='X'?'p':item.winner==='T'?'b':'t')+'" role="img" aria-label="'+item.dice.join(' + ')+' = '+item.total+' điểm">'+item.total+'</span>':'<span class="bead empty"></span>';}
+    }
+    this.$road.classList.toggle('big',this.tab==='res');this.$road.classList.toggle('pb',this.tab==='rate');this.$road.innerHTML=body;
+    if(this.tab==='res')this.$road.scrollLeft=this.$road.scrollWidth;
+    this.$summary.textContent='Xỉu '+count('X')+' · 7 điểm '+count('7')+' · Tài '+count('T');
+  }
+  renderAll(){
+    this.$last.textContent=this.lastRes?this.lastRes.dice.join(' + ')+' = '+this.lastRes.total+' · '+MONOPOLY_NAMES[this.lastRes.winner]:'Chờ kết quả';
+    this.renderStatus();this.renderBetGrid();this.renderStats();
+  }
+}
 const RL_ORDER = [0,7,2,9,4,1,6,12,8,3,10,5,11];
 const RL_RED = new Set([1,3,5,7,9,12]);
 const RL_OPTS = [
   { k:'X', n:'Xỉu', o:'2.00', row:'size' }, { k:'T', n:'Tài', o:'2.00', row:'size' },
   { k:'D', n:'Đen', o:'2.00', row:'color' }, { k:'R', n:'Đỏ', o:'2.00', row:'color' },
   { k:'C', n:'Chẵn', o:'2.00', row:'parity' }, { k:'L', n:'Lẻ', o:'2.00', row:'parity' },
-  ...Array.from({length:12},(_,i)=>({ k:'N'+(i+1), n:String(i+1), o:'12×', row:'number' }))
+  ...Array.from({length:13},(_,i)=>({ k:'N'+i, n:String(i), o:'12×', row:'number' }))
 ];
 function rlRoll(){ return Math.floor(Math.random()*13); }
 function rlColor(n){ return n===0 ? 'zero' : RL_RED.has(n) ? 'red' : 'black'; }
 function rlMult(k,n){
-  if(n===0) return -1;
   if(k.startsWith('N')) return Number(k.slice(1))===n ? 11 : -1;
+  if(n===0) return -1;
   const win = k==='X' ? n<=6 : k==='T' ? n>=7 : k==='R' ? RL_RED.has(n) : k==='D' ? !RL_RED.has(n) : k==='C' ? n%2===0 : n%2===1;
   return win ? 1 : -1;
 }
@@ -14619,7 +14891,7 @@ class RouletteTable {
     this.phase='BETTING'; this.tLeft=CFG.betTime; this.firstBet=Math.floor(Math.random()*8);
     this.resLeft=CFG.resultTime; this.roll=null; this.lastRes=null;
     this.user={}; this.bots={}; this.timers=[]; this.tab='res'; this.frame=null;
-    this.wheelAngle=0; this.ballAngle=0; this.radius=85;
+    this.wheelAngle=0; this.ballAngle=0; this.radius=99;
     this.hist=Array.from({length:80},rlRoll);
     this.build(); this.startBetting();
     setInterval(()=>this.fluctuate(),15000);
@@ -14644,7 +14916,7 @@ class RouletteTable {
     this.renderWheel();
   }
   startBetting(){
-    this.clearTimers(); this.phase='BETTING'; this.tLeft=CFG.betTime-this.firstBet; this.firstBet=0;
+    this.clearTimers(); this.phase='BETTING'; this.tLeft=CFG.betTime-this.firstBet; this.firstBet=0; this.highlightPocket(null);
     this.user={}; this.bots={}; this.$betWrap.classList.remove('locked'); this.renderAll();
     for(let i=0;i<this.players;i++)this.schedule(()=>{if(this.phase==='BETTING')this.botBet();},Math.random()*6000);
     this.tick();
@@ -14687,7 +14959,7 @@ class RouletteTable {
       this.wheelAngle=fromWheel+(this.targetWheel-fromWheel)*(1-Math.pow(1-p,3));
       this.ballAngle=fromBall+(this.targetBall-fromBall)*(1-Math.pow(1-p,2.5));
       const drop=Math.max(0,Math.min(1,(p-.58)/.34));
-      this.radius=85-29*drop*drop*(3-2*drop)+(drop>0&&drop<1?Math.sin(p*90)*2*(1-drop):0);
+      this.radius=99-30*drop*drop*(3-2*drop)+(drop>0&&drop<1?Math.sin(p*90)*2*(1-drop):0);
       this.renderWheel();
       if(p<1)this.frame=requestAnimationFrame(animate);
     };
@@ -14699,17 +14971,23 @@ class RouletteTable {
     const angle=this.ballAngle*Math.PI/180;
     this.$ball.style.transform='translate('+(Math.sin(angle)*this.radius)+'px,'+(-Math.cos(angle)*this.radius)+'px)';
   }
+  highlightPocket(number){
+    this.$rotor.querySelectorAll('[data-pocket]').forEach(pocket=>{
+      pocket.classList.toggle('winner',number!==null&&Number(pocket.dataset.pocket)===number);
+    });
+  }
   finish(){
     if(this.phase!=='SPINNING')return;
     this.clearTimers(); cancelAnimationFrame(this.frame); this.frame=null;
-    this.wheelAngle=(this.targetWheel%360+360)%360; this.ballAngle=(this.targetBall%360+360)%360; this.radius=56; this.renderWheel();
+    this.wheelAngle=(this.targetWheel%360+360)%360; this.ballAngle=(this.targetBall%360+360)%360; this.radius=69; this.renderWheel();
     this.lastRes=this.roll; this.phase='RESULT'; this.resLeft=CFG.resultTime;
+    this.highlightPocket(this.lastRes);
     let profit=0;
     for(const k in this.user){const m=rlMult(k,this.lastRes);if(m>0){balance+=this.user[k]*(1+m);profit+=this.user[k]*m;}}
     setBalance(profit>0?1:0);
     this.hist.unshift(this.lastRes); if(this.hist.length>100)this.hist.pop();
     this.$stage.setAttribute('aria-label','Viên bi dừng tại số '+this.lastRes+', '+(this.lastRes===0?'xanh':RL_RED.has(this.lastRes)?'đỏ':'đen'));
-    this.renderAll(); if(profit>0)toast(this.name+': Bạn thắng +'+fmtMoney(profit)+' INH');
+    this.renderAll(); if(profit>0)toast(this.name+': Bạn thắng +'+fmtMoney(profit));
     this.resultTick();
   }
   resultTick(){
@@ -14750,6 +15028,279 @@ class RouletteTable {
   }
   renderAll(){this.renderStatus();this.renderBets();this.renderStats();}
 }
+const DT_MAIN_OPTS=[{k:'D',n:'Long',o:'1.97'},{k:'E',n:'Hòa',o:'8.00'},{k:'T',n:'Hổ',o:'1.97'}];
+const DT_SUITS=[{k:'H',n:'Cơ',symbol:'♥',index:2},{k:'D',n:'Rô',symbol:'♦',index:1},{k:'C',n:'Chuồn',symbol:'♣',index:0},{k:'S',n:'Bích',symbol:'♠',index:3}];
+const DT_SUIT_OPTS=['D','T'].flatMap(side=>DT_SUITS.map(suit=>({
+  k:side+'_'+suit.k,n:suit.symbol,o:'4.00',side,suit:suit.k
+})));
+const DT_OPTS=DT_MAIN_OPTS.concat(DT_SUIT_OPTS);
+function dtMultiplier(key,result){
+  if(key.length===3&&key[1]==='_'){
+    const side=key[0]==='D'?'dragon':'tiger',suit=DT_SUITS.find(item=>item.k===key[2]);
+    return suit&&result[side].s===suit.index?3:-1;
+  }
+  if(key==='E')return result.winner==='E'?7:-1;
+  if(result.winner==='E')return 0;
+  return key===result.winner?0.97:-1;
+}
+class DragonTigerTable{
+  constructor(cfg){
+    Object.assign(this,cfg);
+    this.shoe=makeShoe();this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);
+    this.resLeft=CFG.resultTime;this.user={};this.bots={};this.timers=[];
+    this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>({winner:['D','T','E'][Math.floor(Math.random()*3)]}));
+    this.build();this.startBetting();
+    setInterval(()=>this.fluctuate(),15000);
+  }
+  draw(){
+    if(this.shoe.length<80)this.shoe=makeShoe();
+    return this.shoe.pop();
+  }
+  schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
+  clearTimers(){this.timers.forEach(clearTimeout);this.timers=[];}
+  build(){
+    const el=document.createElement('section');
+    el.className='table-card dt';el.setAttribute('aria-label',this.name);
+    el.innerHTML='<div class="card-head"><div class="card-title"><div class="title-row"><div class="t-name">'+this.name+'</div><div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">'+this.players+'</span></div></div><div class="t-id"># '+this.id+'</div></div></div>'+
+      '<div class="felt"><div class="f-status"></div><div class="dt-arena">'+
+      '<section class="dt-side dragon"><div class="dt-side-title">LONG</div><div class="dt-card-slot"></div><div class="dt-rank">—</div></section>'+
+      '<section class="dt-side tiger"><div class="dt-side-title">HỔ</div><div class="dt-card-slot"></div><div class="dt-rank">—</div></section></div></div>'+
+      '<div class="bet-wrap dt-bet-wrap"><div class="bet-grid dt-main-bets"></div><div class="dt-suit-groups">'+
+      '<section class="dt-suit-group dragon"><div class="dt-suit-title">CƯỢC CHẤT LONG <span>龍</span></div><div class="bet-grid dt-suit-bets" data-side="D"></div></section>'+
+      '<section class="dt-suit-group tiger"><div class="dt-suit-title">CƯỢC CHẤT HỔ <span>虎</span></div><div class="bet-grid dt-suit-bets" data-side="T"></div></section></div></div>'+
+      '<div class="stats"><div class="sec-title">Kết quả 100 ván trước</div><div class="road big"></div><div class="summary"></div></div>';
+    document.getElementById('tables').appendChild(el);this.el=el;
+    this.$status=el.querySelector('.f-status');this.$badge=el.querySelector('.pbadge');
+    this.$sides=Array.from(el.querySelectorAll('.dt-side'));this.$betWrap=el.querySelector('.bet-wrap');
+    this.$mainBets=el.querySelector('.dt-main-bets');this.$suitGroups=Array.from(el.querySelectorAll('.dt-suit-bets'));
+    this.$road=el.querySelector('.road');this.$summary=el.querySelector('.summary');
+    this.$betWrap.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)this.placeBet(b.dataset.k);});
+  }
+  startBetting(){
+    this.clearTimers();this.phase='BETTING';this.tLeft=CFG.betTime-this.firstBet;this.firstBet=0;
+    this.user={};this.bots={};this.$betWrap.classList.remove('locked');this.renderAll();
+    for(let i=0;i<this.players;i++)this.schedule(()=>{if(this.phase==='BETTING')this.botBet();},Math.random()*6000);
+    this.tick();
+  }
+  tick(){
+    if(this.phase!=='BETTING')return;
+    if(this.tLeft<=0){this.lock();return;}
+    this.renderStatus();this.schedule(()=>{this.tLeft--;this.tick();},1000);
+  }
+  botBet(){
+    const k=DT_OPTS[Math.floor(Math.random()*DT_OPTS.length)].k;
+    this.bots[k]=(this.bots[k]||0)+(1+Math.floor(Math.random()*20))*1_000_000;this.renderBets();
+  }
+  fluctuate(){
+    if(this.phase!=='BETTING')return;
+    this.players=Math.max(6,Math.min(60,this.players+(Math.random()<.5?-1:1)));
+    this.$badge.querySelector('.p-count').textContent=this.players;
+  }
+  placeBet(k){
+    if(this.phase!=='BETTING')return;
+    if(balance<selectedChip){toast('Không đủ số dư');return;}
+    balance-=selectedChip;this.user[k]=(this.user[k]||0)+selectedChip;setBalance();this.renderBets();
+  }
+  lock(){
+    this.phase='DEALING';this.round={dragon:this.draw(),tiger:this.draw()};
+    this.$betWrap.classList.add('locked');this.renderAll();
+    this.schedule(()=>this.finish(),700);
+  }
+  finish(){
+    if(this.phase!=='DEALING')return;
+    const d=this.round.dragon.r,t=this.round.tiger.r;
+    this.lastRes={winner:d===t?'E':d>t?'D':'T',dragon:this.round.dragon,tiger:this.round.tiger};
+    this.lastRound=this.round;
+    this.phase='RESULT';this.resLeft=CFG.resultTime;let profit=0;
+    for(const k in this.user){
+      const m=dtMultiplier(k,this.lastRes);
+      if(m>0){balance+=this.user[k]*(1+m);profit+=this.user[k]*m;}
+      else if(m===0)balance+=this.user[k];
+    }
+    setBalance(profit>0?1:0);this.hist.unshift(this.lastRes);if(this.hist.length>110)this.hist.pop();
+    this.renderAll();if(profit>0)toast(this.name+': Bạn thắng +'+fmtMoney(profit));this.resultTick();
+  }
+  resultTick(){
+    if(this.phase!=='RESULT')return;
+    if(this.resLeft<=0){this.startBetting();return;}
+    this.renderStatus();this.schedule(()=>{this.resLeft--;this.resultTick();},1000);
+  }
+  cardHtml(card){
+    return '<span class="pcard'+(card.s===1||card.s===2?' red':'')+'"><b>'+RANKS[card.r]+'</b><i>'+SUITS[card.s]+'</i><b class="rank-bottom">'+RANKS[card.r]+'</b></span>';
+  }
+  renderStatus(){
+    if(this.phase==='BETTING')this.$status.textContent='Đặt cược — còn '+this.tLeft+'s';
+    else if(this.phase==='DEALING')this.$status.textContent='Đang chia bài…';
+    else{
+      const winner=this.lastRes.winner,label=winner==='D'?'Long thắng':winner==='T'?'Hổ thắng':'Hòa';
+      this.$status.innerHTML='<span class="f-result '+(winner==='D'?'rp':winner==='T'?'rb':'rt')+'">'+label+'</span> · Ván mới sau '+this.resLeft+'s';
+    }
+  }
+  renderCards(){
+    this.$sides.forEach((side,index)=>{
+      const key=index===0?'dragon':'tiger',card=this.phase==='BETTING'?this.lastRound&&this.lastRound[key]:this.round&&this.round[key];
+      side.querySelector('.dt-card-slot').innerHTML=card?this.cardHtml(card):'<span class="dt-card-placeholder">?</span>';
+      side.querySelector('.dt-rank').textContent=card?RANKS[card.r]:'—';
+      side.classList.toggle('winner',this.phase==='RESULT'&&((index===0&&this.lastRes.winner==='D')||(index===1&&this.lastRes.winner==='T')));
+      side.classList.toggle('tie',this.phase==='RESULT'&&this.lastRes.winner==='E');
+    });
+  }
+  renderBets(){
+    const buttonHtml=o=>{
+      const u=this.user[o.k]||0,bot=this.bots[o.k]||0,m=this.phase==='RESULT'?dtMultiplier(o.k,this.lastRes):null;
+      const state=m===null?'':m>0?' win':m===0?' push':' lose';
+      return '<button type="button" class="betbtn'+(o.side?' dt-suit-bet':'')+state+'" data-k="'+o.k+'"'+(o.suit?' data-suit="'+o.suit+'"':'')+'><span class="b-name"'+(o.side?' aria-label="'+DT_SUITS.find(s=>s.k===o.suit).n+'"':'')+'>'+o.n+'</span><span class="b-odds">'+o.o+'</span>'+
+        (bot?'<span class="b-total">'+fmtChips(bot)+'</span>':'')+(u?'<span class="b-user">'+fmtChips(u)+'</span>':'')+'</button>';
+    };
+    this.$mainBets.innerHTML=DT_MAIN_OPTS.map(buttonHtml).join('');
+    this.$suitGroups[0].innerHTML=DT_SUIT_OPTS.filter(o=>o.side==='D').map(buttonHtml).join('');
+    this.$suitGroups[1].innerHTML=DT_SUIT_OPTS.filter(o=>o.side==='T').map(buttonHtml).join('');
+  }
+  renderStats(){
+    const history=this.hist.slice(0,100),counts={D:0,T:0,E:0};
+    history.forEach(result=>counts[result.winner]++);
+    this.$road.innerHTML=renderBigRoad(history.slice().reverse().map(result=>({
+      w:result.winner==='D'?'P':result.winner==='T'?'B':'T',
+      label:result.winner==='D'?'Long thắng':result.winner==='T'?'Hổ thắng':'Hòa'
+    })));
+    this.$road.scrollLeft=this.$road.scrollWidth;
+    this.$summary.textContent='Long '+counts.D+' · Hổ '+counts.T+' · Hòa '+counts.E;
+  }
+  renderAll(){this.renderStatus();this.renderCards();this.renderBets();this.renderStats();}
+}
+const FT_OPTS=[1,2,3,4].map(n=>({k:String(n),n:'Cửa '+n,o:'3.00'}));
+class FantanTable{
+  constructor(cfg){
+    Object.assign(this,cfg);
+    this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);
+    this.resLeft=CFG.resultTime;this.user={};this.bots={};this.timers=[];
+    this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>1+Math.floor(Math.random()*4));
+    this.build();this.startBetting();
+    setInterval(()=>this.fluctuate(),15000);
+  }
+  schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
+  clearTimers(){this.timers.forEach(clearTimeout);this.timers=[];}
+  build(){
+    const el=document.createElement('section');
+    el.className='table-card ft';el.setAttribute('aria-label',this.name);
+    el.innerHTML='<div class="card-head"><div class="card-title"><div class="title-row"><div class="t-name">'+this.name+'</div><div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 0 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">'+this.players+'</span></div></div><div class="t-id"># '+this.id+'</div></div></div>'+
+      '<div class="felt"><div class="f-status"></div><div class="ft-stage" role="img" aria-label="Bát Fantan nhìn từ trên xuống với các hạt và chụp kính">'+
+      '<div class="ft-bowl"><div class="ft-bowl-interior"><div class="ft-bead-pile"></div><div class="ft-scoop"><div class="ft-scoop-cup"><i></i><i></i><i></i><i></i></div></div></div>'+
+      '<div class="ft-glass-dome"><div class="ft-dome-wall"></div><div class="ft-dome-rim"></div></div><div class="ft-bowl-rim"></div></div>'+
+      '<div class="ft-total-label">TỔNG <strong class="ft-total-value">0</strong> HẠT</div></div></div>'+
+      '<div class="bet-wrap"><div class="bet-grid ft-bets"></div></div>'+
+      '<div class="stats"><div class="sec-title">Kết quả 100 ván trước</div><div class="road ft-road"></div><div class="summary"></div></div>';
+    document.getElementById('tables').appendChild(el);this.el=el;
+    this.$status=el.querySelector('.f-status');this.$badge=el.querySelector('.pbadge');
+    this.$stage=el.querySelector('.ft-stage');this.$pile=el.querySelector('.ft-bead-pile');
+    this.$scoop=el.querySelector('.ft-scoop');
+    this.$total=el.querySelector('.ft-total-value');
+    this.$betWrap=el.querySelector('.bet-wrap');this.$bets=el.querySelector('.ft-bets');
+    this.$road=el.querySelector('.ft-road');this.$summary=el.querySelector('.summary');
+    this.$betWrap.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)this.placeBet(b.dataset.k);});
+  }
+  startBetting(){
+    this.clearTimers();this.phase='BETTING';this.tLeft=CFG.betTime-this.firstBet;this.firstBet=0;
+    this.user={};this.bots={};this.target=1+Math.floor(Math.random()*4);
+    this.remaining=4*(10+Math.floor(Math.random()*5))+this.target;this.removed=0;this.counted=0;
+    this.$betWrap.classList.remove('locked');
+    this.$scoop.classList.remove('active','scooping');this.$stage.classList.remove('scooping','counting','result');
+    this.$total.textContent=this.remaining;this.renderPile();this.renderAll();
+    for(let i=0;i<this.players;i++)this.schedule(()=>{if(this.phase==='BETTING')this.botBet();},Math.random()*6000);
+    this.tick();
+  }
+  renderPile(){
+    const beads=Array.from({length:this.remaining},(_,index)=>{
+      const angle=Math.random()*Math.PI*2,radius=Math.sqrt(Math.random());
+      const x=50+Math.cos(angle)*radius*42,y=51+Math.sin(angle)*radius*34;
+      return '<i class="ft-bead" data-index="'+index+'" style="--x:'+x.toFixed(1)+'%;--y:'+y.toFixed(1)+'%;--z:'+Math.round(y)+'" aria-hidden="true"></i>';
+    });
+    for(let i=beads.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[beads[i],beads[j]]=[beads[j],beads[i]];}
+    this.$pile.innerHTML=beads.join('');
+  }
+  tick(){
+    if(this.phase!=='BETTING')return;
+    if(this.tLeft<=0){this.lock();return;}
+    this.renderStatus();this.schedule(()=>{this.tLeft--;this.tick();},1000);
+  }
+  botBet(){
+    const k=String(1+Math.floor(Math.random()*4));
+    this.bots[k]=(this.bots[k]||0)+(1+Math.floor(Math.random()*20))*1_000_000;this.renderBets();
+  }
+  fluctuate(){
+    if(this.phase!=='BETTING')return;
+    this.players=Math.max(6,Math.min(60,this.players+(Math.random()<.5?-1:1)));
+    this.$badge.querySelector('.p-count').textContent=this.players;
+  }
+  placeBet(k){
+    if(this.phase!=='BETTING')return;
+    if(balance<selectedChip){toast('Không đủ số dư');return;}
+    balance-=selectedChip;this.user[k]=(this.user[k]||0)+selectedChip;setBalance();this.renderBets();
+  }
+  lock(){
+    this.clearTimers();this.phase='SCOOPING';this.$betWrap.classList.add('locked');
+    this.$stage.classList.add('scooping');this.$scoop.classList.add('active');
+    this.renderStatus();this.schedule(()=>this.scoopStep(),550);
+  }
+  scoopStep(){
+    if(this.phase!=='SCOOPING')return;
+    if(this.remaining<=this.target){this.beginCount();return;}
+    const amount=Math.min(4,this.remaining-this.target);
+    const beads=Array.from(this.$pile.querySelectorAll('.ft-bead:not(.taken)')).slice(0,amount);
+    beads.forEach((bead,index)=>this.schedule(()=>bead.classList.add('taken'),index*45));
+    this.remaining-=amount;this.removed+=amount;
+    this.$total.textContent=this.remaining;
+    this.$scoop.classList.toggle('scooping');
+    this.renderStatus();this.schedule(()=>this.scoopStep(),280);
+  }
+  beginCount(){
+    this.phase='COUNTING';this.counted=0;this.$stage.classList.add('counting');this.$scoop.classList.remove('active');
+    this.renderStatus();this.schedule(()=>this.countStep(),220);
+  }
+  countStep(){
+    if(this.phase!=='COUNTING')return;
+    this.counted++;this.renderStatus();
+    if(this.counted>=this.target){this.schedule(()=>this.finish(),450);return;}
+    this.schedule(()=>this.countStep(),200);
+  }
+  finish(){
+    if(this.phase!=='COUNTING')return;
+    this.lastResult=this.target;this.phase='RESULT';this.resLeft=CFG.resultTime;let profit=0;
+    for(const k in this.user){
+      if(Number(k)===this.lastResult){const stake=this.user[k];balance+=stake*4;profit+=stake*3;}
+    }
+    setBalance(profit>0?1:0);this.hist.unshift(this.lastResult);if(this.hist.length>110)this.hist.pop();
+    this.$stage.classList.add('result');this.renderAll();
+    if(profit>0)toast(this.name+': Bạn thắng +'+fmtMoney(profit));
+    this.resultTick();
+  }
+  resultTick(){
+    if(this.phase!=='RESULT')return;
+    if(this.resLeft<=0){this.startBetting();return;}
+    this.renderStatus();this.schedule(()=>{this.resLeft--;this.resultTick();},1000);
+  }
+  renderStatus(){
+    if(this.phase==='BETTING')this.$status.textContent='Đặt cược — còn '+this.tLeft+'s';
+    else if(this.phase==='SCOOPING')this.$status.textContent='Chụp kính mở · đang xúc từng nhóm 4 hạt…';
+    else if(this.phase==='COUNTING')this.$status.textContent='Đang đếm số hạt còn lại…';
+    else this.$status.innerHTML='<span class="f-result rt">Kết quả: '+this.lastResult+'</span> · Ván mới sau '+this.resLeft+'s';
+  }
+  renderBets(){
+    this.$bets.innerHTML=FT_OPTS.map(o=>{
+      const u=this.user[o.k]||0,bot=this.bots[o.k]||0;
+      const state=this.phase==='RESULT'?(Number(o.k)===this.lastResult?' win':' lose'):'';
+      return '<button type="button" class="betbtn'+state+'" data-k="'+o.k+'"><span class="b-name">'+o.n+'</span><span class="b-odds">'+o.o+'</span>'+
+        (bot?'<span class="b-total">'+fmtChips(bot)+'</span>':'')+(u?'<span class="b-user">'+fmtChips(u)+'</span>':'')+'</button>';
+    }).join('');
+  }
+  renderStats(){
+    const counts=[0,0,0,0];
+    this.hist.slice(0,100).forEach(n=>counts[n-1]++);
+    this.$road.innerHTML=this.hist.slice(0,100).map((n,index)=>'<span class="bead ft-history ft-r'+n+'" style="grid-column:'+(index%20+1)+';grid-row:'+(Math.floor(index/20)+1)+'" role="img" aria-label="Kết quả '+n+'"></span>').join('');
+    this.$summary.textContent='1: '+counts[0]+' · 2: '+counts[1]+' · 3: '+counts[2]+' · 4: '+counts[3];
+  }
+  renderAll(){this.renderStatus();this.renderBets();this.renderStats();}
+}
 /* ================= KHỞI TẠO ================= */
 (function init(){
   const chipsEl = document.getElementById('chips');
@@ -14760,8 +15311,8 @@ class RouletteTable {
     b.className = 'chip' + (v===selectedChip ? ' on' : '');
     b.innerHTML = '<span>' + fmtChips(v) + '</span>';
     b.style.setProperty('--chip-color', chipColors[i]);
-    b.title = fmtMoney(v) + ' INH';
-    b.setAttribute('aria-label', 'Chọn phỉnh ' + fmtMoney(v) + ' INH');
+    b.title = fmtMoney(v);
+    b.setAttribute('aria-label', 'Chọn phỉnh ' + fmtMoney(v));
     b.setAttribute('aria-pressed', String(v===selectedChip));
     b.dataset.v = v;
     chipsEl.appendChild(b);
@@ -14776,15 +15327,24 @@ class RouletteTable {
     });
   });
   TABLES.forEach(cfg => new GameTable(cfg));
+  new BacBoTable({name:'Bac Bo T1',id:'186269901',players:24});
+  new AndarBaharTable({name:'Andar Bahar T1',id:'186269801',players:24});
   XOCDIA.forEach(cfg => new XocDiaTable(cfg));
   TAIXIU.forEach(cfg => new TaiXiuTable(cfg));
+  new MonopolyTable();
   new RouletteTable({name:'Roulette T1',id:'186269701',players:28});
+  new DragonTigerTable({name:'Long Hổ T1',id:'186269811',players:24});
+  new FantanTable({name:'Fantan T1',id:'186269901',players:24});
+  document.querySelectorAll('.table-card').forEach(card=>{
+    const status=card.querySelector('.f-status'),badge=card.querySelector('.pbadge');
+    if(status&&badge)badge.after(status);
+  });
   const sideTabs = Array.from(document.querySelectorAll('.side-tab'));
   sideTabs.forEach(tab => tab.addEventListener('click', ()=>{
     sideTabs.forEach(x=>x.classList.toggle('active', x===tab));
     const category = tab.dataset.cat;
     document.querySelectorAll('.table-card').forEach(c=>{
-      const cardCategory = c.classList.contains('rl') ? 'rl' : c.classList.contains('tx') ? 'tx' : c.classList.contains('slot') ? 'xd-slot' : c.classList.contains('xd') ? 'xd' : 'bac';
+      const cardCategory = c.classList.contains('ab') ? 'ab' : c.classList.contains('bb-table') ? 'bb' : c.classList.contains('dt') ? 'dt' : c.classList.contains('ft') ? 'ft' : c.classList.contains('rl') ? 'rl' : c.classList.contains('monopoly') ? 'monopoly' : c.classList.contains('tx') ? 'tx' : c.classList.contains('slot') ? 'xd-slot' : c.classList.contains('xd') ? 'xd' : 'bac';
       const visible = category === cardCategory;
       c.style.display = visible ? '' : 'none';
       if (visible){
@@ -14793,7 +15353,7 @@ class RouletteTable {
       }
     });
   }));
-  document.querySelectorAll('.table-card.xd,.table-card.tx,.table-card.rl').forEach(c=>{ c.style.display = 'none'; });
+  document.querySelectorAll('.table-card.ab,.table-card.bb-table,.table-card.xd,.table-card.tx,.table-card.monopoly,.table-card.rl,.table-card.dt,.table-card.ft').forEach(c=>{ c.style.display = 'none'; });
   setBalance();
 })();
 </script>

@@ -1,0 +1,58 @@
+.dt .felt{height:240px;padding:12px}
+.dt-arena{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;height:176px;margin-top:8px}
+.dt-side{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-width:0;overflow:hidden;border:1px solid rgba(255,255,255,.3);border-radius:11px;color:#fff;transition:box-shadow .2s,transform .2s}
+.dt-side.dragon{background:linear-gradient(150deg,#2563a8,#133e73)}
+.dt-side.tiger{background:linear-gradient(150deg,#b73a35,#76201f)}
+.dt-side::after{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:88px;font-weight:900;opacity:.1;pointer-events:none;user-select:none}
+.dt-side.dragon::after{content:"龍"}
+.dt-side.tiger::after{content:"虎"}
+.dt-side>*{position:relative;z-index:1}
+.dt-side.winner{box-shadow:inset 0 0 0 2px #ffd75e,0 0 14px rgba(255,215,94,.42);transform:translateY(-2px)}
+.dt-side.tie{box-shadow:inset 0 0 0 2px #ffd75e}
+.dt-side-title{font-size:13px;font-weight:800;letter-spacing:1.5px}
+.dt-card-slot{height:74px;display:grid;place-items:center}
+.dt-card-slot .pcard{width:52px;height:72px}
+.dt-card-slot .pcard b:not(.rank-bottom){top:5px;left:6px;right:auto;bottom:auto;z-index:2;font-size:15px;line-height:1}
+.dt-card-slot .pcard .rank-bottom{top:auto;left:auto;right:5px;bottom:5px;z-index:2}
+.dt-card-slot .pcard i{position:relative;z-index:1;top:auto;left:auto;font-size:28px;line-height:1}
+.dt-card-placeholder{width:52px;height:72px;display:grid;place-items:center;border:1px dashed rgba(255,255,255,.5);border-radius:7px;color:rgba(255,255,255,.45);font-size:25px;font-weight:700}
+.dt-rank{min-height:16px;font-size:11px;font-weight:700;color:rgba(255,255,255,.85)}
+.dt .bet-wrap{padding-bottom:2px}
+.dt-main-bets{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:58px}
+.dt-main-bets .betbtn{justify-content:center;min-width:0;overflow:hidden}
+.dt-main-bets [data-k="D"]{background:linear-gradient(180deg,#5b8def,#2f6be0);border-color:#1d4ed8}
+.dt-main-bets [data-k="T"]{background:linear-gradient(180deg,#ef5b57,#d32f2f);border-color:#b71c1c}
+.dt-main-bets [data-k="D"]:hover{background:#4d81ee}
+.dt-main-bets [data-k="T"]:hover{background:#e04a46}
+.dt-main-bets [data-k="D"]::after,.dt-main-bets [data-k="T"]::after{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:38px;font-weight:900;opacity:.18;pointer-events:none}
+.dt-main-bets [data-k="D"]::after{content:"龍"}
+.dt-main-bets [data-k="T"]::after{content:"虎"}
+.dt-main-bets [data-k="D"] .b-name,.dt-main-bets [data-k="D"] .b-odds,.dt-main-bets [data-k="T"] .b-name,.dt-main-bets [data-k="T"] .b-odds{position:relative;z-index:1;color:#fff}
+.dt-main-bets [data-k="D"] .b-total,.dt-main-bets [data-k="D"] .b-user,.dt-main-bets [data-k="T"] .b-total,.dt-main-bets [data-k="T"] .b-user{z-index:1}
+.dt-main-bets .betbtn[data-k="E"]{background:linear-gradient(180deg,#fdf3e4,#f8e3c2);border-color:#e8c98d}
+.dt-main-bets .betbtn.win{background:#e7f8ec;outline:2px solid #2fa14f}
+.dt-main-bets .betbtn.win .b-name,.dt-main-bets .betbtn.win .b-odds{color:#157a33}
+.dt-main-bets .betbtn.push{outline:2px solid #d5a928;background:#fff8df}
+.dt-main-bets .betbtn.lose,.dt-suit-bets .betbtn.lose{opacity:.5}
+.dt-suit-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px}
+.dt-suit-group{min-width:0;padding:6px;border:1px solid #dbe5e9;border-radius:8px;background:#f8fafb}
+.dt-suit-group.dragon{border-color:#b4c9ed;background:linear-gradient(180deg,#f5f9ff,#fff)}
+.dt-suit-group.tiger{border-color:#e8b3b2;background:linear-gradient(180deg,#fff7f7,#fff)}
+.dt-suit-title{display:flex;align-items:center;justify-content:space-between;margin:0 2px 5px;color:#315f9e;font-size:9px;font-weight:800;letter-spacing:.25px}
+.dt-suit-group.tiger .dt-suit-title{color:#aa3e42}
+.dt-suit-title span{font-size:15px;opacity:.55}
+.dt-suit-bets{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.dt-suit-bets .betbtn{min-width:0;min-height:38px;justify-content:center;padding:3px 1px}
+.dt-suit-bets .b-name{font-size:25px;line-height:25px}
+.dt-suit-bets .b-odds{font-size:9px;line-height:11px}
+.dt-suit-bets .betbtn[data-suit="H"],.dt-suit-bets .betbtn[data-suit="D"]{background:linear-gradient(180deg,#fff1f0,#ffe0df);border-color:#edb3b0}
+.dt-suit-bets .betbtn[data-suit="C"],.dt-suit-bets .betbtn[data-suit="S"]{background:linear-gradient(180deg,#f1f5f7,#e2e9ed);border-color:#c3d0d7}
+.dt-suit-bets .betbtn[data-suit="H"] .b-name,.dt-suit-bets .betbtn[data-suit="D"] .b-name{color:#bf3434}
+.dt-suit-bets .betbtn[data-suit="C"] .b-name,.dt-suit-bets .betbtn[data-suit="S"] .b-name{color:#263b45}
+.dt-suit-bets .betbtn.win{background:#e7f8ec;outline:2px solid #2fa14f}
+.dt-suit-bets .betbtn.win .b-name,.dt-suit-bets .betbtn.win .b-odds{color:#157a33}
+.dt .road{height:80px}
+@media(max-width:500px){
+  .dt .felt{height:220px;padding:10px}
+  .dt-arena{height:158px;gap:7px}
+}

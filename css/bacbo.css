@@ -1,8 +1,12 @@
 .bb-table .felt{height:368px;padding:10px}
-.bb-arena{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;align-items:start}
-.bb-side{min-width:0;padding:5px;border:1px solid rgba(220,252,239,.28);border-radius:8px}
-.bb-side.banker{border-color:#ed817f;background:linear-gradient(180deg,rgba(173,43,51,.96),rgba(112,25,34,.96))}
-.bb-side.player{border-color:#75a9f3;background:linear-gradient(180deg,rgba(47,103,190,.96),rgba(28,64,131,.96))}
+.bb-arena{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"player banker";gap:7px;align-items:start}
+.bb-side{position:relative;min-width:0;padding:5px;border:1px solid rgba(220,252,239,.28);border-radius:8px}
+.bb-side.banker{grid-area:banker;border-color:#ed817f;background:linear-gradient(180deg,rgba(173,43,51,.96),rgba(112,25,34,.96))}
+.bb-side.player{grid-area:player;border-color:#75a9f3;background:linear-gradient(180deg,rgba(47,103,190,.96),rgba(28,64,131,.96))}
+.bb-side::after{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:0;color:rgba(255,255,255,.16);font-size:clamp(72px,18vw,108px);font-weight:900;line-height:1;pointer-events:none;user-select:none}
+.bb-side.banker::after{content:'莊'}
+.bb-side.player::after{content:'閒'}
+.bb-side-head,.bb-cups{position:relative;z-index:1}
 .bb-side-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 3px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.5px}
 .bb-side-score{min-width:22px;padding:1px 5px;border-radius:10px;background:rgba(255,255,255,.16);text-align:center;font-size:11px;letter-spacing:0}
 .bb-cups{display:grid;gap:3px}

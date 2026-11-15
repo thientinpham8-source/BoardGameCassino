@@ -99,6 +99,12 @@ function pickW(pool,w){
   for (let i=0;i<pool.length;i++){ r -= w[i]; if (r<=0) return pool[i]; }
   return pool[pool.length-1];
 }
+function startTableWithRandomPhase(table){
+  if(Math.random()<.5){
+    table.firstBet=0;
+    table.lock();
+  } else table.startBetting();
+}
 
 function renderBigRoad(history){
   const cells = [], occupied = new Set();

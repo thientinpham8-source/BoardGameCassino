@@ -14,7 +14,7 @@ class GameTable {
     this.paused = false; this.timers = [];
     this.build();
     this.renderAll();
-    this.startBetting();
+    startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(), 15000);
   }
   draw(){
@@ -111,7 +111,7 @@ class GameTable {
       keys.push(pickW(pool, w));
     }
     keys.forEach(k=>{ this.bots[k] = (this.bots[k]||0) + (1 + Math.floor(Math.random()*20))*1_000_000; });
-    this.renderBetGrid(); this.renderSideGrid();
+    this.updateBotTotals();
   }
   fluctuate(){
     if (this.paused || this.phase!=='BETTING' || this.autoBtn) return;
@@ -137,11 +137,15 @@ class GameTable {
     this.reveal = { p:[0,0,0], b:[0,0,0] };
     this.animCard = null;
     const S = this.steps = [];
-    for (let i=0;i<2;i++) S.push({ run: ()=>this.setCard('p',i,1), d: 200 });   // chia úp 2 lá P
-    for (let i=0;i<2;i++) S.push({ run: ()=>this.setCard('b',i,1), d: 200 });   // chia úp 2 lá B
+    S.push({ run: ()=>this.setCard('p',0,1), d: 200 });
+    S.push({ run: ()=>this.setCard('b',0,1), d: 200 });
+    S.push({ run: ()=>this.setCard('p',1,1), d: 200 });
+    S.push({ run: ()=>this.setCard('b',1,1), d: 200 });
     S.push({ run: ()=>{}, d: 340 });                                            // nhịp nghỉ
-    for (let i=0;i<2;i++) S.push({ run: ()=>this.setCard('p',i,2), d: 720 });   // lật P từng lá
-    for (let i=0;i<2;i++) S.push({ run: ()=>this.setCard('b',i,2), d: 720 });   // lật B từng lá
+    S.push({ run: ()=>this.setCard('p',0,2), d: 720 });
+    S.push({ run: ()=>this.setCard('b',0,2), d: 720 });
+    S.push({ run: ()=>this.setCard('p',1,2), d: 720 });
+    S.push({ run: ()=>this.setCard('b',1,2), d: 720 });
     if (this.round.p.length>2){
       S.push({ run: ()=>this.setCard('p',2,1), d: 420 });                       // lá 3 P (luật P<=5)
       S.push({ run: ()=>this.setCard('p',2,2), d: 720 });
@@ -215,6 +219,19 @@ class GameTable {
       (bb ? '<span class="b-total">' + fmtChips(bb) + '</span>' : '') +
       (u ? '<span class="b-user">' + fmtChips(u) + '</span>' : '') +
       '</button>';
+  }
+  updateBotTotals(){
+    this.el.querySelectorAll('.betbtn,.minibtn').forEach(button=>{
+      const amount=this.bots[button.dataset.k]||0;
+      let total=button.querySelector('.b-total');
+      if(!amount){if(total)total.remove();return;}
+      if(!total){
+        total=document.createElement('span');
+        total.className='b-total';
+        button.appendChild(total);
+      }
+      total.textContent=fmtChips(amount);
+    });
   }
   renderBadge(pulse){
     if (!this.$badge) return;

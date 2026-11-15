@@ -11,7 +11,7 @@ class BacBoTable {
     this.build();
     this.simulations=[...this.el.querySelectorAll('.bb-cup .glass-stage')].map((stage,index)=>
       new GlassDiceSimulation(stage,1,index%2===0?6:4,false));
-    this.startBetting();
+    startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
@@ -132,4 +132,38 @@ class BacBoTable {
   renderAll(){
     this.renderStatus(); this.renderBets(); this.renderScores(); this.renderStats();
   }
+}
+
+const BB_OPTS=[
+  {k:'P',n:'Player',o:'2.00',group:'main'},
+  {k:'T',n:'Hòa',o:'8.00',group:'main'},
+  {k:'B',n:'Banker',o:'2.00',group:'main'},
+  {k:'BE',n:'Chẵn',o:'2.00',group:'B'},
+  {k:'BO',n:'Lẻ',o:'2.00',group:'B'},
+  {k:'BH',n:'Tài',o:'2.00',group:'B'},
+  {k:'BL',n:'Xỉu',o:'2.00',group:'B'},
+  {k:'PE',n:'Chẵn',o:'2.00',group:'P'},
+  {k:'PO',n:'Lẻ',o:'2.00',group:'P'},
+  {k:'PH',n:'Tài',o:'2.00',group:'P'},
+  {k:'PL',n:'Xỉu',o:'2.00',group:'P'}
+];
+function bbAnalyze(values){
+  const bankerTotal=values[0]+values[1], playerTotal=values[2]+values[3];
+  return {values:values.slice(),bankerTotal,playerTotal,winner:bankerTotal>playerTotal?'B':playerTotal>bankerTotal?'P':'T'};
+}
+function bbMult(key,res){
+  if(key==='B'||key==='P')return key===res.winner?1:-1;
+  if(key==='T')return res.winner==='T'?7:-1;
+  const total=key[0]==='B'?res.bankerTotal:key[0]==='P'?res.playerTotal:null;
+  if(total===null)return -1;
+  if(key[1]==='E')return total%2===0?1:-1;
+  if(key[1]==='O')return total%2===1?1:-1;
+  if(key[1]==='H')return total>=8?1:-1;
+  if(key[1]==='L')return total<=6?1:-1;
+  return -1;
+}
+function bbResultDieHtml(value,index){
+  return '<span class="glass-result-die bb-result-die'+(value===1?' single-pip':'')+(value===1||value===4?' red-pips':'')+'" role="img" aria-label="Xúc xắc '+(index+1)+': '+value+' điểm">'+
+    DICE_PIPS[value].map(p=>'<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>').join('')+
+    '</span>';
 }

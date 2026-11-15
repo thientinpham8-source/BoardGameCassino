@@ -7,7 +7,7 @@ class FantanTable{
     this.resLeft=CFG.resultTime;this.user={};this.bots={};this.timers=[];
     this.lastResult=null;
     this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>ftAnalyze(txRoll()).result);
-    this.build();this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'),3,GLASS_SHAKE_DURATION,false);this.startBetting();
+    this.build();this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'),3,GLASS_SHAKE_DURATION,false);startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
@@ -116,4 +116,23 @@ class FantanTable{
     this.$summary.textContent='1: '+counts[0]+' · 2: '+counts[1]+' · 3: '+counts[2]+' · 4: '+counts[3];
   }
   renderAll(){this.renderStatus();this.renderBets();this.renderStats();}
+}
+
+const FT_OPTS=[
+  ...[1,2,3,4].map(n=>({k:String(n),n:'Cửa '+n,o:'3.00',results:[n],group:'main'})),
+  {k:'even',n:'Chẵn (2-4)',o:'1.00',results:[2,4],group:'side'},
+  {k:'odd',n:'Lẻ (1-3)',o:'1.00',results:[1,3],group:'side'},
+  {k:'high',n:'Tài (3-4)',o:'1.00',results:[3,4],group:'side'},
+  {k:'low',n:'Xỉu (1-2)',o:'1.00',results:[1,2],group:'side'},
+  {k:'ends',n:'Đầu/đuôi (1-4)',o:'1.00',results:[1,4],group:'side'},
+  {k:'middle',n:'Giữa (2-3)',o:'1.00',results:[2,3],group:'side'},
+  {k:'set123',n:'1-2-3',o:'0.33',results:[1,2,3],group:'triple'},
+  {k:'set234',n:'2-3-4',o:'0.33',results:[2,3,4],group:'triple'},
+  {k:'set124',n:'1-2-4',o:'0.33',results:[1,2,4],group:'triple'},
+  {k:'set134',n:'1-3-4',o:'0.33',results:[1,3,4],group:'triple'}
+];
+function ftWinningOptions(result){return FT_OPTS.filter(option=>option.results.includes(result));}
+function ftAnalyze(dice){
+  const total=dice.reduce((sum,value)=>sum+value,0);
+  return {total,result:total%4||4};
 }

@@ -11,7 +11,12 @@
 .dt-side.tie{box-shadow:inset 0 0 0 2px #ffd75e}
 .dt-side-title{font-size:13px;font-weight:800;letter-spacing:1.5px}
 .dt-card-slot{height:74px;display:grid;place-items:center}
-.dt-card-slot .pcard{width:52px;height:72px}
+.dt-card-slot .pcard{width:52px;height:72px;color:#1f2937}
+.dt-card-slot .pcard.red{color:#e53935}
+.dt-card-slot .pcard.back{animation:dtCardDeal .35s ease both}
+.dt-card-slot .pcard.flip{animation:dtCardFlip .5s ease both}
+@keyframes dtCardDeal{from{transform:translateY(-10px);opacity:0}}
+@keyframes dtCardFlip{from{transform:rotateY(90deg);opacity:0}}
 .dt-card-slot .pcard b:not(.rank-bottom){top:5px;left:6px;right:auto;bottom:auto;z-index:2;font-size:15px;line-height:1}
 .dt-card-slot .pcard .rank-bottom{top:auto;left:auto;right:5px;bottom:5px;z-index:2}
 .dt-card-slot .pcard i{position:relative;z-index:1;top:auto;left:auto;font-size:28px;line-height:1}

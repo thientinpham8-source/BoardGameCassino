@@ -6,7 +6,7 @@ class MonopolyTable{
     this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);this.resLeft=CFG.resultTime;
     this.roll=monopolyRoll();this.lastRes=null;this.user={};this.bots={};this.timers=[];this.tab='res';
     this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>monopolyResult(monopolyRoll()));
-    this.build();this.startBetting();
+    this.build();startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}
@@ -160,29 +160,29 @@ class MonopolyTable{
     this.renderStatus();this.renderBetGrid();this.renderStats();
   }
 }
-const RL_ORDER = [0,7,2,9,4,1,6,12,8,3,10,5,11];
-const RL_RED = new Set([1,3,5,7,9,12]);
-const RL_OPTS = [
-  { k:'X', n:'Xỉu', o:'2.00', row:'size' }, { k:'T', n:'Tài', o:'2.00', row:'size' },
-  { k:'D', n:'Đen', o:'2.00', row:'color' }, { k:'R', n:'Đỏ', o:'2.00', row:'color' },
-  { k:'C', n:'Chẵn', o:'2.00', row:'parity' }, { k:'L', n:'Lẻ', o:'2.00', row:'parity' },
-  ...Array.from({length:13},(_,i)=>({ k:'N'+i, n:String(i), o:'12×', row:'number' }))
+
+const MONOPOLY_OPTS = [
+  {k:'T',n:'TÀI',range:'8–12',o:2}, {k:'7',n:'7',range:'7',o:4}, {k:'X',n:'XỈU',range:'2–6',o:2}
 ];
-function rlRoll(){ return Math.floor(Math.random()*13); }
-function rlColor(n){ return n===0 ? 'zero' : RL_RED.has(n) ? 'red' : 'black'; }
-function rlMult(k,n){
-  if(k.startsWith('N')) return Number(k.slice(1))===n ? 11 : -1;
-  if(n===0) return -1;
-  const win = k==='X' ? n<=6 : k==='T' ? n>=7 : k==='R' ? RL_RED.has(n) : k==='D' ? !RL_RED.has(n) : k==='C' ? n%2===0 : n%2===1;
-  return win ? 1 : -1;
+const MONOPOLY_PAYOUTS = {2:'3.5×',3:'3×',4:'2.5×',5:'2×',6:'1.5×',7:'4×',8:'2×',9:'2×',10:'2.5×',11:'3×',12:'3.5×'};
+const MONOPOLY_TRACK = [
+  {number:7,row:1,column:1},{number:8,row:1,column:2},{number:9,row:1,column:3},{number:10,row:1,column:4},
+  {number:11,row:2,column:4},{number:12,row:3,column:4},{number:1,go:true,row:4,column:4},
+  {number:4,row:4,column:1},{number:3,row:4,column:2},{number:2,row:4,column:3},
+  {number:6,row:2,column:1},{number:5,row:3,column:1}
+];
+const MONOPOLY_ROUTE = [1,2,3,4,5,6,7,8,9,10,11,12];
+const MONOPOLY_NAMES = {X:'Xỉu',7:'7',T:'Tài'};
+function monopolyRoll(){return [1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)];}
+function monopolyResult(dice){
+  const total=dice[0]+dice[1];
+  return {dice:dice.slice(),total,winner:total<7?'X':total>7?'T':'7'};
 }
-function rouletteSvg(){
-  const point=(r,a)=>{const rad=a*Math.PI/180;return [100+r*Math.sin(rad),100-r*Math.cos(rad)];};
-  const paths=RL_ORDER.map((n,i)=>{
-    const a=i*360/13, p=point(98,a-180/13), q=point(98,a+180/13), s=point(62,a+180/13), t=point(62,a-180/13);
-    const color=n===0?'#24754d':RL_RED.has(n)?'#a92124':'#151d24';
-    const label=point(82,a);
-    return '<g data-pocket="'+n+'"><path d="M '+p.join(' ')+' A 98 98 0 0 1 '+q.join(' ')+' L '+s.join(' ')+' A 62 62 0 0 0 '+t.join(' ')+' Z" fill="'+color+'" stroke="#d4b174" stroke-width="1.2"/><text x="'+label[0]+'" y="'+label[1]+'" transform="rotate('+a+' '+label.join(' ')+')" text-anchor="middle" dominant-baseline="central" fill="#fff4ce" font-family="Consolas,monospace" font-size="15" font-weight="700">'+n+'</text></g>';
-  }).join('');
-  return '<svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="rl-wood"><stop stop-color="#b78648"/><stop offset=".7" stop-color="#724b2e"/><stop offset="1" stop-color="#4b2f20"/></radialGradient></defs><circle cx="100" cy="100" r="100" fill="url(#rl-wood)"/>'+paths+'<circle cx="100" cy="100" r="59" fill="none" stroke="#d4b174" stroke-width="2"/><circle cx="100" cy="100" r="39" fill="none" stroke="#c9a765" stroke-width="1"/></svg>';
+function monopolyMultiplier(key,result){
+  if(key==='X')return result.total<7?2:-1;
+  if(key==='7')return result.total===7?4:-1;
+  if(key==='T')return result.total>7?2:-1;
+  const exactOdds=parseFloat(MONOPOLY_PAYOUTS[key]);
+  if(Number.isFinite(exactOdds))return result.total===Number(key)?exactOdds:-1;
+  return -1;
 }

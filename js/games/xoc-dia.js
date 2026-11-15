@@ -90,7 +90,7 @@ class XocDiaTable {
     this.paused = false; this.timers = [];
     this.build();
     this.renderAll();
-    this.startBetting();
+    startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(), 15000);
   }
   schedule(fn, ms){
@@ -158,6 +158,7 @@ class XocDiaTable {
     this.user = {}; this.bots = {};
     this.setLocked(false);
     this.renderAll();
+    if (this.slot) this.randomizeSlotReels();
     const n = this.players;
     for (let i=0;i<n;i++) this.schedule(()=>{ if (this.phase==='BETTING') this.botBet(); }, Math.random()*6000);
     this.tick();
@@ -308,12 +309,23 @@ class XocDiaTable {
   }
   renderSlot(){
     const src = this.coins || Array.from({length:this.coinCount}, (_,i)=>i%2===0 ? 1 : 0);
-    this.$coins.innerHTML = src.map((c,i)=>
-      '<div class="slot-reel" style="--spin-speed:' + (.17 + i*.03) + 's;--spin-delay:-' + (i*.045) + 's" role="img" aria-label="' + (c ? 'Quân đỏ' : 'Quân trắng') + '"><div class="slot-strip">' +
-      [c,1-c,c].map(v=>'<div class="slot-symbol"><span class="coin ' + (v ? 'red' : 'white') + '"></span></div>').join('') + '</div></div>'
-    ).join('');
-    this.$dish.classList.remove('open');
-    this.$dish.classList.toggle('empty', this.lastRed === null && this.phase === 'BETTING');
+    const betting = this.phase === 'BETTING';
+    const symbolHtml = value=>'<div class="slot-symbol"><span class="coin ' + (value ? 'red' : 'white') + '"></span></div>';
+    this.$coins.innerHTML = src.map((c,i)=>{
+      const symbols = betting ? Array.from({length:3},()=>Math.random()<.5?1:0) : [c,1-c,c];
+      return '<div class="slot-reel" style="--spin-speed:' + (.17 + i*.03) + 's;--spin-delay:-' + (i*.045) + 's" role="img" aria-label="' + (betting ? 'Quân vị đang quay' : c ? 'Quân đỏ' : 'Quân trắng') + '"><div class="slot-strip">' +
+        symbols.map(symbolHtml).join('') + '</div></div>';
+    }).join('');
+    this.$dish.classList.toggle('spinning', betting);
+    this.$dish.classList.remove('empty');
+    if (betting) this.$dish.classList.remove('open');
+  }
+  randomizeSlotReels(){
+    if (!this.slot || this.phase!=='BETTING' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    this.$coins.querySelectorAll('.slot-strip').forEach(strip=>{
+      strip.innerHTML=Array.from({length:3},()=>'<div class="slot-symbol"><span class="coin '+(Math.random()<.5?'red':'white')+'"></span></div>').join('');
+    });
+    this.schedule(()=>this.randomizeSlotReels(),350);
   }
   renderDish(){
     if (this.slot){ this.renderSlot(); return; }
@@ -378,216 +390,4 @@ class XocDiaTable {
     this.renderStatus(); this.renderDish(); this.renderBetGrid(); this.renderSideGrid();
     this.renderStats(); this.renderBadge();
   }
-}
-const TAIXIU = [
-  { name:'Tài Xỉu T1', id:'186269601', players:28 },
-  { name:'Tài Xỉu T2', id:'186269602', players:28 },
-  { name:'Tài Xỉu Ống', id:'186269603', players:28, glass:true }
-];
-const TX_OPTS = [
-  { k:'T', n:'Tài', o:'2.00', row:'main' },
-  { k:'A', n:'Tam Bảo', o:'31.00', row:'main' },
-  { k:'X', n:'Xỉu', o:'2.00', row:'main' },
-  { k:'C', n:'Chẵn', o:'2.00', row:'parity' },
-  { k:'L', n:'Lẻ', o:'2.00', row:'parity' },
-  ...Array.from({length:6},(_,i)=>({ k:'N'+(i+1), n:String(i+1), o:'2/3/4×', row:'single' }))
-];
-const TX_NAMES = { T:'Tài', X:'Xỉu', A:'Tam Bảo' };
-const DICE_PIPS = [[],[5],[1,9],[1,5,9],[1,3,7,9],[1,3,5,7,9],[1,3,4,6,7,9]];
-const DICE_SIDES = [[],[2,3],[6,3],[2,6],[2,1],[1,3],[5,3]];
-function txRoll(){ return Array.from({length:3},()=>1+Math.floor(Math.random()*6)); }
-function txAnalyze(dice){
-  const total = dice.reduce((a,n)=>a+n,0), triple = dice.every(n=>n===dice[0]);
-  return { dice:dice.slice(), total, triple, winner:triple?'A':total>=11?'T':'X' };
-}
-function txMult(k, res){
-  if(k==='A') return res.triple ? 30 : -1;
-  if(k.startsWith('N')) return res.dice.filter(n=>n===Number(k.slice(1))).length || -1;
-  if(res.triple) return -1;
-  if(k==='C'||k==='L') return (res.total%2===0 ? 'C' : 'L')===k ? 1 : -1;
-  return res.winner===k ? 1 : -1;
-}
-function diceHtml(value, index){
-  const face = (n, side)=>'<span class="dice-face dice-' + side + (n===1?' single-pip':'') + (n===1||n===4?' red-pips':'') + '" aria-hidden="true">' +
-    DICE_PIPS[n].map(p=>'<i class="dice-pip" style="grid-column:' + ((p-1)%3+1) + ';grid-row:' + (Math.floor((p-1)/3)+1) + '"></i>').join('') + '</span>';
-  return '<span class="dice" data-value="' + value + '" role="img" aria-label="Xí ngầu ' + (index+1) + ': ' + value + ' điểm"><span class="dice-cube">' +
-    face(7-DICE_SIDES[value][0],'front') + face(value,'top') + face(DICE_SIDES[value][1],'right') + '</span></span>';
-}
-const GLASS_FACES = [
-  {side:'top',value:1,normal:[0,1,0]}, {side:'bottom',value:6,normal:[0,-1,0]},
-  {side:'front',value:2,normal:[0,0,1]}, {side:'back',value:5,normal:[0,0,-1]},
-  {side:'right',value:3,normal:[1,0,0]}, {side:'left',value:4,normal:[-1,0,0]}
-];
-function glassDiceHtml(index){
-  return '<div class="glass-die" role="img" aria-label="Xí ngầu '+(index+1)+'">'+GLASS_FACES.map(f=>
-    '<span class="dice-face glass-'+f.side+'-face'+(f.value===1?' single-pip':'')+(f.value===1||f.value===4?' red-pips':'')+'" data-face="'+f.value+'" aria-hidden="true">'+DICE_PIPS[f.value].map(p=>
-      '<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>'
-    ).join('')+'</span>'
-  ).join('')+'</div>';
-}
-const GLASS_SHAKE_DURATION=4, GLASS_MAX_DURATION=10;
-class GlassDiceSimulation {
-  constructor(stage,count=3,shakeDuration=GLASS_SHAKE_DURATION,snapOnSettle=true){
-    this.stage=stage; this.count=count; this.shakeDuration=shakeDuration; this.snapOnSettle=snapOnSettle;
-    this.scale=88; this.time=0; this.quietTime=0; this.restPoses=null; this.frame=null; this.running=false;
-    this.world=new CANNON.World({gravity:new CANNON.Vec3(0,-9.81,0),allowSleep:false});
-    this.world.solver.iterations=20; this.world.solver.tolerance=1e-7;
-    const diceMaterial=new CANNON.Material('ivory'), floorMaterial=new CANNON.Material('base'), wallMaterial=new CANNON.Material('glass');
-    this.world.addContactMaterial(new CANNON.ContactMaterial(diceMaterial,floorMaterial,{friction:.48,restitution:.3}));
-    this.world.addContactMaterial(new CANNON.ContactMaterial(diceMaterial,wallMaterial,{friction:.2,restitution:.42}));
-    this.world.addContactMaterial(new CANNON.ContactMaterial(diceMaterial,diceMaterial,{friction:.35,restitution:.32}));
-    this.floor=new CANNON.Body({type:CANNON.Body.KINEMATIC,material:floorMaterial,shape:new CANNON.Box(new CANNON.Vec3(1,.04,1)),position:new CANNON.Vec3(0,-.04,0)});
-    this.world.addBody(this.floor);
-    for(let i=0;i<32;i++){
-      const angle=i*Math.PI/16, wall=new CANNON.Body({mass:0,material:wallMaterial,shape:new CANNON.Box(new CANNON.Vec3(.087,.52,.045)),position:new CANNON.Vec3(Math.sin(angle)*.82,.5,Math.cos(angle)*.82)});
-      wall.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0),angle); this.world.addBody(wall);
-    }
-    this.world.addBody(new CANNON.Body({mass:0,material:wallMaterial,shape:new CANNON.Box(new CANNON.Vec3(1,.04,1)),position:new CANNON.Vec3(0,1.04,0)}));
-    const starts=count===1?[[0,0]]:count===2?[[-.32,0],[.32,0]]:[[-.38,-.23],[.38,-.23],[0,.4]];
-    this.bodies=starts.map(([x,z],i)=>{
-      const body=new CANNON.Body({mass:.035,shape:new CANNON.Box(new CANNON.Vec3(.18,.18,.18)),material:diceMaterial,position:new CANNON.Vec3(x,.181,z),linearDamping:.06,angularDamping:.08,allowSleep:true,sleepSpeedLimit:.1,sleepTimeLimit:.75});
-      if(i===1)body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
-      if(i===2)body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),Math.PI/2);
-      this.world.addBody(body); body.sleep(); return body;
-    });
-    this.camera=stage.querySelector('.glass-camera');
-    this.camera.innerHTML='<div class="glass-floor"></div>'+this.bodies.map(()=>'<div class="glass-die-shadow"></div>').join('')+this.bodies.map((_,i)=>glassDiceHtml(i)).join('');
-    this.dice=[...this.camera.querySelectorAll('.glass-die')]; this.shadows=[...this.camera.querySelectorAll('.glass-die-shadow')]; this.$floor=this.camera.querySelector('.glass-floor');
-    this.render();
-  }
-  readValues(){
-    const up=new CANNON.Vec3();
-    return this.bodies.map(body=>{
-      let best=-Infinity,value=1;
-      for(const f of GLASS_FACES){body.quaternion.vmult(new CANNON.Vec3(...f.normal),up);if(up.y>best){best=up.y;value=f.value;}}
-      return value;
-    });
-  }
-  step(dt){
-    this.time+=dt;
-    if(this.time<this.shakeDuration){
-      const envelope=1-this.time/this.shakeDuration, a=.075, omega=48;
-      this.floor.position.y=-.04+a*envelope*envelope*Math.sin(omega*this.time);
-      this.floor.velocity.y=a*(envelope*envelope*omega*Math.cos(omega*this.time)-(2*envelope/this.shakeDuration)*Math.sin(omega*this.time));
-    } else {this.floor.position.y=-.04;this.floor.velocity.set(0,0,0);}
-    if(this.time<this.shakeDuration&&this.time>=this.nextJolt){
-      this.nextJolt+=.28;
-      this.bodies.forEach(body=>{
-        body.wakeUp();
-        body.velocity.x+=(Math.random()-.5)*2.2;
-        body.velocity.y=Math.max(body.velocity.y,2.8+Math.random()*.8);
-        body.velocity.z+=(Math.random()-.5)*2.2;
-        body.angularVelocity.set((Math.random()-.5)*44,(Math.random()-.5)*44,(Math.random()-.5)*44);
-      });
-    }
-    this.world.step(dt);
-    if(this.time>=GLASS_MAX_DURATION)return true;
-    if(this.time<=this.shakeDuration)return false;
-    const quiet=this.restPoses&&this.bodies.every((body,i)=>{
-      const pose=this.restPoses[i],q=body.quaternion,r=pose.quaternion;
-      return body.position.distanceSquared(pose.position)<.000016&&Math.abs(q.x*r.x+q.y*r.y+q.z*r.z+q.w*r.w)>.99996;
-    });
-    if(quiet)this.quietTime+=dt;
-    else {this.quietTime=0;this.restPoses=this.bodies.map(body=>({position:body.position.clone(),quaternion:body.quaternion.clone()}));}
-    // Treat subpixel contact jitter as rest without changing the dice orientation.
-    if(this.time>2.8&&this.quietTime>.75){this.bodies.forEach(body=>body.sleep());return true;}
-    return false;
-  }
-  straightenDice(){
-    const up=new CANNON.Vec3(0,1,0);
-    let needsReposition=false;
-    this.bodies.forEach((body,i)=>{
-      let topFace=GLASS_FACES[0], highest=-Infinity;
-      GLASS_FACES.forEach(face=>{
-        const normal=new CANNON.Vec3(...face.normal);
-        body.quaternion.vmult(normal,normal);
-        if(normal.y>highest){highest=normal.y;topFace=face;}
-      });
-      body.quaternion.setFromVectors(new CANNON.Vec3(...topFace.normal),up);
-      if(Math.hypot(body.position.x,body.position.z)>.52)needsReposition=true;
-      for(let j=0;j<i;j++){
-        const other=this.bodies[j];
-        if(Math.abs(body.position.x-other.position.x)<.37&&Math.abs(body.position.z-other.position.z)<.37)needsReposition=true;
-      }
-      body.position.y=.181;
-      body.velocity.set(0,0,0); body.angularVelocity.set(0,0,0);
-    });
-    if(needsReposition){
-      const positions=this.bodies.length===1?[[0,0]]:this.bodies.length===2?[[-.32,0],[.32,0]]:[[-.38,-.23],[.38,-.23],[0,.4]];
-      positions.forEach(([x,z],i)=>this.bodies[i].position.set(x,.181,z));
-    }
-    this.bodies.forEach(body=>{
-      body.aabbNeedsUpdate=true; body.sleep();
-    });
-    this.render();
-  }
-  start(onSettled,onMotionChange){
-    this.stop(); this.time=0; this.quietTime=0; this.restPoses=null; this.nextJolt=.12; this.floor.position.y=-.04; this.floor.velocity.set(0,0,0);
-    this.bodies.forEach(body=>{
-      body.wakeUp(); body.velocity.set((Math.random()-.5)*2.2,3.4+Math.random()*1.3,(Math.random()-.5)*2.2);
-      body.angularVelocity.set((Math.random()-.5)*40,(Math.random()-.5)*40,(Math.random()-.5)*40);
-    });
-    this.running=true; const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let previous=performance.now(),accumulator=0,driveEnded=false;
-    onMotionChange();
-    const animate=now=>{
-      if(!this.running)return;
-      accumulator+=Math.min(.08,(now-previous)/1000);previous=now;let settled=false;
-      while(accumulator>=1/240){settled=this.step(1/240);accumulator-=1/240;if(settled)break;}
-      if(!driveEnded&&this.time>=this.shakeDuration){driveEnded=true;onMotionChange();}
-      if(!reduced||settled)this.render();
-      if(settled){
-        if(this.snapOnSettle)this.straightenDice();
-        else {this.bodies.forEach(body=>body.sleep());this.render();}
-        this.running=false;this.frame=null;onSettled(this.readValues());
-      } else this.frame=requestAnimationFrame(animate);
-    };
-    this.frame=requestAnimationFrame(animate);
-  }
-  stop(){cancelAnimationFrame(this.frame);this.frame=null;this.running=false;}
-  render(){
-    const values=this.readValues(), floorTop=this.floor.position.y+.04;
-    this.$floor.style.transform='translateY('+(-floorTop*this.scale)+'px) rotateX(90deg)';
-    this.bodies.forEach((body,i)=>{
-      const p=body.position,q=body.quaternion,s=this.scale;
-      this.dice[i].style.transform='translate3d('+(p.x*s)+'px,'+(-p.y*s)+'px,'+(p.z*s)+'px) rotate3d('+(-q.x)+','+q.y+','+(-q.z)+','+(2*Math.acos(Math.max(-1,Math.min(1,q.w))))+'rad)';
-      this.dice[i].dataset.value=values[i];this.dice[i].setAttribute('aria-label','Xí ngầu '+(i+1)+': '+values[i]+' điểm');
-      const height=Math.max(0,p.y-.18-floorTop);
-      this.shadows[i].style.transform='translate3d('+(p.x*s)+'px,'+(-floorTop*s-.3)+'px,'+(p.z*s)+'px) rotateX(90deg) scale('+(1+height*.7)+')';
-      this.shadows[i].style.opacity=.45/(1+height*3);this.shadows[i].style.filter='blur('+(1+height*3)+'px)';
-    });
-  }
-}
-const BB_OPTS=[
-  {k:'P',n:'Player',o:'2.00',group:'main'},
-  {k:'T',n:'Hòa',o:'8.00',group:'main'},
-  {k:'B',n:'Banker',o:'2.00',group:'main'},
-  {k:'BE',n:'Chẵn',o:'2.00',group:'B'},
-  {k:'BO',n:'Lẻ',o:'2.00',group:'B'},
-  {k:'BH',n:'Tài',o:'2.00',group:'B'},
-  {k:'BL',n:'Xỉu',o:'2.00',group:'B'},
-  {k:'PE',n:'Chẵn',o:'2.00',group:'P'},
-  {k:'PO',n:'Lẻ',o:'2.00',group:'P'},
-  {k:'PH',n:'Tài',o:'2.00',group:'P'},
-  {k:'PL',n:'Xỉu',o:'2.00',group:'P'}
-];
-function bbAnalyze(values){
-  const bankerTotal=values[0]+values[1], playerTotal=values[2]+values[3];
-  return {values:values.slice(),bankerTotal,playerTotal,winner:bankerTotal>playerTotal?'B':playerTotal>bankerTotal?'P':'T'};
-}
-function bbMult(key,res){
-  if(key==='B'||key==='P')return key===res.winner?1:-1;
-  if(key==='T')return res.winner==='T'?7:-1;
-  const total=key[0]==='B'?res.bankerTotal:key[0]==='P'?res.playerTotal:null;
-  if(total===null)return -1;
-  if(key[1]==='E')return total%2===0?1:-1;
-  if(key[1]==='O')return total%2===1?1:-1;
-  if(key[1]==='H')return total>=8?1:-1;
-  if(key[1]==='L')return total<=6?1:-1;
-  return -1;
-}
-function bbResultDieHtml(value,index){
-  return '<span class="glass-result-die bb-result-die'+(value===1?' single-pip':'')+(value===1||value===4?' red-pips':'')+'" role="img" aria-label="Xúc xắc '+(index+1)+': '+value+' điểm">'+
-    DICE_PIPS[value].map(p=>'<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>').join('')+
-    '</span>';
 }

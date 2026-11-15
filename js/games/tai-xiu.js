@@ -9,7 +9,7 @@ class TaiXiuTable {
     this.hist = Array.from({length:60+Math.floor(Math.random()*33)},()=>txAnalyze(txRoll()));
     this.build();
     if(this.glass)this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'));
-    this.startBetting();
+    startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn, ms){ this.timers.push(setTimeout(fn,ms)); }
@@ -171,28 +171,37 @@ class TaiXiuTable {
   }
   renderAll(){ this.renderStatus(); this.renderDish(); this.renderBetGrid(); this.renderStats(); }
 }
-const MONOPOLY_OPTS = [
-  {k:'T',n:'TÀI',range:'8–12',o:2}, {k:'7',n:'7',range:'7',o:4}, {k:'X',n:'XỈU',range:'2–6',o:2}
+
+const TAIXIU = [
+  { name:'Tài Xỉu T1', id:'186269601', players:28 },
+  { name:'Tài Xỉu T2', id:'186269602', players:28 },
+  { name:'Tài Xỉu Ống', id:'186269603', players:28, glass:true }
 ];
-const MONOPOLY_PAYOUTS = {2:'3.5×',3:'3×',4:'2.5×',5:'2×',6:'1.5×',7:'4×',8:'2×',9:'2×',10:'2.5×',11:'3×',12:'3.5×'};
-const MONOPOLY_TRACK = [
-  {number:7,row:1,column:1},{number:8,row:1,column:2},{number:9,row:1,column:3},{number:10,row:1,column:4},
-  {number:11,row:2,column:4},{number:12,row:3,column:4},{number:1,go:true,row:4,column:4},
-  {number:4,row:4,column:1},{number:3,row:4,column:2},{number:2,row:4,column:3},
-  {number:6,row:2,column:1},{number:5,row:3,column:1}
+const TX_OPTS = [
+  { k:'T', n:'Tài', o:'2.00', row:'main' },
+  { k:'A', n:'Tam Bảo', o:'31.00', row:'main' },
+  { k:'X', n:'Xỉu', o:'2.00', row:'main' },
+  { k:'C', n:'Chẵn', o:'2.00', row:'parity' },
+  { k:'L', n:'Lẻ', o:'2.00', row:'parity' },
+  ...Array.from({length:6},(_,i)=>({ k:'N'+(i+1), n:String(i+1), o:'2/3/4×', row:'single' }))
 ];
-const MONOPOLY_ROUTE = [1,2,3,4,5,6,7,8,9,10,11,12];
-const MONOPOLY_NAMES = {X:'Xỉu',7:'7',T:'Tài'};
-function monopolyRoll(){return [1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)];}
-function monopolyResult(dice){
-  const total=dice[0]+dice[1];
-  return {dice:dice.slice(),total,winner:total<7?'X':total>7?'T':'7'};
+const TX_NAMES = { T:'Tài', X:'Xỉu', A:'Tam Bảo' };
+const DICE_SIDES = [[],[2,3],[6,3],[2,6],[2,1],[1,3],[5,3]];
+function txRoll(){ return Array.from({length:3},()=>1+Math.floor(Math.random()*6)); }
+function txAnalyze(dice){
+  const total = dice.reduce((a,n)=>a+n,0), triple = dice.every(n=>n===dice[0]);
+  return { dice:dice.slice(), total, triple, winner:triple?'A':total>=11?'T':'X' };
 }
-function monopolyMultiplier(key,result){
-  if(key==='X')return result.total<7?2:-1;
-  if(key==='7')return result.total===7?4:-1;
-  if(key==='T')return result.total>7?2:-1;
-  const exactOdds=parseFloat(MONOPOLY_PAYOUTS[key]);
-  if(Number.isFinite(exactOdds))return result.total===Number(key)?exactOdds:-1;
-  return -1;
+function txMult(k, res){
+  if(k==='A') return res.triple ? 30 : -1;
+  if(k.startsWith('N')) return res.dice.filter(n=>n===Number(k.slice(1))).length || -1;
+  if(res.triple) return -1;
+  if(k==='C'||k==='L') return (res.total%2===0 ? 'C' : 'L')===k ? 1 : -1;
+  return res.winner===k ? 1 : -1;
+}
+function diceHtml(value, index){
+  const face = (n, side)=>'<span class="dice-face dice-' + side + (n===1?' single-pip':'') + (n===1||n===4?' red-pips':'') + '" aria-hidden="true">' +
+    DICE_PIPS[n].map(p=>'<i class="dice-pip" style="grid-column:' + ((p-1)%3+1) + ';grid-row:' + (Math.floor((p-1)/3)+1) + '"></i>').join('') + '</span>';
+  return '<span class="dice" data-value="' + value + '" role="img" aria-label="Xí ngầu ' + (index+1) + ': ' + value + ' điểm"><span class="dice-cube">' +
+    face(7-DICE_SIDES[value][0],'front') + face(value,'top') + face(DICE_SIDES[value][1],'right') + '</span></span>';
 }

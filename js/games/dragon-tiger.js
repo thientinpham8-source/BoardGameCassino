@@ -6,7 +6,7 @@ class DragonTigerTable{
     this.shoe=makeShoe();this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);
     this.resLeft=CFG.resultTime;this.user={};this.bots={};this.timers=[];
     this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>({winner:['D','T','E'][Math.floor(Math.random()*3)]}));
-    this.build();this.startBetting();
+    this.build();startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   draw(){
@@ -62,8 +62,22 @@ class DragonTigerTable{
   lock(){
     clearLastBetAction(this);
     this.phase='DEALING';this.round={dragon:this.draw(),tiger:this.draw()};
+    this.dealt={dragon:false,tiger:false};
+    this.revealed={dragon:false,tiger:false};
     this.$betWrap.classList.add('locked');this.renderAll();
-    this.schedule(()=>this.finish(),700);
+    this.schedule(()=>this.dealCard('dragon'),600);
+  }
+  dealCard(side){
+    if(this.phase!=='DEALING')return;
+    this.dealt[side]=true;this.renderCards(side);
+    if(side==='dragon')this.schedule(()=>this.dealCard('tiger'),650);
+    else this.schedule(()=>this.revealCard('dragon'),650);
+  }
+  revealCard(side){
+    if(this.phase!=='DEALING')return;
+    this.revealed[side]=true;this.renderCards(side);
+    if(side==='dragon')this.schedule(()=>this.revealCard('tiger'),650);
+    else this.schedule(()=>this.finish(),650);
   }
   finish(){
     if(this.phase!=='DEALING')return;
@@ -84,8 +98,8 @@ class DragonTigerTable{
     if(this.resLeft<=0){this.startBetting();return;}
     this.renderStatus();this.schedule(()=>{this.resLeft--;this.resultTick();},1000);
   }
-  cardHtml(card){
-    return '<span class="pcard'+(card.s===1||card.s===2?' red':'')+'"><b>'+RANKS[card.r]+'</b><i>'+SUITS[card.s]+'</i><b class="rank-bottom">'+RANKS[card.r]+'</b></span>';
+  cardHtml(card,animationClass=''){
+    return '<span class="pcard'+(card.s===1||card.s===2?' red':'')+(animationClass?' '+animationClass:'')+'"><b>'+RANKS[card.r]+'</b><i>'+SUITS[card.s]+'</i><b class="rank-bottom">'+RANKS[card.r]+'</b></span>';
   }
   renderStatus(){
     if(this.phase==='BETTING')this.$status.textContent='Đặt cược — còn '+this.tLeft+'s';
@@ -95,11 +109,14 @@ class DragonTigerTable{
       this.$status.innerHTML='<span class="f-result '+(winner==='D'?'rp':winner==='T'?'rb':'rt')+'">'+label+'</span> · Ván mới sau '+this.resLeft+'s';
     }
   }
-  renderCards(){
+  renderCards(onlySide){
     this.$sides.forEach((side,index)=>{
       const key=index===0?'dragon':'tiger',card=this.phase==='BETTING'?this.lastRound&&this.lastRound[key]:this.round&&this.round[key];
-      side.querySelector('.dt-card-slot').innerHTML=card?this.cardHtml(card):'<span class="dt-card-placeholder">?</span>';
-      side.querySelector('.dt-rank').textContent=card?RANKS[card.r]:'—';
+      if(onlySide&&key!==onlySide)return;
+      const visible=card&&(this.phase!=='DEALING'||this.revealed[key]);
+      const dealt=this.phase==='DEALING'&&this.dealt[key];
+      side.querySelector('.dt-card-slot').innerHTML=visible?this.cardHtml(card,this.phase==='DEALING'?'flip':''):dealt?'<span class="pcard back"></span>':'<span class="dt-card-placeholder">?</span>';
+      side.querySelector('.dt-rank').textContent=visible?RANKS[card.r]:'—';
       side.classList.toggle('winner',this.phase==='RESULT'&&((index===0&&this.lastRes.winner==='D')||(index===1&&this.lastRes.winner==='T')));
       side.classList.toggle('tie',this.phase==='RESULT'&&this.lastRes.winner==='E');
     });
@@ -127,21 +144,19 @@ class DragonTigerTable{
   }
   renderAll(){this.renderStatus();this.renderCards();this.renderBets();this.renderStats();}
 }
-const FT_OPTS=[
-  ...[1,2,3,4].map(n=>({k:String(n),n:'Cửa '+n,o:'3.00',results:[n],group:'main'})),
-  {k:'even',n:'Chẵn (2-4)',o:'1.00',results:[2,4],group:'side'},
-  {k:'odd',n:'Lẻ (1-3)',o:'1.00',results:[1,3],group:'side'},
-  {k:'high',n:'Tài (3-4)',o:'1.00',results:[3,4],group:'side'},
-  {k:'low',n:'Xỉu (1-2)',o:'1.00',results:[1,2],group:'side'},
-  {k:'ends',n:'Đầu/đuôi (1-4)',o:'1.00',results:[1,4],group:'side'},
-  {k:'middle',n:'Giữa (2-3)',o:'1.00',results:[2,3],group:'side'},
-  {k:'set123',n:'1-2-3',o:'0.33',results:[1,2,3],group:'triple'},
-  {k:'set234',n:'2-3-4',o:'0.33',results:[2,3,4],group:'triple'},
-  {k:'set124',n:'1-2-4',o:'0.33',results:[1,2,4],group:'triple'},
-  {k:'set134',n:'1-3-4',o:'0.33',results:[1,3,4],group:'triple'}
-];
-function ftWinningOptions(result){return FT_OPTS.filter(option=>option.results.includes(result));}
-function ftAnalyze(dice){
-  const total=dice.reduce((sum,value)=>sum+value,0);
-  return {total,result:total%4||4};
+
+const DT_MAIN_OPTS=[{k:'D',n:'Long',o:'1.97'},{k:'E',n:'Hòa',o:'8.00'},{k:'T',n:'Hổ',o:'1.97'}];
+const DT_SUITS=[{k:'H',n:'Cơ',symbol:'♥',index:2},{k:'D',n:'Rô',symbol:'♦',index:1},{k:'C',n:'Chuồn',symbol:'♣',index:0},{k:'S',n:'Bích',symbol:'♠',index:3}];
+const DT_SUIT_OPTS=['D','T'].flatMap(side=>DT_SUITS.map(suit=>({
+  k:side+'_'+suit.k,n:suit.symbol,o:'4.00',side,suit:suit.k
+})));
+const DT_OPTS=DT_MAIN_OPTS.concat(DT_SUIT_OPTS);
+function dtMultiplier(key,result){
+  if(key.length===3&&key[1]==='_'){
+    const side=key[0]==='D'?'dragon':'tiger',suit=DT_SUITS.find(item=>item.k===key[2]);
+    return suit&&result[side].s===suit.index?3:-1;
+  }
+  if(key==='E')return result.winner==='E'?7:-1;
+  if(result.winner==='E')return 0;
+  return key===result.winner?0.97:-1;
 }

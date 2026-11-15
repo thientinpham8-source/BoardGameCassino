@@ -18,7 +18,9 @@ function bDraw(b, p3){
   return false;
 }
 function playRound(shoe){
-  const p = [shoe.pop(), shoe.pop()], b = [shoe.pop(), shoe.pop()];
+  const p = [shoe.pop()], b = [shoe.pop()];
+  p.push(shoe.pop());
+  b.push(shoe.pop());
   let p3 = null;
   if (tot(p)<8 && tot(b)<8){
     if (tot(p)<=5){ p3 = shoe.pop(); p.push(p3); }

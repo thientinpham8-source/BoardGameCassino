@@ -8,7 +8,7 @@ class RouletteTable {
     this.user={}; this.bots={}; this.timers=[]; this.tab='res'; this.frame=null;
     this.wheelAngle=0; this.ballAngle=0; this.radius=99;
     this.hist=Array.from({length:80},rlRoll);
-    this.build(); this.startBetting();
+    this.build(); startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn,ms){ this.timers.push(setTimeout(fn,ms)); }
@@ -145,18 +145,30 @@ class RouletteTable {
   }
   renderAll(){this.renderStatus();this.renderBets();this.renderStats();}
 }
-const DT_MAIN_OPTS=[{k:'D',n:'Long',o:'1.97'},{k:'E',n:'Hòa',o:'8.00'},{k:'T',n:'Hổ',o:'1.97'}];
-const DT_SUITS=[{k:'H',n:'Cơ',symbol:'♥',index:2},{k:'D',n:'Rô',symbol:'♦',index:1},{k:'C',n:'Chuồn',symbol:'♣',index:0},{k:'S',n:'Bích',symbol:'♠',index:3}];
-const DT_SUIT_OPTS=['D','T'].flatMap(side=>DT_SUITS.map(suit=>({
-  k:side+'_'+suit.k,n:suit.symbol,o:'4.00',side,suit:suit.k
-})));
-const DT_OPTS=DT_MAIN_OPTS.concat(DT_SUIT_OPTS);
-function dtMultiplier(key,result){
-  if(key.length===3&&key[1]==='_'){
-    const side=key[0]==='D'?'dragon':'tiger',suit=DT_SUITS.find(item=>item.k===key[2]);
-    return suit&&result[side].s===suit.index?3:-1;
-  }
-  if(key==='E')return result.winner==='E'?7:-1;
-  if(result.winner==='E')return 0;
-  return key===result.winner?0.97:-1;
+
+const RL_ORDER = [0,7,2,9,4,1,6,12,8,3,10,5,11];
+const RL_RED = new Set([1,3,5,7,9,12]);
+const RL_OPTS = [
+  { k:'X', n:'Xỉu', o:'2.00', row:'size' }, { k:'T', n:'Tài', o:'2.00', row:'size' },
+  { k:'D', n:'Đen', o:'2.00', row:'color' }, { k:'R', n:'Đỏ', o:'2.00', row:'color' },
+  { k:'C', n:'Chẵn', o:'2.00', row:'parity' }, { k:'L', n:'Lẻ', o:'2.00', row:'parity' },
+  ...Array.from({length:13},(_,i)=>({ k:'N'+i, n:String(i), o:'12×', row:'number' }))
+];
+function rlRoll(){ return Math.floor(Math.random()*13); }
+function rlColor(n){ return n===0 ? 'zero' : RL_RED.has(n) ? 'red' : 'black'; }
+function rlMult(k,n){
+  if(k.startsWith('N')) return Number(k.slice(1))===n ? 11 : -1;
+  if(n===0) return -1;
+  const win = k==='X' ? n<=6 : k==='T' ? n>=7 : k==='R' ? RL_RED.has(n) : k==='D' ? !RL_RED.has(n) : k==='C' ? n%2===0 : n%2===1;
+  return win ? 1 : -1;
+}
+function rouletteSvg(){
+  const point=(r,a)=>{const rad=a*Math.PI/180;return [100+r*Math.sin(rad),100-r*Math.cos(rad)];};
+  const paths=RL_ORDER.map((n,i)=>{
+    const a=i*360/13, p=point(98,a-180/13), q=point(98,a+180/13), s=point(62,a+180/13), t=point(62,a-180/13);
+    const color=n===0?'#24754d':RL_RED.has(n)?'#a92124':'#151d24';
+    const label=point(82,a);
+    return '<g data-pocket="'+n+'"><path d="M '+p.join(' ')+' A 98 98 0 0 1 '+q.join(' ')+' L '+s.join(' ')+' A 62 62 0 0 0 '+t.join(' ')+' Z" fill="'+color+'" stroke="#d4b174" stroke-width="1.2"/><text x="'+label[0]+'" y="'+label[1]+'" transform="rotate('+a+' '+label.join(' ')+')" text-anchor="middle" dominant-baseline="central" fill="#fff4ce" font-family="Consolas,monospace" font-size="15" font-weight="700">'+n+'</text></g>';
+  }).join('');
+  return '<svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="rl-wood"><stop stop-color="#b78648"/><stop offset=".7" stop-color="#724b2e"/><stop offset="1" stop-color="#4b2f20"/></radialGradient></defs><circle cx="100" cy="100" r="100" fill="url(#rl-wood)"/>'+paths+'<circle cx="100" cy="100" r="59" fill="none" stroke="#d4b174" stroke-width="2"/><circle cx="100" cy="100" r="39" fill="none" stroke="#c9a765" stroke-width="1"/></svg>';
 }

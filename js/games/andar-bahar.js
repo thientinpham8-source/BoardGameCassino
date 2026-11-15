@@ -38,7 +38,7 @@ class AndarBaharTable{
     this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);this.resLeft=CFG.resultTime;
     this.user={};this.bots={};this.timers=[];this.round=null;this.lastRound=null;this.lastRes=null;this.dealt=[];
     this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>Math.random()<.5?'A':'B');
-    this.build();this.renderAll();this.startBetting();
+    this.build();this.renderAll();startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}

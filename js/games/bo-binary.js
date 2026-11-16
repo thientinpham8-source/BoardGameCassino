@@ -7,6 +7,44 @@ const BO_PAYOUT = 0.8;
 const BO_COLOR_PAYOUT = {RED:1.95,PURPLE:4.87,GREEN:1.95};
 const BO_DIGITS = Array.from({length:10},(_,digit)=>digit);
 const BO_DIGIT_PAYOUT = 9.7;
+const BO_ROAD_ROWS = 6;
+
+function boRoadColor(digit){
+  if(digit===0)return 'split-red';
+  if(digit===5)return 'split-green';
+  return boColorOutcome(digit).shares.GREEN?'green':'red';
+}
+
+function boBuildBigRoad(results){
+  const columns=[];
+  const road=[];
+  let previous=null,previousColor=null,horizontal=false;
+  results.slice().reverse().forEach(result=>{
+    const color=boRoadColor(result.digit);
+    let column,row;
+    if(!previous){
+      column=0; row=0;
+    }else if(color===previousColor){
+      if(horizontal){
+        column=previous.column+1; row=previous.row;
+        while(columns[column]&&columns[column][row])column++;
+      }else if(previous.row+1<BO_ROAD_ROWS&&!(columns[previous.column]&&columns[previous.column][previous.row+1])){
+        column=previous.column; row=previous.row+1;
+      }else{
+        horizontal=true; column=previous.column+1; row=previous.row;
+        while(columns[column]&&columns[column][row])column++;
+      }
+    }else{
+      horizontal=false; column=previous.column+1; row=0;
+      while(columns[column]&&columns[column][row])column++;
+    }
+    if(!columns[column])columns[column]=[];
+    const cell={result,color,column,row};
+    columns[column][row]=cell; road.push(cell);
+    previous=cell; previousColor=color;
+  });
+  return road;
+}
 
 function boEmptyUserBets(){
   const user={UP:0,DOWN:0,RED:0,PURPLE:0,GREEN:0};
@@ -31,6 +69,7 @@ function boColorOutcome(digit){
 class BinanceBOTable {
   constructor(){
     this.name='Binance BO'; this.id='BINANCE SPOT'; this.symbol='BTCUSDT'; this.interval='1m';
+    this.players=32;
     this.phase='CONNECTING'; this.connectionState='connecting';
     this.price=null; this.candle=null; this.round=null; this.user=boEmptyUserBets(); this.lastResult=null;
     this.roundNumber=0; this.nextRoundAt=null; this.nextRoundTimer=null;
@@ -44,6 +83,7 @@ class BinanceBOTable {
     });
     this.startMarket();
     this.clockTimer=setInterval(()=>this.renderClock(),250);
+    this.playerTimer=setInterval(()=>this.fluctuatePlayers(),15000);
   }
   build(){
     const el=document.createElement('section');
@@ -55,12 +95,13 @@ class BinanceBOTable {
         '<span class="b-name">'+digit+'</span><span class="b-odds">Trả 9.7×</span><span class="bo-stake b-user" hidden></span></button>';
     }).join('');
     el.innerHTML=
-      '<div class="card-head"><div class="card-title"><div class="title-row"><div class="t-name">BO Nhị phân</div></div><div class="t-id">Phiên #<span class="bo-session">—</span></div></div><div class="bo-round-toolbar"><span>Giá vào <strong class="bo-entry">—</strong></span><span><span class="bo-countdown-label">Kết thúc</span> <strong class="bo-countdown">—</strong></span></div><div class="bo-feed-status connecting" aria-live="polite" hidden></div></div>'+
+      '<div class="card-head"><div class="card-title"><div class="title-row"><div class="t-name">BO Nhị phân</div><div class="pbadge" title="Số người chơi ảo" aria-label="Số người chơi ảo"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">'+this.players+'</span></div></div><div class="t-id">Phiên #<span class="bo-session">—</span></div></div><div class="bo-round-toolbar"><span>Giá vào <strong class="bo-entry">—</strong></span><span><span class="bo-countdown-label">Kết thúc</span> <strong class="bo-countdown">—</strong></span></div><div class="bo-feed-status connecting" aria-live="polite" hidden></div></div>'+
       '<div class="felt bo-felt"><div class="bo-market-controls"><div class="bo-market-price"><span class="bo-pair-label">BTC / USDT</span><strong class="bo-price">—</strong></div>'+
       '<div class="bo-selectors"><label>Cặp<select class="bo-symbol" aria-label="Cặp Binance"></select></label><label>TF<select class="bo-interval" aria-label="Khung nến"><option value="1s">1 giây</option><option value="1m">1 phút</option><option value="3m">3 phút</option></select></label></div></div>'+
+      '<div class="bo-round-phase">Chờ dữ liệu Binance</div>'+
       '<canvas class="bo-chart" role="img" aria-label="Biểu đồ giá Binance"></canvas>'+
       '<div class="bo-candle-info"></div></div>'+
-      '<div class="bo-round-panel"><div class="bo-round-info"><span class="bo-round-phase">Chờ dữ liệu Binance</span></div>'+
+      '<div class="bo-round-panel">'+
       '<div class="bet-wrap bo-bet-wrap locked"><div class="bet-grid bo-bet-grid">'+
       '<button type="button" class="betbtn bo-option bo-up" data-k="UP" disabled><span class="b-name">LÊN</span><span class="b-odds">Trả 1.80×</span><span class="bo-stake b-user" hidden></span></button>'+
       '<button type="button" class="betbtn bo-option bo-down" data-k="DOWN" disabled><span class="b-name">XUỐNG</span><span class="b-odds">Trả 1.80×</span><span class="bo-stake b-user" hidden></span></button>'+
@@ -69,9 +110,10 @@ class BinanceBOTable {
       '<button type="button" class="betbtn bo-color-option bo-color-purple" data-type="color" data-k="PURPLE" disabled><span class="b-name">TÍM</span><span class="b-odds">Trả 4.87×</span><span class="bo-stake b-user" hidden></span></button>'+
       '<button type="button" class="betbtn bo-color-option bo-color-green" data-type="color" data-k="GREEN" disabled><span class="b-name">XANH</span><span class="b-odds">Trả 1.95×</span><span class="bo-stake b-user" hidden></span></button>'+
       '</div><div class="bo-color-result" aria-live="polite"></div></div><div class="bo-digit-panel"><div class="sec-title">Đoán số</div><div class="bet-grid bo-digit-grid">'+digitButtons+'</div></div></div>'+
-      '<div class="stats bo-stats"><div class="sec-title">Cầu 50 round gần nhất</div><div class="bo-history" aria-label="Cầu 50 round gần nhất"></div></div>';
+      '<div class="stats bo-stats"><div class="sec-title">Big Road · 50 round gần nhất</div><div class="bo-history" aria-label="Big Road 50 round gần nhất"></div></div>';
     document.getElementById('tables').appendChild(el);
     this.el=el; this.$status=el.querySelector('.bo-feed-status'); this.$price=el.querySelector('.bo-price');
+    this.$badge=el.querySelector('.pbadge'); this.$playerCount=el.querySelector('.p-count');
     this.$pairLabel=el.querySelector('.bo-pair-label'); this.$symbol=el.querySelector('.bo-symbol');
     this.$interval=el.querySelector('.bo-interval'); this.$chart=el.querySelector('.bo-chart');
     this.$candleInfo=el.querySelector('.bo-candle-info'); this.$phase=el.querySelector('.bo-round-phase');
@@ -95,6 +137,12 @@ class BinanceBOTable {
   }
   startMarket(){
     this.market.start(this.symbol,this.interval,update=>this.updateMarket(update),(state,message)=>this.updateConnection(state,message));
+  }
+  fluctuatePlayers(){
+    this.players=Math.max(6,Math.min(60,this.players+(Math.random()<0.5?-1:1)));
+    this.$playerCount.textContent=String(this.players);
+    this.$badge.classList.add('pulse');
+    setTimeout(()=>this.$badge.classList.remove('pulse'),600);
   }
   changeMarket(){
     const hasBets=this.phase==='BETTING'&&Object.values(this.user).some(amount=>amount>0);
@@ -247,13 +295,13 @@ class BinanceBOTable {
   }
   renderHistory(){
     if(!this.history.length){this.$history.innerHTML='<span class="bo-road-empty">Chưa có round đã chốt</span>';return;}
-    this.$history.innerHTML=this.history.slice(0,50).reverse().map(result=>{
+    this.$history.innerHTML=boBuildBigRoad(this.history.slice(0,50)).map(cell=>{
+      const result=cell.result;
       const label=result.direction==='TIE'?'HÒA':result.direction==='UP'?'LÊN':'XUỐNG';
-      const colorClass=result.digit===0?'split-red':result.digit===5?'split-green':result.colorShares.GREEN?'green':'red';
       const details='Phiên #'+String(result.round).padStart(6,'0')+' · '+
         new Date(result.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' · '+
         boFormatPrice(result.entry,result.symbol)+' → '+boFormatPrice(result.close,result.symbol)+' · '+label+' · '+result.colorLabel;
-      return '<span class="bo-road-cell bo-road-'+colorClass+'" title="'+details+'" aria-label="'+details+'">'+result.digit+'</span>';
+      return '<span class="bo-road-cell bo-road-'+cell.color+'" style="grid-column:'+(cell.column+1)+';grid-row:'+(cell.row+1)+'" title="'+details+'" aria-label="'+details+'">'+result.digit+'</span>';
     }).join('');
   }
 }

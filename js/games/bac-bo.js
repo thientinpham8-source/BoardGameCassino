@@ -163,7 +163,5 @@ function bbMult(key,res){
   return -1;
 }
 function bbResultDieHtml(value,index){
-  return '<span class="glass-result-die bb-result-die'+(value===1?' single-pip':'')+(value===1||value===4?' red-pips':'')+'" role="img" aria-label="Xúc xắc '+(index+1)+': '+value+' điểm">'+
-    DICE_PIPS[value].map(p=>'<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>').join('')+
-    '</span>';
+  return '<span class="bb-result-number" role="img" aria-label="Xúc xắc '+(index+1)+': '+value+' điểm">'+value+'</span>';
 }

@@ -47,6 +47,12 @@
 .road.big .pair.banker{left:-2px;top:-2px;background:#b91c1c}
 .road.big .pair.player{right:-2px;bottom:-2px;background:#1d4ed8}
 .road.big .tie-count{position:absolute;inset:-1px;color:#14603e;font-size:6px;line-height:8px;text-align:center;z-index:1}
+.baccarat-stats .road.big{grid-template-rows:repeat(6,14.333px);grid-auto-columns:12px;height:88px;background:repeating-linear-gradient(90deg,transparent 0 11px,#dbe3e7 11px 12px),repeating-linear-gradient(180deg,transparent 0 13.333px,#dbe3e7 13.333px 14.333px),#fff}
+.baccarat-stats .road.big .bead{width:10px;height:10px;margin:1px}
+.baccarat-stats .stats-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:3px;white-space:nowrap}
+.baccarat-stats .stats-footer>.sec-title{margin:0;font-size:10px}
+.baccarat-stats .stats-footer>.sec-title::after{display:none}
+.baccarat-stats .stats-footer>.summary{margin:0;font-size:9.5px}
 .ab .ab-board{display:grid;grid-template-columns:54px minmax(0,1fr);gap:7px;align-items:stretch;height:145px;margin-top:5px}
 .ab .ab-middle{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;height:100%}
 .ab .ab-middle>.ab-label{position:absolute;top:calc(50% - 43px);left:0;width:100%;text-align:center}

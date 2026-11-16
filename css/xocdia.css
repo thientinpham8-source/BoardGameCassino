@@ -13,6 +13,18 @@
 .betbtn[data-k="X"]{background:linear-gradient(180deg,#e8f6f6,#d3ecec);border-color:#9dd2d2}
 .betbtn[data-k="X"]:hover{background:#c4e5e5;border-color:#7fc0c0}
 .xd .road.pb .pb-row{margin:1px 0;font-size:10px}
+.xd .road.big{grid-template-rows:repeat(6,14.333px);grid-auto-columns:12px;height:88px;border-color:#333;background:repeating-linear-gradient(90deg,transparent 0 11px,#292929 11px 12px),repeating-linear-gradient(180deg,transparent 0 13.333px,#292929 13.333px 14.333px),#000}
+.xd .road.big .bead{font-size:6px;line-height:1;font-weight:800;justify-self:center;align-self:center;margin:0}
+.xd .road.big .bead.b{background:#c62828;border-color:#ef5350;color:#fff}
+.xd .road.big .bead.p{background:#f7f9fa;border-color:#b0bec5;color:#111}
+.xd .road.big.detail .bead{width:12px;height:12px;border:0;border-radius:0;background:transparent;overflow:hidden}
+.xd .road.big.detail .bead.slash::after{display:none}
+.xd-detail-coins{display:grid;width:12px;height:12px;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:1px;margin:auto;border-radius:50%;overflow:hidden;background:#b7c3c9}
+.xd-detail-coins.three{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr}
+.xd-detail-coins i{display:block;width:100%;height:100%;border-radius:0}
+.xd-detail-coins .d4.red{background:#e04848}
+.xd-detail-coins .d4.white{background:#f7f9fa}
+.xd .mini-grid:empty{display:none}
 .b-ico{display:grid;grid-template-columns:repeat(4,7px);gap:2px;margin:2px 0 3px}
 .b-ico i{width:7px;height:7px;border-radius:50%}
 .b-ico i.r{background:radial-gradient(circle at 35% 30%,#ff8a80,#c62828);border:1px solid #7f1d1d}
@@ -65,7 +77,9 @@
 .slot-three .bet-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,60px)}
 .slot-three .side-wrap>.sec-title{display:none}
 .slot-three .side-grid{grid-template-rows:25px}
+.slot-three .side-grid:empty{display:none}
 .slot-three .mini-grid{display:none}
+.slot-three .stats{margin-top:0}
 .slot-three .betbtn{gap:1px;justify-content:center;padding:4px 6px 17px}
 .slot-three .betbtn .b-name{font-size:12px;line-height:14px}
 .slot-three .betbtn .b-odds{line-height:12px}

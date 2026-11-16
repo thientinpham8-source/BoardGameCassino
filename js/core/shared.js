@@ -20,7 +20,7 @@ const SIDE_OPTS = [
   {k:'PTAI', n:'P.Tài [8-9]', o:'1.80', mini:1}, {k:'PXIU', n:'P.Xỉu [0-5]', o:'2.03', mini:1},
   {k:'BTAI', n:'B.Tài [8-9]', o:'1.90', mini:1}, {k:'BXIU', n:'B.Xỉu [0-5]', o:'1.93', mini:1}
 ];
-const TABS = [['res','Kết quả'],['pb','P/B'],['ou','O/U'],['pbs','P-B/S'],['bbs','B-B/S']];
+const TABS = [['res','P/B'],['pb','Tỷ lệ'],['ou','O/U'],['pbs','P-B/S'],['bbs','B-B/S']];
 const WIN_TXT = {P:'Người chơi thắng', B:'Nhà cái thắng', T:'Hòa'};
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const SUITS = ['♣','♦','♥','♠'];
@@ -106,7 +106,7 @@ function startTableWithRandomPhase(table){
   } else table.startBetting();
 }
 
-function renderBigRoad(history){
+function renderBigRoad(history, renderContent){
   const cells = [], occupied = new Set();
   let startCol = -1, col = 0, row = 0, tail = false, last = null;
   let leadingTies = 0, leadingPP = false, leadingBP = false;
@@ -143,8 +143,9 @@ function renderBigRoad(history){
   return cells.map(c=>{
     const cls = c.w === 'P' || c.w === 'L' ? 'p' : c.w === 'T' || c.w === 'A' ? 't' : 'b';
     const label = c.label || (c.w === 'P' ? 'Người chơi' : c.w === 'B' ? 'Nhà cái' : c.w === 'C' ? 'Chẵn' : c.w === 'L' ? 'Lẻ' : 'Hòa');
-    return '<span class="bead ' + cls + (c.dm ? ' slash' : '') + (c.ties ? ' tslash' : '') + '" style="grid-column:' + (c.col + 1) + ';grid-row:' + (c.row + 1) + '" role="img" aria-label="' + label + (c.ties ? ', ' + c.ties + ' ván hòa' : '') + (c.pp ? ', đôi Người chơi' : '') + (c.bp ? ', đôi Nhà cái' : '') + (c.dm ? ', đồng màu' : '') + '">' +
+    const content = renderContent ? renderContent(c) :
       (c.bp ? '<i class="pair banker"></i>' : '') + (c.pp ? '<i class="pair player"></i>' : '') +
-      (c.ties > 1 ? '<small class="tie-count">' + c.ties + '</small>' : '') + '</span>';
+      (c.ties > 1 ? '<small class="tie-count">' + c.ties + '</small>' : '');
+    return '<span class="bead ' + cls + (c.dm ? ' slash' : '') + (c.ties ? ' tslash' : '') + '" style="grid-column:' + (c.col + 1) + ';grid-row:' + (c.row + 1) + '" role="img" aria-label="' + label + (c.ties ? ', ' + c.ties + ' ván hòa' : '') + (c.pp ? ', đôi Người chơi' : '') + (c.bp ? ', đôi Nhà cái' : '') + (c.dm ? ', đồng màu' : '') + '">' + content + '</span>';
   }).join('');
 }

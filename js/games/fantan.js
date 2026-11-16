@@ -19,7 +19,7 @@ class FantanTable{
       '<div class="felt"><div class="f-status"></div><div class="ft-stage waiting" aria-label="Ba viên xúc xắc Fantan">'+
       '<div class="ft-glass-wrap"><div class="glass-stage" aria-label="Ống thủy tinh với ba xúc xắc">'+
       '<div class="glass-shell"><div class="glass-rear"></div></div><div class="glass-base"></div><div class="glass-camera"></div>'+
-      '<div class="glass-shell glass-front"><div class="glass-rim top"></div><div class="glass-rim bottom"></div></div></div></div>'+
+      '<div class="glass-shell glass-back-rim"><div class="glass-rim bottom"></div></div><div class="glass-shell glass-front"><div class="glass-rim top"></div></div></div></div>'+
       '<div class="ft-roll-info" aria-live="polite"><span class="ft-roll-total">Tổng xúc xắc: <strong class="ft-total-value">—</strong></span>'+
       '<span class="ft-roll-separator" aria-hidden="true">·</span><span class="ft-result-label">Kết quả Fantan</span><strong class="ft-result-value">—</strong></div></div></div>'+
       '<div class="bet-wrap"><div class="bet-grid ft-bets"></div><div class="sec-title ft-side-title">Cửa cược phụ</div><div class="ft-side-bets"></div>'+

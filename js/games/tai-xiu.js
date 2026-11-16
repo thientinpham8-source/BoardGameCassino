@@ -23,7 +23,7 @@ class TaiXiuTable {
       '<div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">' + this.players + '</span></div></div>' +
       '<div class="t-id"># ' + this.id + '</div></div></div>' +
       '<div class="felt"><div class="f-status"></div>'+(this.glass?
-        '<div class="glass-stage" aria-label="Ống thủy tinh với ba xúc xắc"><div class="glass-shell"><div class="glass-rear"></div></div><div class="glass-base"></div><div class="glass-camera"></div><div class="glass-shell glass-front"><div class="glass-rim top"></div><div class="glass-rim bottom"></div></div><div class="glass-result" role="group" aria-label="Kết quả xúc xắc" hidden></div></div>':
+        '<div class="glass-stage" aria-label="Ống thủy tinh với ba xúc xắc"><div class="glass-shell"><div class="glass-rear"></div></div><div class="glass-base"></div><div class="glass-shell glass-back-rim"><div class="glass-rim bottom"></div></div><div class="glass-camera"></div><div class="glass-shell glass-front"><div class="glass-rim top"></div></div><div class="glass-result" role="group" aria-label="Kết quả xúc xắc" hidden></div></div>':
         '<div class="dish"><div class="plate"><div class="dice-set" aria-hidden="true"></div></div><div class="lid"></div></div>')+'</div>' +
       '<div class="bet-wrap"><div class="tx-bets"></div></div>' +
       '<div class="stats"><div class="sec-title">Thống kê 100 ván trước</div><div class="tabs"></div><div class="road"></div><div class="summary"></div></div>';

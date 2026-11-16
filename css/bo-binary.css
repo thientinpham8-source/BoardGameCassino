@@ -61,9 +61,7 @@
 .bo-option:disabled{cursor:default}
 .bo-table .betbtn:active{transform:none}
 .bo-stats{margin-top:7px}
-.bo-history{display:grid;height:134px;grid-template-rows:repeat(6,20px);grid-auto-columns:20px;grid-auto-flow:column;align-content:start;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
-.bo-history::-webkit-scrollbar{height:4px}
-.bo-history::-webkit-scrollbar-thumb{background:#c3d2d8;border-radius:2px}
+.bo-history{display:grid;height:134px;grid-template-rows:repeat(6,20px);grid-auto-columns:20px;grid-auto-flow:column;align-content:start;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .bo-road-cell{display:grid;width:20px;height:20px;place-items:center;border-radius:50%;color:#fff;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
 .bo-road-green{background:#2fa14f}
 .bo-road-red{background:#e04848}

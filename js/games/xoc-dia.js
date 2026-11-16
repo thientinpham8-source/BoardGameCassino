@@ -340,12 +340,12 @@ class XocDiaTable {
   renderBetGrid(){ this.$betGrid.innerHTML = this.mainOpts.map(o=>this.btnHtml(o,false)).join(''); }
   renderSideGrid(){
     if (this.coinCount===3){
-      this.$sideGrid.innerHTML = '<span class="slot-rule">Trắng = 2–3 quân trắng</span><span class="slot-rule">Đỏ = 2–3 quân đỏ</span>';
+      this.$sideGrid.innerHTML = '';
       this.$miniGrid.innerHTML = '<span class="minibtn legend">Mỗi ván 3 quân vị</span><span class="minibtn legend">Tiền trả gồm vốn cược</span>';
       return;
     }
     this.$sideGrid.innerHTML = XD_SIDE.map(o=>this.btnHtml(o,false)).join('');
-    this.$miniGrid.innerHTML = '<span class="minibtn legend">Tài = 3-4 Đỏ</span><span class="minibtn legend">Xỉu = 3-4 Trắng</span>';
+    this.$miniGrid.innerHTML = '';
   }
   renderStats(){
     const H = this.hist.slice(0,100);
@@ -369,6 +369,15 @@ class XocDiaTable {
         ? row('3 Đỏ','#e04848',cnt(3)) + row('2 Đỏ 1 Trắng','#e07a3c',cnt(2)) + row('2 Trắng 1 Đỏ','#2f6fed',cnt(1)) + row('3 Trắng','#9aa7b0',cnt(0))
         : row('4 Đỏ','#e04848',cnt(4)) + row('3 Đỏ','#e07a3c',cnt(3)) + row('2 Đỏ','#2fa14f',cnt(2)) + row('1 Đỏ','#2f6fed',cnt(1)) + row('0 Đỏ','#9aa7b0',cnt(0));
       sum = 'Tổng ' + H.length + ' ván';
+    } else if (this.slot){
+      body = renderBigRoad(H.slice().reverse().map(h=>({
+        w:this.coinCount===3 ? (h.red>=2 ? 'C' : 'L') : (h.red%2===0 ? 'C' : 'L'),
+        label:this.resultNames[h.red],
+        red:h.red,
+        dm:h.dm
+      })), h=>'<span class="xd-detail-coins' + (this.coinCount===3 ? ' three' : '') + '">' +
+        Array.from({length:this.coinCount},(_,i)=>'<i class="d4 ' + (i<h.red ? 'red' : 'white') + '"></i>').join('') +
+      '</span>');
     } else {
       for (let i=0;i<100;i++){
         const h = H[i];
@@ -380,10 +389,12 @@ class XocDiaTable {
       const rd = H.reduce((a,h)=>a+h.red,0);
       sum = 'Đỏ ' + rd + ' · Trắng ' + (H.length*this.coinCount - rd);
     }
-    this.$road.classList.toggle('big', this.tab==='res');
+    const big = this.tab==='res' || (this.slot && this.tab==='det');
+    this.$road.classList.toggle('big', big);
     this.$road.classList.toggle('pb', this.tab==='rate');
+    this.$road.classList.toggle('detail', this.slot && this.tab==='det');
     this.$road.innerHTML = body;
-    if (this.tab==='res') this.$road.scrollLeft = this.$road.scrollWidth;
+    if (big) this.$road.scrollLeft = this.$road.scrollWidth;
     this.$summary.textContent = sum;
   }
   renderAll(){

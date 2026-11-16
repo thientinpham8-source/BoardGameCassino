@@ -47,9 +47,9 @@ class GameTable {
         '<div class="sec-title">Sổ lá bài</div>' +
         '<div class="side-grid"></div><div class="mini-grid"></div>' +
       '</div>' +
-      '<div class="stats">' +
-        '<div class="sec-title">Thống kê 100 ván trước</div>' +
-        '<div class="tabs"></div><div class="road"></div><div class="summary"></div>' +
+      '<div class="stats baccarat-stats">' +
+        '<div class="tabs"></div><div class="road"></div>' +
+        '<div class="stats-footer"><div class="sec-title">Thống kê 100 ván trước</div><div class="summary"></div></div>' +
       '</div>';
     document.getElementById('tables').appendChild(el);
     this.el = el;
@@ -302,11 +302,6 @@ class GameTable {
     const hTabs = TABS.map(t=>'<span class="tab' + (this.tab===t[0]?' active':'') + '" data-tab="' + t[0] + '">' + t[1] + '</span>').join('');
     this.$tabs.innerHTML = hTabs;
     let body = '', sum = '';
-    const grid100 = fn => {
-      let s = '';
-      for (let i=0;i<100;i++){ const h = H[i]; s += h ? fn(h) : '<span class="bead empty"></span>'; }
-      return s;
-    };
     if (this.tab==='res'){
       body = renderBigRoad(H.slice().reverse());
       const P = H.filter(h=>h.w==='P').length, T = H.filter(h=>h.w==='T').length;
@@ -317,22 +312,23 @@ class GameTable {
       body = row('Người chơi','#1d4ed8',P) + row('Hòa','#2fa14f',T) + row('Nhà cái','#b91c1c',B);
       sum = 'Người chơi ' + P + ' · Hòa ' + T + ' · Nhà cái ' + B;
     } else if (this.tab==='ou'){
-      body = grid100(h=>'<span class="bead ' + (h.c>=5?'t2':'x2') + '">' + (h.c>=5?'T':'X') + '</span>');
+      body = renderBigRoad(H.slice().reverse().map(h=>({w:h.c>=5?'P':'B',label:h.c>=5?'Tài':'Xỉu'})));
       const T2 = H.filter(h=>h.c>=5).length;
       sum = 'Tài ' + T2 + ' · Xỉu ' + (H.length-T2);
     } else {
       const k = this.tab==='pbs' ? 'pt' : 'bt';
-      body = grid100(h=>{
+      body = renderBigRoad(H.slice().reverse().map(h=>{
         const v = h[k];
-        return '<span class="bead ' + (v>=8?'t2':v<=5?'x2':'h2') + '">' + (v>=8?'T':v<=5?'X':'–') + '</span>';
-      });
+        return {w:v>=8?'P':v<=5?'B':'T',label:v>=8?'Tài':v<=5?'Xỉu':'Hòa'};
+      }));
       const T3 = H.filter(h=>h[k]>=8).length, X3 = H.filter(h=>h[k]<=5).length;
       sum = 'Tài ' + T3 + ' · Xỉu ' + X3 + ' · Hòa ' + (H.length-T3-X3);
     }
-    this.$road.classList.toggle('big', this.tab==='res');
+    const bigRoad = this.tab==='res'||this.tab==='ou'||this.tab==='pbs'||this.tab==='bbs';
+    this.$road.classList.toggle('big', bigRoad);
     this.$road.classList.toggle('pb', this.tab==='pb');
     this.$road.innerHTML = body;
-    if (this.tab==='res') this.$road.scrollLeft = this.$road.scrollWidth;
+    if (bigRoad) this.$road.scrollLeft = this.$road.scrollWidth;
     this.$summary.textContent = sum;
   }
   renderAll(){

@@ -8,7 +8,11 @@ class TaiXiuTable {
     this.user = {}; this.bots = {}; this.timers = []; this.tab = 'res';
     this.hist = Array.from({length:60+Math.floor(Math.random()*33)},()=>txAnalyze(txRoll()));
     this.build();
-    if(this.glass)this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'));
+    this.renderStats();
+    if(this.glass){
+      this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'));
+      this.sim.dice.forEach((die,index)=>die.classList.add('tx-die-'+(index+1)));
+    }
     startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
@@ -128,12 +132,12 @@ class TaiXiuTable {
   renderDish(){
     if(this.glass){this.sim.render();return;}
     const dice = this.roll || [1,1,1];
-    this.$dice.innerHTML = dice.map(diceHtml).join('');
+    this.$dice.innerHTML = dice.map((value,index)=>diceHtml(value,index)).join('');
     this.$dice.setAttribute('aria-hidden','true'); this.$dish.classList.remove('open');
   }
   showGlassResult(dice){
     this.$glassResult.innerHTML=dice.map((value,index)=>
-      '<div class="glass-result-die'+(value===1?' single-pip':'')+(value===1||value===4?' red-pips':'')+'" role="img" aria-label="Xí ngầu '+(index+1)+': '+value+' điểm">'+
+      '<div class="glass-result-die tx-die-'+(index+1)+(value===1?' single-pip':'')+(value===1||value===4?' red-pips':'')+'" role="img" aria-label="Xí ngầu '+(index+1)+': '+value+' điểm">'+
       DICE_PIPS[value].map(p=>'<i class="dice-pip" style="grid-column:'+((p-1)%3+1)+';grid-row:'+(Math.floor((p-1)/3)+1)+'"></i>').join('')+
       '</div>'
     ).join('');
@@ -160,13 +164,12 @@ class TaiXiuTable {
       const row = (k,c)=>'<div class="pb-row"><span class="lbl">'+TX_NAMES[k]+'</span><div class="pb-bar"><div class="pb-fill" style="width:'+(H.length?cnt(k)/H.length*100:0)+'%;background:'+c+'"></div></div><span class="pct">'+(H.length?cnt(k)/H.length*100:0).toFixed(1)+'%</span></div>';
       body = row('X','#1d4ed8')+row('T','#b91c1c')+row('A','#2fa14f');
     } else {
-      for(let i=0;i<100;i++){
-        const h = H[i];
-        body += h?'<span class="bead '+(h.winner==='T'?'b':h.winner==='X'?'p':'t')+'" role="img" aria-label="'+h.dice.join(' + ')+' = '+h.total+' điểm, '+TX_NAMES[h.winner]+'">'+h.total+'</span>':'<span class="bead empty"></span>';
-      }
+      body = txPointsRoad(H.slice().reverse());
     }
-    this.$road.classList.toggle('big',this.tab==='res'); this.$road.classList.toggle('pb',this.tab==='rate');
-    this.$road.innerHTML = body; if(this.tab==='res') this.$road.scrollLeft = this.$road.scrollWidth;
+    const bigRoad = this.tab==='res'||this.tab==='points';
+    this.$road.classList.toggle('big',bigRoad); this.$road.classList.toggle('pb',this.tab==='rate');
+    this.$road.classList.toggle('points',this.tab==='points');
+    this.$road.innerHTML = body; if(bigRoad) this.$road.scrollLeft = this.$road.scrollWidth;
     this.$summary.textContent = 'Xỉu '+cnt('X')+' · Tài '+cnt('T')+' · Tam Bảo '+cnt('A');
   }
   renderAll(){ this.renderStatus(); this.renderDish(); this.renderBetGrid(); this.renderStats(); }
@@ -192,6 +195,13 @@ function txAnalyze(dice){
   const total = dice.reduce((a,n)=>a+n,0), triple = dice.every(n=>n===dice[0]);
   return { dice:dice.slice(), total, triple, winner:triple?'A':total>=11?'T':'X' };
 }
+function txPointsRoad(history){
+  return renderBigRoad(history.map(h=>({
+    w:h.winner==='T'?'B':h.winner==='X'?'P':'A',
+    total:h.total,
+    label:h.dice.join(' + ')+' = '+h.total+' điểm · '+TX_NAMES[h.winner]
+  })),h=>h.total);
+}
 function txMult(k, res){
   if(k==='A') return res.triple ? 30 : -1;
   if(k.startsWith('N')) return res.dice.filter(n=>n===Number(k.slice(1))).length || -1;
@@ -202,6 +212,6 @@ function txMult(k, res){
 function diceHtml(value, index){
   const face = (n, side)=>'<span class="dice-face dice-' + side + (n===1?' single-pip':'') + (n===1||n===4?' red-pips':'') + '" aria-hidden="true">' +
     DICE_PIPS[n].map(p=>'<i class="dice-pip" style="grid-column:' + ((p-1)%3+1) + ';grid-row:' + (Math.floor((p-1)/3)+1) + '"></i>').join('') + '</span>';
-  return '<span class="dice" data-value="' + value + '" role="img" aria-label="Xí ngầu ' + (index+1) + ': ' + value + ' điểm"><span class="dice-cube">' +
+  return '<span class="dice tx-die-' + (index+1) + '" data-value="' + value + '" role="img" aria-label="Xí ngầu ' + (index+1) + ': ' + value + ' điểm"><span class="dice-cube">' +
     face(7-DICE_SIDES[value][0],'front') + face(value,'top') + face(DICE_SIDES[value][1],'right') + '</span></span>';
 }

@@ -93,6 +93,8 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:
 .road.pb{display:block}
 .road.big{display:grid;grid-template-columns:none;grid-template-rows:repeat(6,13px);grid-auto-columns:11px;gap:0;justify-content:start;align-content:start;height:80px;border:1px solid #dbe3e7;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
   background:repeating-linear-gradient(90deg,transparent 0 10px,#dbe3e7 10px 11px),repeating-linear-gradient(180deg,transparent 0 12px,#dbe3e7 12px 13px),#fff}
+.road.big,.bo-history{cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.road.big.dragging,.bo-history.dragging{cursor:grabbing}
 .bead{width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6.5px;font-weight:700;color:#fff;position:relative}
 .bead.empty{background:#e8edf1}
 .bead.p{background:#1d4ed8}.bead.b{background:#b91c1c}.bead.t{background:#2fa14f}

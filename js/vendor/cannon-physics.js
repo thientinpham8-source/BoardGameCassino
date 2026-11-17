@@ -13045,5 +13045,5 @@ const endShapeContactEvent = {
 };
 
 
-return { World, Body, Box, Vec3, Quaternion, Material, ContactMaterial };
+return { World, Body, Box, Cylinder, Vec3, Quaternion, Material, ContactMaterial };
 })();

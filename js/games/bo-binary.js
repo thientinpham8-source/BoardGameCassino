@@ -9,6 +9,50 @@ const BO_DIGITS = Array.from({length:10},(_,digit)=>digit);
 const BO_DIGIT_PAYOUT = 9.7;
 const BO_ROAD_ROWS = 6;
 
+function boBuildDirectionRoad(results){
+  const columns=[],road=[];
+  let previous=null,previousDirection=null,horizontal=false;
+  results.slice().reverse().forEach(result=>{
+    if(result.direction==='TIE'){
+      if(previous)previous.ties=(previous.ties||0)+1;
+      return;
+    }
+    const direction=result.direction;
+    let column,row;
+    if(!previous){column=0;row=0;}
+    else if(direction===previousDirection){
+      if(horizontal){column=previous.column+1;row=previous.row;while(columns[column]&&columns[column][row])column++;}
+      else if(previous.row+1<BO_ROAD_ROWS&&!(columns[previous.column]&&columns[previous.column][previous.row+1])){column=previous.column;row=previous.row+1;}
+      else{horizontal=true;column=previous.column+1;row=previous.row;while(columns[column]&&columns[column][row])column++;}
+    }else{horizontal=false;column=previous.column+1;row=0;while(columns[column]&&columns[column][row])column++;}
+    if(!columns[column])columns[column]=[];
+    const cell={result,direction,column,row,ties:0};columns[column][row]=cell;road.push(cell);
+    previous=cell;previousDirection=direction;
+  });
+  return road;
+}
+
+function boCreateVirtualDirectionHistory(count=50){
+  const now=Date.now(),results=[];
+  let direction=Math.random()<.5?'UP':'DOWN',run=0;
+  for(let i=0;i<count;i++){
+    if(run>=1+Math.floor(Math.random()*5)||Math.random()<.28){direction=direction==='UP'?'DOWN':'UP';run=0;}
+    run++;
+    const round=count-i;
+    results.unshift({round,direction,entry:0,close:0,time:now-(count-i)*BO_ROUND_MS,symbol:'VIRTUAL',digit:direction==='UP'?1:2,colorLabel:'Dữ liệu ảo',virtual:true});
+  }
+  return results;
+}
+
+function boCreateVirtualColorHistory(count=50){
+  const now=Date.now();
+  return Array.from({length:count},(_,index)=>{
+    const digit=Math.floor(Math.random()*10);
+    const outcome=boColorOutcome(digit);
+    return {round:count-index,direction:'TIE',entry:0,close:0,time:now-(count-index)*BO_ROUND_MS,symbol:'VIRTUAL',digit,colorShares:outcome.shares,colorLabel:outcome.label,virtual:true};
+  });
+}
+
 function boRoadColor(digit){
   if(digit===0)return 'split-red';
   if(digit===5)return 'split-green';
@@ -73,7 +117,7 @@ class BinanceBOTable {
     this.phase='CONNECTING'; this.connectionState='connecting';
     this.price=null; this.candle=null; this.round=null; this.user=boEmptyUserBets(); this.lastResult=null;
     this.roundNumber=0; this.nextRoundAt=null; this.nextRoundTimer=null;
-    this.history=[]; this.build(); this.market=new BinanceBOSimulation(this.$chart);
+    this.history=[]; this.virtualDirectionHistory=boCreateVirtualDirectionHistory(); this.virtualColorHistory=boCreateVirtualColorHistory(); this.build(); this.renderHistory(); this.market=new BinanceBOSimulation(this.$chart);
     this.$symbol.addEventListener('change',()=>this.changeMarket());
     this.$interval.addEventListener('change',()=>this.changeMarket());
     this.el.addEventListener('click',event=>{
@@ -110,7 +154,7 @@ class BinanceBOTable {
       '<button type="button" class="betbtn bo-color-option bo-color-purple" data-type="color" data-k="PURPLE" disabled><span class="b-name">TÍM</span><span class="b-odds">Trả 4.87×</span><span class="bo-stake b-user" hidden></span></button>'+
       '<button type="button" class="betbtn bo-color-option bo-color-green" data-type="color" data-k="GREEN" disabled><span class="b-name">XANH</span><span class="b-odds">Trả 1.95×</span><span class="bo-stake b-user" hidden></span></button>'+
       '</div><div class="bo-color-result" aria-live="polite"></div></div><div class="bo-digit-panel"><div class="sec-title">Đoán số</div><div class="bet-grid bo-digit-grid">'+digitButtons+'</div></div></div>'+
-      '<div class="stats bo-stats"><div class="sec-title">Big Road · 50 round gần nhất</div><div class="bo-history" aria-label="Big Road 50 round gần nhất"></div></div>';
+      '<div class="stats bo-stats"><div class="sec-title">Big Road · 50 round gần nhất</div><div class="tabs bo-history-tabs"><span class="tab active" data-road="color">Màu</span><span class="tab" data-road="direction">Lên/Xuống</span></div><div class="bo-history" aria-label="Big Road 50 round gần nhất"></div></div>';
     document.getElementById('tables').appendChild(el);
     this.el=el; this.$status=el.querySelector('.bo-feed-status'); this.$price=el.querySelector('.bo-price');
     this.$badge=el.querySelector('.pbadge'); this.$playerCount=el.querySelector('.p-count');
@@ -120,6 +164,8 @@ class BinanceBOTable {
     this.$entry=el.querySelector('.bo-entry'); this.$countdown=el.querySelector('.bo-countdown');
     this.$countdownLabel=el.querySelector('.bo-countdown-label'); this.$session=el.querySelector('.bo-session');
     this.$betWrap=el.querySelector('.bo-bet-wrap'); this.$history=el.querySelector('.bo-history');
+    this.historyRoad='color'; this.$historyTabs=el.querySelector('.bo-history-tabs');
+    this.$historyTabs.addEventListener('click',e=>{const tab=e.target.closest('[data-road]');if(!tab)return;this.historyRoad=tab.dataset.road;this.$historyTabs.querySelectorAll('[data-road]').forEach(x=>x.classList.toggle('active',x===tab));this.renderHistory();});
     this.$buttons={UP:el.querySelector('.bo-up'),DOWN:el.querySelector('.bo-down')};
     this.$colorButtons={RED:el.querySelector('.bo-color-red'),PURPLE:el.querySelector('.bo-color-purple'),GREEN:el.querySelector('.bo-color-green')};
     this.$colorResult=el.querySelector('.bo-color-result');
@@ -225,8 +271,8 @@ class BinanceBOTable {
     const directionLabel=direction==='TIE'?'Giá không đổi — hoàn vốn':direction==='UP'?'Giá tăng':'Giá giảm';
     this.phase='RESULT'; this.$phase.textContent=directionLabel+' · Số '+digit+' — '+color.label;
     const colorClass=Object.keys(color.shares).length>1?'split':Object.keys(color.shares)[0].toLowerCase();
-    this.$colorResult.textContent='Số cuối '+digit+' · '+color.label;
-    this.$colorResult.className='bo-color-result '+colorClass;
+    this.$colorResult.textContent='';
+    this.$colorResult.className='bo-color-result';
     this.renderBets(); this.renderHistory();
     if(profit>0)toast('Binance BO: Bạn thắng +'+fmtMoney(profit));
     this.nextRoundAt=Date.now()+BO_NEXT_ROUND_DELAY_MS;
@@ -294,14 +340,21 @@ class BinanceBOTable {
     this.renderBets();
   }
   renderHistory(){
-    if(!this.history.length){this.$history.innerHTML='<span class="bo-road-empty">Chưa có round đã chốt</span>';return;}
-    this.$history.innerHTML=boBuildBigRoad(this.history.slice(0,50)).map(cell=>{
+    const virtualHistory=this.historyRoad==='direction'?this.virtualDirectionHistory:this.virtualColorHistory;
+    const history=this.history.concat(virtualHistory).slice(0,50);
+    if(!history.length){this.$history.innerHTML='<span class="bo-road-empty">Chưa có round đã chốt</span>';return;}
+    const road=this.historyRoad==='direction'?boBuildDirectionRoad(history.slice(0,50)):boBuildBigRoad(history.slice(0,50));
+    this.$history.innerHTML=road.map(cell=>{
       const result=cell.result;
       const label=result.direction==='TIE'?'HÒA':result.direction==='UP'?'LÊN':'XUỐNG';
-      const details='Phiên #'+String(result.round).padStart(6,'0')+' · '+
+      const details=(result.virtual?'Cầu ảo':'Phiên #'+String(result.round).padStart(6,'0'))+' · '+
         new Date(result.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' · '+
         boFormatPrice(result.entry,result.symbol)+' → '+boFormatPrice(result.close,result.symbol)+' · '+label+' · '+result.colorLabel;
-      return '<span class="bo-road-cell bo-road-'+cell.color+'" style="grid-column:'+(cell.column+1)+';grid-row:'+(cell.row+1)+'" title="'+details+'" aria-label="'+details+'">'+result.digit+'</span>';
+      const directionMode=this.historyRoad==='direction';
+      const color=directionMode?(cell.direction==='UP'?'up':'down'):cell.color;
+      const content=directionMode?(cell.direction==='UP'?'↑':'↓'):result.digit;
+      return '<span class="bo-road-cell bo-road-'+color+(cell.ties?' has-tie':'')+'" style="grid-column:'+(cell.column+1)+';grid-row:'+(cell.row+1)+'" title="'+details+(cell.ties?' · '+cell.ties+' hòa':'')+'" aria-label="'+details+(cell.ties?' · '+cell.ties+' hòa':'')+'">'+content+(cell.ties?'<small>'+cell.ties+'</small>':'')+'</span>';
     }).join('');
+    this.$history.scrollLeft=this.$history.scrollWidth;
   }
 }

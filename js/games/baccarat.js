@@ -9,6 +9,7 @@ function makeShoe(){
 }
 const vOf = r => r >= 9 ? 0 : r + 1;              // A=1..9=9, 10/J/Q/K=0
 const tot = cs => cs.reduce((a,c)=>a+vOf(c.r),0) % 10;
+const BANKER_EIGHT_MARKER = {r:7,fixed:true};
 function bDraw(b, p3){
   if (b<=2) return true;
   if (b===3) return p3!==8;
@@ -17,8 +18,8 @@ function bDraw(b, p3){
   if (b===6) return p3===6 || p3===7;
   return false;
 }
-function playRound(shoe){
-  const p = [shoe.pop()], b = [shoe.pop()];
+function playRound(shoe, bankerMark=false){
+  const p = [shoe.pop()], b = bankerMark ? [BANKER_EIGHT_MARKER] : [shoe.pop()];
   p.push(shoe.pop());
   b.push(shoe.pop());
   let p3 = null;
@@ -31,16 +32,20 @@ function playRound(shoe){
 }
 function analyze(r){
   const pTotal = tot(r.p), bTotal = tot(r.b);
-  const pair = cs => cs.length>1 && (cs[0].r===cs[1].r || (cs[2] && (cs[0].r===cs[2].r || cs[1].r===cs[2].r)));
+  const pair = cs => {
+    const cards=cs.filter(c=>!c.fixed);
+    return cards.length>1 && (cards[0].r===cards[1].r || (cards[2] && (cards[0].r===cards[2].r || cards[1].r===cards[2].r)));
+  };
   return { pTotal, bTotal, winner: pTotal>bTotal?'P':bTotal>pTotal?'B':'T',
-           pPair: pair(r.p), bPair: pair(r.b), cards: r.p.length + r.b.length };
+           pPair: pair(r.p), bPair: pair(r.b), cards: r.p.length + r.b.filter(c=>!c.fixed).length };
 }
-function multFor(key, res, nc){
+function multFor(key, res, nc, payouts){
+  const payout = payouts && Object.prototype.hasOwnProperty.call(payouts,key) ? payouts[key]-1 : undefined;
   switch(key){
-    case 'P': return res.winner==='P' ? 1 : res.winner==='T' ? 0 : -1;
+    case 'P': return res.winner==='P' ? (payout===undefined?1:payout) : res.winner==='T' ? 0 : -1;
     case 'B': if (res.winner!=='B') return res.winner==='T' ? 0 : -1;
-              return nc ? (res.bTotal===6 ? 0.5 : 1) : 0.95;
-    case 'T': return res.winner==='T' ? 8 : -1;
+              return payout===undefined ? (nc ? (res.bTotal===6 ? 0.5 : 1) : 0.95) : payout;
+    case 'T': return res.winner==='T' ? (payout===undefined?8:payout) : -1;
     case 'PP': return res.pPair ? 11 : -1;
     case 'BP': return res.bPair ? 11 : -1;
     case 'AP': return (res.pPair||res.bPair) ? 5 : -1;

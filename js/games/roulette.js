@@ -8,7 +8,7 @@ class RouletteTable {
     this.user={}; this.bots={}; this.timers=[]; this.tab='res'; this.frame=null;
     this.wheelAngle=0; this.ballAngle=0; this.radius=99;
     this.hist=Array.from({length:80},rlRoll);
-    this.build(); startTableWithRandomPhase(this);
+    this.build(); this.renderStats(); startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn,ms){ this.timers.push(setTimeout(fn,ms)); }

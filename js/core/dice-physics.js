@@ -202,3 +202,176 @@ class GlassDiceSimulation {
     });
   }
 }
+
+class GlassCoinSimulation {
+  constructor(camera,count=4){
+    this.camera=camera;this.count=count;this.scale=88;this.maxCoinCenterRadius=.62;this.time=0;this.nextJolt=.12;this.frame=null;this.running=false;
+    this.world=new CANNON.World({gravity:new CANNON.Vec3(0,-9.81,0),allowSleep:false});
+    this.world.solver.iterations=18;this.world.solver.tolerance=1e-6;
+    const coinMaterial=new CANNON.Material('xd-coin'),floorMaterial=new CANNON.Material('xd-coin-floor'),wallMaterial=new CANNON.Material('xd-coin-wall');
+    this.world.addContactMaterial(new CANNON.ContactMaterial(coinMaterial,floorMaterial,{friction:.38,restitution:.38}));
+    this.world.addContactMaterial(new CANNON.ContactMaterial(coinMaterial,wallMaterial,{friction:.24,restitution:.3}));
+    this.world.addContactMaterial(new CANNON.ContactMaterial(coinMaterial,coinMaterial,{friction:.3,restitution:.24}));
+    this.floor=new CANNON.Body({type:CANNON.Body.KINEMATIC,material:floorMaterial,shape:new CANNON.Box(new CANNON.Vec3(1,.04,1)),position:new CANNON.Vec3(0,-.04,0)});
+    this.world.addBody(this.floor);
+    for(let i=0;i<32;i++){
+      const angle=i*Math.PI/16,wall=new CANNON.Body({mass:0,material:wallMaterial,shape:new CANNON.Box(new CANNON.Vec3(.075,.52,.04)),position:new CANNON.Vec3(Math.sin(angle)*.78,.5,Math.cos(angle)*.78)});
+      wall.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0),angle);this.world.addBody(wall);
+    }
+    this.world.addBody(new CANNON.Body({mass:0,material:wallMaterial,shape:new CANNON.Box(new CANNON.Vec3(1,.04,1)),position:new CANNON.Vec3(0,1.04,0)}));
+    this.bodies=Array.from({length:count},(_,i)=>{
+      const body=new CANNON.Body({mass:.025,shape:new CANNON.Cylinder(.18,.18,.055,20),material:coinMaterial,position:new CANNON.Vec3(0,.0275,0),linearDamping:.12,angularDamping:.2,allowSleep:false});
+      this.world.addBody(body);return body;
+    });
+    this.landed=new Set();
+    this.placeCoinsAtRest();
+    this.camera.innerHTML=this.bodies.map(()=>'<span class="xd-glass-coin-shadow"></span>').join('')+this.bodies.map((_,i)=>'<span class="xd-phys-coin" aria-hidden="true"><i class="xd-coin-side"></i><i class="xd-coin-face"></i><i class="xd-coin-back"></i></span>').join('');
+    this.shadows=[...camera.querySelectorAll('.xd-glass-coin-shadow')];this.coins=[...camera.querySelectorAll('.xd-phys-coin')];
+    this.render();
+  }
+  setCoins(values){this.coins.forEach((coin,i)=>coin.classList.toggle('red',!!values[i]));}
+  start(values,onSettled=()=>{}){
+    this.stop();this.setCoins(values);this.time=0;this.nextJolt=.12;
+    this.landed.clear();
+    this.placeCoinsAtRest();
+    const liftVelocity=3.8;
+    this.bodies.forEach((body,i)=>{
+      body.quaternion.setFromEuler((Math.random()-.5)*1.8,Math.random()*Math.PI*2,(Math.random()-.5)*1.8);
+      body.velocity.set((Math.random()-.5)*2.8,liftVelocity,(Math.random()-.5)*2.8);
+      body.angularVelocity.set(i%2?-18:18,(Math.random()-.5)*8,0);
+      body.aabbNeedsUpdate=true;
+    });
+    this.running=true;let previous=performance.now(),accumulator=0;
+    const animate=now=>{
+      if(!this.running)return;
+      accumulator+=Math.min(.08,(now-previous)/1000);previous=now;
+      while(accumulator>=1/180){
+        this.time+=1/180;
+        if(this.time<2.8&&this.time>=this.nextJolt){
+          this.nextJolt+=.2;this.bodies.forEach((body,i)=>{
+            if(this.landed.has(i)){
+              this.landed.delete(i);body.type=CANNON.Body.DYNAMIC;body.mass=.025;body.updateMassProperties();body.aabbNeedsUpdate=true;
+            }
+            body.wakeUp();body.velocity.y=liftVelocity;
+            body.angularVelocity.set(i%2?-18:18,(Math.random()-.5)*8,0);
+          });
+        }
+        const descending=this.bodies.map(body=>body.velocity.y<0);
+        this.world.step(1/180);this.containCoins();this.freezeLandedCoins(descending);accumulator-=1/180;
+      }
+      this.render();
+      if(this.time>=5){
+        this.bodies.forEach((body,i)=>{
+          if(this.landed.has(i))return;
+          const position=this.findLandingPosition(i);
+          body.position.set(position.x,.0275,position.z);
+          body.aabbNeedsUpdate=true;
+          this.freezeCoin(body,i);
+        });
+        this.render();this.running=false;this.frame=null;onSettled();
+      }else this.frame=requestAnimationFrame(animate);
+    };
+    this.frame=requestAnimationFrame(animate);
+  }
+  stop(){if(this.frame!==null)cancelAnimationFrame(this.frame);this.frame=null;this.running=false;}
+  randomRestingPositions(existing=[]){
+    const positions=existing.map(position=>({x:position.x,z:position.z})),minDistance=.54,maxRadius=.54;
+    for(let attempt=0;attempt<250&&positions.length<this.bodies.length;attempt++){
+      const angle=Math.random()*Math.PI*2,radius=Math.sqrt(Math.random())*maxRadius;
+      const position={x:Math.cos(angle)*radius,z:Math.sin(angle)*radius};
+      if(positions.every(other=>Math.hypot(position.x-other.x,position.z-other.z)>=minDistance))positions.push(position);
+    }
+    if(positions.length<this.bodies.length){
+      if(existing.length===0){
+        positions.length=0;
+        const offset=Math.random()*Math.PI*2,radius=.4;
+        for(let i=0;i<this.bodies.length;i++){
+          const angle=offset+i*Math.PI*2/this.bodies.length;
+          positions.push({x:Math.cos(angle)*radius,z:Math.sin(angle)*radius});
+        }
+      }else{
+        const offset=Math.random()*Math.PI*2;
+        for(let step=0;step<720&&positions.length<this.bodies.length;step++){
+          const angle=offset+step*Math.PI*2/720,radius=.4+(step%4)*.04;
+          const position={x:Math.cos(angle)*radius,z:Math.sin(angle)*radius};
+          if(positions.every(other=>Math.hypot(position.x-other.x,position.z-other.z)>=minDistance))positions.push(position);
+        }
+      }
+    }
+    return positions;
+  }
+  placeCoinsAtRest(){
+    const positions=this.randomRestingPositions();
+    this.bodies.forEach((body,i)=>{
+      const p=positions[i];
+      body.type=CANNON.Body.DYNAMIC;body.mass=.025;body.updateMassProperties();body.wakeUp();
+      body.position.set(p.x,.0275,p.z);
+      body.quaternion.setFromEuler(0,Math.random()*Math.PI*2,0);
+      body.velocity.set(0,0,0);body.angularVelocity.set(0,0,0);
+      body.aabbNeedsUpdate=true;
+    });
+  }
+  containCoins(){
+    this.bodies.forEach(body=>{
+      const radius=Math.hypot(body.position.x,body.position.z);
+      if(radius<=this.maxCoinCenterRadius)return;
+      const nx=body.position.x/radius,nz=body.position.z/radius;
+      body.position.x=nx*this.maxCoinCenterRadius;body.position.z=nz*this.maxCoinCenterRadius;
+      const outwardVelocity=body.velocity.x*nx+body.velocity.z*nz;
+      if(outwardVelocity>0){
+        body.velocity.x-=outwardVelocity*1.3*nx;body.velocity.z-=outwardVelocity*1.3*nz;
+      }
+      body.aabbNeedsUpdate=true;
+    });
+  }
+  freezeLandedCoins(descending){
+    this.bodies.forEach((body,i)=>{
+      if(this.landed.has(i))return;
+      const touchingFloor=this.world.contacts.some(contact=>
+        (contact.bi===body&&contact.bj===this.floor)||(contact.bj===body&&contact.bi===this.floor)
+      );
+      if(descending[i]&&touchingFloor){
+        const position=this.findLandingPosition(i);
+        body.position.set(position.x,.0275,position.z);
+        body.aabbNeedsUpdate=true;
+        this.freezeCoin(body,i);
+      }
+    });
+  }
+  findLandingPosition(index){
+    const position=this.bodies[index].position,maxRadius=.54,minDistance=.37;
+    const isAvailable=(x,z)=>Math.hypot(x,z)<=maxRadius&&this.bodies.every((body,i)=>
+      i===index||!this.landed.has(i)||Math.hypot(x-body.position.x,z-body.position.z)>=minDistance
+    );
+    if(isAvailable(position.x,position.z))return {x:position.x,z:position.z};
+    let best=null,bestDistance=Infinity;
+    for(let x=-maxRadius;x<=maxRadius;x+=.01){
+      for(let z=-maxRadius;z<=maxRadius;z+=.01){
+        if(!isAvailable(x,z))continue;
+        const distance=(x-position.x)**2+(z-position.z)**2;
+        if(distance<bestDistance){best={x,z};bestDistance=distance;}
+      }
+    }
+    if(!best)throw new Error('Unable to place landed coin without overlap');
+    return best;
+  }
+  freezeCoin(body,i){
+    body.position.y=.0275;
+    body.quaternion.setFromEuler(0,Math.random()*Math.PI*2,0);
+    body.velocity.set(0,0,0);body.angularVelocity.set(0,0,0);
+    body.type=CANNON.Body.KINEMATIC;body.updateMassProperties();body.aabbNeedsUpdate=true;
+    this.landed.add(i);
+  }
+  render(){
+    const floorTop=this.floor.position.y+.04;
+    const oldOpacity=this.camera.classList.contains('old')?.6:1;
+    this.bodies.forEach((body,i)=>{
+      const p=body.position,q=body.quaternion,s=this.scale;
+      this.coins[i].style.transform='translate3d('+(p.x*s)+'px,'+(-p.y*s)+'px,'+(p.z*s)+'px) rotate3d('+(-q.x)+','+q.y+','+(-q.z)+','+(2*Math.acos(Math.max(-1,Math.min(1,q.w))))+'rad) rotateX(-90deg)';
+      this.coins[i].style.opacity=String(oldOpacity);
+      const height=Math.max(0,p.y-.04-floorTop);
+      this.shadows[i].style.transform='translate3d('+(p.x*s)+'px,'+(-floorTop*s-.3)+'px,'+(p.z*s)+'px) rotateX(90deg) scale('+(1+height*.6)+')';
+      this.shadows[i].style.opacity=.38/(1+height*3);
+    });
+  }
+}

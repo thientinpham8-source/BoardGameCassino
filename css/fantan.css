@@ -2,7 +2,6 @@
 .ft-stage{position:relative;height:220px;overflow:hidden}
 .ft-glass-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .ft-glass-wrap .glass-stage{width:100%;height:148px;margin:0}
-.ft-stage.waiting .glass-die,.ft-stage.waiting .glass-die-shadow{opacity:0!important}
 .ft-stage.rolling .glass-die{will-change:transform}
 .ft-roll-info{position:absolute;left:8px;right:8px;bottom:2px;display:flex;align-items:center;justify-content:center;gap:5px;color:#fff;font-size:10px;font-weight:700;text-shadow:0 1px 3px #000}
 .ft-roll-total{white-space:nowrap}
@@ -27,6 +26,9 @@
 .ft-bets .betbtn.lose,.ft-side-bets .betbtn.lose,.ft-triple-bets .betbtn.lose{opacity:.48}
 .ft .road{display:grid;grid-template-columns:repeat(20,13px);grid-template-rows:repeat(5,13px);gap:2px;height:73px}
 .ft .road .ft-history{width:13px;height:13px}
+.ft-stats>.sec-title{margin-bottom:4px}
+.ft-tabs .tab{font-size:9px;padding:3px 1px;white-space:nowrap}
+.ft .road.big{grid-template-columns:none;grid-template-rows:repeat(6,14.333px);grid-auto-columns:12px;grid-auto-rows:14.333px;grid-auto-flow:column;gap:0;justify-content:start;align-content:start;height:88px;border:1px solid #dbe3e7;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;background:repeating-linear-gradient(90deg,transparent 0 11px,#dbe3e7 11px 12px),repeating-linear-gradient(180deg,transparent 0 13.333px,#dbe3e7 13.333px 14.333px),#fff}
 .ft-r1{background:#3473ad}.ft-r2{background:#39805d}.ft-r3{background:#a8782d}.ft-r4{background:#8b483c}
 @media(max-width:500px){
   .ft .felt{height:235px;padding:7px}

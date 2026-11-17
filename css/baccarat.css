@@ -24,6 +24,8 @@
 .pcard.ghost{background:rgba(0,0,0,.22);border:1px dashed rgba(255,255,255,.45);box-shadow:none}
 .pcard.old{filter:brightness(.92)}
 .h-score{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:#fff;color:#0e4a2f;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center}
+.baccarat-eight [data-hand="b"] .banker-mark{position:relative;flex:none;width:40px;height:57px;display:flex;align-items:center;justify-content:center;color:#ffe09a;font-family:Georgia,serif;font-size:40px;font-style:italic;font-weight:900;line-height:1;text-shadow:0 1px 2px #5b250b,0 0 8px rgba(255,220,130,.75);pointer-events:none}
+.baccarat-eight [data-hand="b"] .banker-mark::before{content:"";position:absolute;inset:7px 3px;border:1px solid rgba(255,225,155,.8);border-radius:50%;box-shadow:0 0 0 2px rgba(255,218,122,.2),inset 0 0 7px rgba(255,225,155,.45)}
 .betbtn[data-k="P"]{background:linear-gradient(180deg,#5b8def,#2f6be0);border-color:#1d4ed8}
 .betbtn[data-k="P"]:hover{background:#4d81ee;border-color:#173ea8}
 .betbtn[data-k="P"] .b-name,.betbtn[data-k="P"] .b-odds{color:#fff}
@@ -38,15 +40,15 @@
 .betbtn[data-k="P"] .b-total,.betbtn[data-k="B"] .b-total{color:rgba(255,255,255,.85)}
 .betbtn[data-k="T"]{background:linear-gradient(180deg,#ecf8ef,#d9efe0);border-color:#9cd3ae}
 .betbtn[data-k="T"]:hover{background:#c5e8d0;border-color:#7cc39a}
-.road.big .bead{width:9px;height:9px;margin:1px;border:1.5px solid;background:#fff}
-.road.big .bead.p{border-color:#1d4ed8}
-.road.big .bead.b{border-color:#b91c1c}
-.road.big .bead.t{border-color:#2fa14f}
-.road.big .bead.slash::after{background:#c58a21}
-.road.big .pair{position:absolute;width:3px;height:3px;border-radius:50%;z-index:1}
-.road.big .pair.banker{left:-2px;top:-2px;background:#b91c1c}
-.road.big .pair.player{right:-2px;bottom:-2px;background:#1d4ed8}
-.road.big .tie-count{position:absolute;inset:-1px;color:#14603e;font-size:6px;line-height:8px;text-align:center;z-index:1}
+.baccarat-stats .road.big .bead{width:9px;height:9px;margin:1px;border:1.5px solid;background:#fff}
+.baccarat-stats .road.big .bead.p{border-color:#1d4ed8}
+.baccarat-stats .road.big .bead.b{border-color:#b91c1c}
+.baccarat-stats .road.big .bead.t{border-color:#2fa14f}
+.baccarat-stats .road.big .bead.slash::after{background:#c58a21}
+.baccarat-stats .road.big .pair{position:absolute;width:3px;height:3px;border-radius:50%;z-index:1}
+.baccarat-stats .road.big .pair.banker{left:-2px;top:-2px;background:#b91c1c}
+.baccarat-stats .road.big .pair.player{right:-2px;bottom:-2px;background:#1d4ed8}
+.baccarat-stats .road.big .tie-count{position:absolute;inset:-1px;color:#14603e;font-size:6px;line-height:8px;text-align:center;z-index:1}
 .baccarat-stats .road.big{grid-template-rows:repeat(6,14.333px);grid-auto-columns:12px;height:88px;background:repeating-linear-gradient(90deg,transparent 0 11px,#dbe3e7 11px 12px),repeating-linear-gradient(180deg,transparent 0 13.333px,#dbe3e7 13.333px 14.333px),#fff}
 .baccarat-stats .road.big .bead{width:10px;height:10px;margin:1px}
 .baccarat-stats .stats-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:3px;white-space:nowrap}

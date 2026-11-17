@@ -1,5 +1,5 @@
 .cell4.empty{background:#e8edf1}
-.tx .bet-wrap{padding-bottom:17px}
+.tx .bet-wrap{padding-bottom:4px}
 .tx-bets{display:grid;gap:6px}
 .tx .bet-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:68px}
 .tx-parity-grid,.tx-single-grid{display:grid;gap:6px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:68px}
@@ -16,6 +16,7 @@
 .tx-single-grid .b-user{bottom:14px;left:50%;transform:translateX(-50%);padding:0 3px;font-size:8px;line-height:10px;white-space:nowrap}
 .tx-single-grid .b-total{bottom:2px;right:3px;font-size:8px;line-height:10px;white-space:nowrap}
 .tx .betbtn:focus-visible{outline:2px solid #16616c;outline-offset:-3px}
+.tx .stats{margin-top:0;padding-top:3px}
 .tx .road{height:80px}
 .tx .road.pb .pb-row{font-size:10px}
 .tx .plate{width:150px;height:118px;background:radial-gradient(ellipse at 40% 32%,#fffdf6 0%,#f6eeda 48%,#e9ddc0 60%,#d9cbab 100%);box-shadow:0 2px 0 #d5c8aa,0 5px 0 #b3a181,0 7px 0 #8c7a5b,0 12px 14px rgba(0,0,0,.35),inset 0 0 0 4px #fdf9ee,inset 0 0 0 6px #d3c49f,inset 0 4px 8px rgba(255,255,255,.7)}
@@ -39,6 +40,18 @@
 .dice-pip{width:80%;height:80%;justify-self:center;align-self:center;border-radius:50%;background:radial-gradient(circle at 65% 70%,#48515a,#10171d 70%);box-shadow:inset 0 1px 1px rgba(0,0,0,.75),0 1px 0 rgba(255,255,255,.7)}
 .dice-face.single-pip .dice-pip,.glass-result-die.single-pip .dice-pip{width:130%;height:130%}
 .dice-face.red-pips .dice-pip{background:radial-gradient(circle at 65% 70%,#e75847,#9e1c15 70%)}
+.tx .tx-die-1 .dice-face{border-color:#8e1f27;background:linear-gradient(145deg,#f05a5a,#b51f2a)}
+.tx .tx-die-1 .dice-face .dice-pip{background:radial-gradient(circle at 65% 70%,#fff,#e7e7e7 70%);box-shadow:inset 0 1px 1px rgba(0,0,0,.25),0 1px 0 rgba(0,0,0,.2)}
+.tx .tx-die-2 .dice-face{border-color:#c4bba7;background:linear-gradient(145deg,#fffefa,#e8e0ce)}
+.tx .tx-die-2 .dice-face .dice-pip{background:radial-gradient(circle at 65% 70%,#48515a,#10171d 70%)}
+.tx .tx-die-3 .dice-face{border-color:#101216;background:linear-gradient(145deg,#45494f,#17191d)}
+.tx .tx-die-3 .dice-face .dice-pip{background:radial-gradient(circle at 65% 70%,#ff645b,#c51f2b 70%);box-shadow:inset 0 1px 1px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.18)}
+.tx .glass-result-die.tx-die-1{border-color:#8e1f27;background:linear-gradient(145deg,#f05a5a,#b51f2a)}
+.tx .glass-result-die.tx-die-1 .dice-pip{background:radial-gradient(circle at 65% 70%,#fff,#e7e7e7 70%);box-shadow:inset 0 1px 1px rgba(0,0,0,.25),0 1px 0 rgba(0,0,0,.2)}
+.tx .glass-result-die.tx-die-2{border-color:#c4bba7;background:linear-gradient(145deg,#fffefa,#e8e0ce)}
+.tx .glass-result-die.tx-die-2 .dice-pip{background:radial-gradient(circle at 65% 70%,#48515a,#10171d 70%)}
+.tx .glass-result-die.tx-die-3{border-color:#101216;background:linear-gradient(145deg,#45494f,#17191d)}
+.tx .glass-result-die.tx-die-3 .dice-pip{background:radial-gradient(circle at 65% 70%,#ff645b,#c51f2b 70%);box-shadow:inset 0 1px 1px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.18)}
 .glass-stage{position:relative;height:148px;margin-top:6px;perspective:700px}
 .glass-camera{position:absolute;left:50%;top:116px;width:0;height:0;z-index:2;transform:rotateX(-25deg) rotateY(-12deg);transform-style:preserve-3d}
 .glass-floor{position:absolute;left:-77px;top:-77px;width:154px;height:154px;border-radius:50%;transform:rotateX(90deg);background:radial-gradient(circle at 35% 30%,#dce9e8,#8ba9aa 62%,#4b6c72 100%);box-shadow:inset 0 0 0 3px #c8dddf,inset 0 0 0 5px #587b82,0 3px 0 #38555b}
@@ -62,7 +75,7 @@
 .glass-die .glass-right-face{transform:rotateY(90deg) translateZ(15.84px);background:linear-gradient(145deg,#e9e0ce,#b8aa92)}
 .glass-die .glass-left-face{transform:rotateY(-90deg) translateZ(15.84px);background:linear-gradient(145deg,#f5efdf,#d3c7b0)}
 .glass-die-shadow{position:absolute;left:-17px;top:-17px;width:34px;height:34px;border-radius:40%;background:rgba(18,35,35,.65);pointer-events:none}
-.glass-result{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;gap:7px;background:transparent;transform:translateY(-10px);pointer-events:none}
+.glass-result{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;gap:7px;background:transparent;transform:translateY(-22px);pointer-events:none}
 .glass-result[hidden]{display:none}
 .glass-result-die{width:42px;height:42px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;padding:5px;border:1px solid #c4bba7;border-radius:6px;background:linear-gradient(145deg,#fffefa,#e8e0ce);box-shadow:0 3px 6px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.55)}
 .glass-result-die.red-pips .dice-pip{background:radial-gradient(circle at 65% 70%,#e75847,#9e1c15 70%)}

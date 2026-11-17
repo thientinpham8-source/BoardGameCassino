@@ -6,6 +6,7 @@ class FantanTable{
     this.phase='BETTING';this.tLeft=CFG.betTime;this.firstBet=Math.floor(Math.random()*8);
     this.resLeft=CFG.resultTime;this.user={};this.bots={};this.timers=[];
     this.lastResult=null;
+    this.statsTab='tx';
     this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>ftAnalyze(txRoll()).result);
     this.build();this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'),3,GLASS_SHAKE_DURATION,false);startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
@@ -24,7 +25,7 @@ class FantanTable{
       '<span class="ft-roll-separator" aria-hidden="true">·</span><span class="ft-result-label">Kết quả Fantan</span><strong class="ft-result-value">—</strong></div></div></div>'+
       '<div class="bet-wrap"><div class="bet-grid ft-bets"></div><div class="sec-title ft-side-title">Cửa cược phụ</div><div class="ft-side-bets"></div>'+
       '<div class="sec-title ft-triple-title">Bộ ba (3/4 kết quả)</div><div class="ft-triple-bets"></div></div>'+
-      '<div class="stats"><div class="sec-title">Kết quả 100 ván trước</div><div class="road ft-road"></div><div class="summary"></div></div>';
+      '<div class="stats ft-stats"><div class="sec-title">Cầu 100 ván gần nhất</div><div class="tabs ft-tabs"><span class="tab" data-ft-tab="result">Kết quả</span><span class="tab active" data-ft-tab="tx">Tài/Xỉu</span><span class="tab" data-ft-tab="parity">Chẵn/Lẻ</span><span class="tab" data-ft-tab="zone">Đầu/đuôi · Giữa</span></div><div class="road ft-road big"></div><div class="summary"></div></div>';
     document.getElementById('tables').appendChild(el);this.el=el;
     this.$status=el.querySelector('.f-status');this.$badge=el.querySelector('.pbadge');
     this.$stage=el.querySelector('.ft-stage');
@@ -34,6 +35,8 @@ class FantanTable{
     this.$sideBets=el.querySelector('.ft-side-bets');
     this.$tripleBets=el.querySelector('.ft-triple-bets');
     this.$road=el.querySelector('.ft-road');this.$summary=el.querySelector('.summary');
+    this.$tabs=el.querySelector('.ft-tabs');
+    this.$tabs.addEventListener('click',e=>{const tab=e.target.closest('[data-ft-tab]');if(!tab)return;this.statsTab=tab.dataset.ftTab;this.$tabs.querySelectorAll('[data-ft-tab]').forEach(x=>x.classList.toggle('active',x===tab));this.renderStats();});
     this.$betWrap.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)this.placeBet(b.dataset.k);});
   }
   startBetting(){
@@ -111,9 +114,23 @@ class FantanTable{
   }
   renderStats(){
     const counts=[0,0,0,0];
-    this.hist.slice(0,100).forEach(n=>counts[n-1]++);
-    this.$road.innerHTML=this.hist.slice(0,100).map((n,index)=>'<span class="bead ft-history ft-r'+n+'" style="grid-column:'+(index%20+1)+';grid-row:'+(Math.floor(index/20)+1)+'" role="img" aria-label="Kết quả '+n+'"></span>').join('');
-    this.$summary.textContent='1: '+counts[0]+' · 2: '+counts[1]+' · 3: '+counts[2]+' · 4: '+counts[3];
+    const history=this.hist.slice(0,100);
+    history.forEach(n=>counts[n-1]++);
+    if(this.statsTab==='result'){
+      this.$road.classList.remove('big');
+      this.$road.innerHTML=history.slice().reverse().map((n,index)=>'<span class="bead ft-history ft-r'+n+'" style="grid-column:'+(Math.floor(index/5)+1)+';grid-row:'+(index%5+1)+'" role="img" aria-label="Kết quả '+n+'">'+n+'</span>').join('');
+      this.$summary.textContent='1: '+counts[0]+' · 2: '+counts[1]+' · 3: '+counts[2]+' · 4: '+counts[3];
+      return;
+    }
+    const groups=this.statsTab==='tx'
+      ? {yes:history.filter(n=>n>=3).length,no:history.filter(n=>n<=2).length,yesLabel:'Tài',noLabel:'Xỉu',yesCode:'B',noCode:'P'}
+      : this.statsTab==='parity'
+        ? {yes:history.filter(n=>n%2===0).length,no:history.filter(n=>n%2===1).length,yesLabel:'Chẵn',noLabel:'Lẻ',yesCode:'B',noCode:'P'}
+        : {yes:history.filter(n=>n===1||n===4).length,no:history.filter(n=>n===2||n===3).length,yesLabel:'Đầu/đuôi',noLabel:'Giữa',yesCode:'B',noCode:'P'};
+    this.$road.classList.add('big');
+    this.$road.innerHTML=renderBigRoad(history.slice().reverse().map(n=>({w:n===4|| (this.statsTab==='tx'&&n>=3) || (this.statsTab==='parity'&&n%2===0) || (this.statsTab==='zone'&&(n===1||n===4))?groups.yesCode:groups.noCode,label:(this.statsTab==='tx'?(n>=3?'Tài':'Xỉu'):this.statsTab==='parity'?(n%2===0?'Chẵn':'Lẻ'):((n===1||n===4)?'Đầu/đuôi':'Giữa'))+' · '+n})));
+    this.$road.scrollLeft=this.$road.scrollWidth;
+    this.$summary.textContent=groups.yesLabel+' '+groups.yes+' · '+groups.noLabel+' '+groups.no;
   }
   renderAll(){this.renderStatus();this.renderBets();this.renderStats();}
 }

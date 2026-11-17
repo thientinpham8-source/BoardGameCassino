@@ -8,7 +8,8 @@ const XOCDIA = [
   { name:'Xóc Đĩa X4', id:'186269504', players:27 },
   { name:'Xóc Đĩa Slot X1', id:'186269505', players:24, slot:true },
   { name:'Xóc Đĩa Slot X2', id:'186269506', players:31, slot:true },
-  { name:'Xóc Đĩa Slot 3 Quân', id:'186269507', players:26, slot:true, coinCount:3 }
+  { name:'Xóc Đĩa Slot 3 Quân', id:'186269507', players:26, slot:true, coinCount:3 },
+  { name:'Xóc Đĩa Lồng Kính', id:'186269508', players:28, glass:true }
 ];
 const XD_MAIN = [
   {k:'C',  n:'Chẵn', o:'1.95', ico:'rrww'},
@@ -89,6 +90,7 @@ class XocDiaTable {
     this.tab = 'res'; this.hist = xdSeed(60 + Math.floor(Math.random()*33), this.coinCount);
     this.paused = false; this.timers = [];
     this.build();
+    if(this.glass)this.coinSim=new GlassCoinSimulation(this.$coins,this.coinCount);
     this.renderAll();
     startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(), 15000);
@@ -101,7 +103,7 @@ class XocDiaTable {
 
   build(){
     const el = document.createElement('section');
-    el.className = 'table-card xd' + (this.slot ? ' slot' : '') + (this.coinCount===3 ? ' slot-three' : '');
+    el.className = 'table-card xd' + (this.slot ? ' slot' : '') + (this.coinCount===3 ? ' slot-three' : '') + (this.glass ? ' xd-glass-table' : '');
     el.innerHTML =
       '<div class="card-head"><div class="card-title">' +
         '<div class="title-row"><div class="t-name">' + this.name + '</div><div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">' + this.players + '</span></div></div><div class="t-id"># ' + this.id + '</div></div>' +
@@ -109,7 +111,7 @@ class XocDiaTable {
       '</div>' +
       '<div class="felt">' +
         '<div class="f-status"></div>' +
-        (this.slot ? '<div class="slot-machine"><div class="slot-header"><span>XÓC ĐĨA</span><span class="slot-tag">SLOT</span></div><div class="slot-display"><div class="slot-reels"></div></div><div class="slot-footer"><span>' + this.coinCount + ' quân vị · Đỏ / Trắng</span><span class="slot-lights" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div></div>' : '<div class="dish"><div class="plate"><div class="coins"></div></div><div class="lid"></div></div>') +
+        (this.slot ? '<div class="slot-machine"><div class="slot-header"><span>XÓC ĐĨA</span><span class="slot-tag">SLOT</span></div><div class="slot-display"><div class="slot-reels"></div></div><div class="slot-footer"><span>' + this.coinCount + ' quân vị · Đỏ / Trắng</span><span class="slot-lights" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div></div>' : this.glass ? '<div class="dish xd-glass-stage"><div class="glass-shell"><div class="glass-rear"></div></div><div class="glass-base"></div><div class="glass-shell glass-back-rim"><div class="glass-rim bottom"></div></div><div class="xd-glass-camera"></div><div class="glass-shell glass-front"><div class="glass-rim top"></div></div></div>' : '<div class="dish"><div class="plate"><div class="coins"></div></div><div class="lid"></div></div>') +
       '</div>' +
       '<div class="bet-wrap"><div class="bet-grid"></div></div>' +
       '<div class="side-wrap">' +
@@ -124,7 +126,7 @@ class XocDiaTable {
     this.el = el;
     this.$fStatus = el.querySelector('.f-status');
     this.$dish = el.querySelector(this.slot ? '.slot-machine' : '.dish');
-    this.$coins = el.querySelector(this.slot ? '.slot-reels' : '.coins');
+    this.$coins = el.querySelector(this.slot ? '.slot-reels' : this.glass ? '.xd-glass-camera' : '.coins');
     this.$betGrid = el.querySelector('.bet-grid');
     this.$sideGrid = el.querySelector('.side-grid'); this.$miniGrid = el.querySelector('.mini-grid');
     this.$betWrap = el.querySelector('.bet-wrap'); this.$sideWrap = el.querySelector('.side-wrap');
@@ -212,6 +214,7 @@ class XocDiaTable {
     this.setLocked(true);
     this.$dish.classList.remove('open'); this.$dish.classList.add('shake');
     this.renderStatus(); this.renderDish();
+    if(this.glass)this.coinSim.start(this.coins);
     this.steps = [
       { run: ()=>{}, d: 3000 },
       ...(!this.slot ? [{ run: ()=>this.$dish.classList.remove('shake'), d: 2000 }] : []),
@@ -332,7 +335,14 @@ class XocDiaTable {
     let src = null, old = false;
     if (this.phase==='BETTING'){
       if (this.lastRed !== null){ src = xdCoins(this.lastRed); old = true; }
+      else if(this.glass){src=xdCoins(this.hist[0].red,this.coinCount);old=true;}
     } else src = this.coins;
+    if(this.glass){
+      this.coinSim.setCoins(src||[]);
+      this.$coins.classList.toggle('old',old);
+      this.$dish.classList.remove('open');
+      return;
+    }
     this.$coins.innerHTML = src ? src.map(c=>
       '<span class="coin ' + (c?'red':'white') + (old?' old':'') + '"></span>').join('') : '';
     this.$dish.classList.remove('open');
@@ -369,7 +379,7 @@ class XocDiaTable {
         ? row('3 Đỏ','#e04848',cnt(3)) + row('2 Đỏ 1 Trắng','#e07a3c',cnt(2)) + row('2 Trắng 1 Đỏ','#2f6fed',cnt(1)) + row('3 Trắng','#9aa7b0',cnt(0))
         : row('4 Đỏ','#e04848',cnt(4)) + row('3 Đỏ','#e07a3c',cnt(3)) + row('2 Đỏ','#2fa14f',cnt(2)) + row('1 Đỏ','#2f6fed',cnt(1)) + row('0 Đỏ','#9aa7b0',cnt(0));
       sum = 'Tổng ' + H.length + ' ván';
-    } else if (this.slot){
+    } else if (this.tab==='det'){
       body = renderBigRoad(H.slice().reverse().map(h=>({
         w:this.coinCount===3 ? (h.red>=2 ? 'C' : 'L') : (h.red%2===0 ? 'C' : 'L'),
         label:this.resultNames[h.red],
@@ -389,10 +399,10 @@ class XocDiaTable {
       const rd = H.reduce((a,h)=>a+h.red,0);
       sum = 'Đỏ ' + rd + ' · Trắng ' + (H.length*this.coinCount - rd);
     }
-    const big = this.tab==='res' || (this.slot && this.tab==='det');
+    const big = this.tab==='res' || this.tab==='det';
     this.$road.classList.toggle('big', big);
     this.$road.classList.toggle('pb', this.tab==='rate');
-    this.$road.classList.toggle('detail', this.slot && this.tab==='det');
+    this.$road.classList.toggle('detail', Boolean(this.slot && this.tab==='det'));
     this.$road.innerHTML = body;
     if (big) this.$road.scrollLeft = this.$road.scrollWidth;
     this.$summary.textContent = sum;

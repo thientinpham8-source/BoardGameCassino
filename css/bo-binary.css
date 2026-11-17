@@ -1,11 +1,11 @@
-.bo-table{height:722px;min-height:722px;max-height:722px}
+.bo-table{height:746px;min-height:746px;max-height:746px;flex:0 0 746px;align-self:start;justify-content:flex-start}
 .bo-table .card-head{gap:8px}
 .bo-table .t-name{font-size:14px}
 .bo-feed-status{max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:700}
 .bo-feed-status.live{color:#8df0c0}
 .bo-feed-status.connecting,.bo-feed-status.reconnecting{color:#f4d18a}
 .bo-feed-status.error{color:#ffb5b5}
-.bo-felt{height:200px;min-height:200px;padding:10px;background:linear-gradient(145deg,#13242a,#0c171c);border-color:#27434b}
+.bo-felt{height:200px;min-height:200px;max-height:200px;flex:0 0 200px;padding:10px;background:linear-gradient(145deg,#13242a,#0c171c);border-color:#27434b}
 .bo-market-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
 .bo-market-price{display:flex;min-width:0;flex-direction:column;gap:2px}
 .bo-pair-label{color:#8fa9ad;font-size:10px;font-weight:700;letter-spacing:.3px}
@@ -16,10 +16,10 @@
 .bo-selectors{display:flex;gap:5px}
 .bo-selectors label{display:flex;flex-direction:column;gap:2px;color:#8fa9ad;font-size:9px}
 .bo-selectors select{max-width:92px;border:1px solid #41616a;border-radius:5px;padding:4px 5px;background:#1a3037;color:#e8f2f1;font-family:inherit;font-size:10px;font-weight:600}
-.bo-chart{display:block;width:100%;height:100px;border-radius:6px}
-.bo-candle-info{margin-top:4px;color:#92a9ad;font:9px/1.3 Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bo-round-panel{padding:9px 10px 0}
-.bo-felt .bo-round-phase{height:13px;margin:-3px 0 2px;color:#c3d6d8;font-size:10px;line-height:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.bo-chart{display:block;width:100%;height:100px;min-height:100px;max-height:100px;border-radius:6px}
+.bo-candle-info{height:12px;min-height:12px;max-height:12px;margin-top:4px;color:#92a9ad;font:9px/12px Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bo-round-panel{flex:0 0 285px;height:285px;min-height:285px;max-height:285px;padding:9px 10px 0;overflow:hidden}
+.bo-felt .bo-round-phase{height:13px;min-height:13px;max-height:13px;margin:-3px 0 2px;color:#c3d6d8;font-size:10px;line-height:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .bo-table .bo-bet-wrap{padding:10px 0 0}
 .bo-table .bo-bet-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:58px}
 .bo-color-panel{margin-top:3px;padding-top:0}
@@ -34,7 +34,7 @@
 .bo-color-option.bo-color-purple .b-name{color:#7544a5}
 .bo-color-option.bo-color-green{background:linear-gradient(180deg,#e7f8f0,#cceedd);border-color:#8ec9aa}
 .bo-color-option.bo-color-green .b-name{color:#117348}
-.bo-color-result{margin-top:2px;text-align:center;color:#637a82;font-size:10px;font-weight:700}
+.bo-color-result{height:14px;min-height:14px;max-height:14px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;color:#637a82;font-size:10px;line-height:14px;font-weight:700}
 .bo-color-result.green,.color-result-green{color:#117348}
 .bo-color-result.red,.color-result-red{color:#a53645}
 .bo-color-result.purple,.color-result-purple{color:#7544a5}
@@ -60,9 +60,15 @@
 .bo-option.bo-down .b-name{color:#a53645}
 .bo-option:disabled{cursor:default}
 .bo-table .betbtn:active{transform:none}
-.bo-stats{margin-top:7px}
-.bo-history{display:grid;height:134px;grid-template-rows:repeat(6,20px);grid-auto-columns:20px;grid-auto-flow:column;align-content:start;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
-.bo-road-cell{display:grid;width:20px;height:20px;place-items:center;border-radius:50%;color:#fff;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+.bo-stats{flex:0 0 175px;height:175px;min-height:175px;max-height:175px;margin-top:7px;overflow:hidden}
+.bo-history-tabs{margin-bottom:4px}
+.bo-history{display:grid;grid-template-columns:none;grid-template-rows:repeat(6,18px);grid-auto-columns:18px;grid-auto-rows:18px;grid-auto-flow:column;align-content:start;justify-content:start;gap:0;height:112px;min-height:112px;max-height:112px;padding-right:90px;border:1px solid #dbe3e7;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;background:repeating-linear-gradient(90deg,transparent 0 17px,#dbe3e7 17px 18px),repeating-linear-gradient(180deg,transparent 0 17px,#dbe3e7 17px 18px),#fff}
+.bo-history>*{min-width:0;max-width:12px;min-height:0;max-height:14.333px}
+.bo-road-cell{position:relative;display:grid;width:14px;min-width:14px;max-width:14px;height:14px;min-height:14px;max-height:14px;justify-self:center;align-self:center;box-sizing:border-box;place-items:center;border-radius:50%;color:#fff;font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
+.bo-road-up{background:#2fa14f}
+.bo-road-down{background:#e04848}
+.bo-road-cell.has-tie{position:relative}
+.bo-road-cell small{position:absolute;right:-3px;top:-3px;min-width:9px;height:9px;padding:0 1px;border-radius:5px;background:#fff;color:#14603e;font-size:7px;line-height:9px;text-align:center}
 .bo-road-green{background:#2fa14f}
 .bo-road-red{background:#e04848}
 .bo-road-split-red{background:linear-gradient(135deg,#e04848 0 50%,#7544a5 50%)}

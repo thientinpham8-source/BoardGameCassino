@@ -9,7 +9,8 @@ const TABLES = [
   { name:'Baccarat T3',    id:'186269452', players:39, nc:false },
   { name:'Baccarat T4',    id:'186269440', players:25, nc:false },
   { name:'Baccarat T5',    id:'186269453', players:39, nc:false },
-  { name:'Baccarat NC T2', id:'186269423', players:9,  nc:true }
+  { name:'Baccarat NC T2', id:'186269423', players:9,  nc:true },
+  { name:'Baccarat Luôn 8', id:'186269454', players:24, bankerMark:'8', payouts:{P:2.54,T:9,B:1.46} }
 ];
 const MAIN_OPTS = [
   {k:'P', n:'Người chơi', o:'2.00'}, {k:'T', n:'Hòa', o:'9.00'}, {k:'B', n:'Nhà cái', o:'1.95'},

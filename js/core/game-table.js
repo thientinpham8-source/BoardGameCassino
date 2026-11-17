@@ -4,6 +4,7 @@
 class GameTable {
   constructor(cfg){
     Object.assign(this, cfg);
+    this.mainOpts = this.payouts ? MAIN_OPTS.map(o=>({...o,o:this.payouts[o.k]===undefined?o.o:this.payouts[o.k].toFixed(2)})) : MAIN_OPTS;
     this.shoe = makeShoe();
     this.phase = 'BETTING'; this.tLeft = CFG.betTime; this.firstBet = Math.floor(Math.random()*8);
     this.resLeft = CFG.resultTime;
@@ -29,7 +30,7 @@ class GameTable {
 
   build(){
     const el = document.createElement('section');
-    el.className = 'table-card';
+    el.className = 'table-card' + (this.bankerMark ? ' baccarat-eight' : '');
     el.innerHTML =
       '<div class="card-head"><div class="card-title">' +
         '<div class="title-row"><div class="t-name">' + this.name + '</div><div class="pbadge" title="Số người chơi"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="6" r="2.5"/><path d="M2 16v-1a5 5 0 0 1 10 0v1M13 4a2.5 2.5 0 0 1 0 5M14 11a4 4 0 0 1 4 4v1"/></svg><span class="p-count">' + this.players + '</span></div></div><div class="t-id"># ' + this.id + '</div></div>' +
@@ -38,7 +39,8 @@ class GameTable {
       '<div class="felt">' +
         '<div class="f-status"></div>' +
         '<div class="hands">' +
-          '<div class="hand" data-hand="b"><span class="h-label">BANKER</span><span class="h-cards"></span><span class="hz">莊</span><span class="h-score">–</span></div>' +
+          '<div class="hand" data-hand="b"><span class="h-label">BANKER</span>' +
+            '<span class="h-cards"></span><span class="hz">莊</span><span class="h-score">–</span></div>' +
           '<div class="hand" data-hand="p"><span class="h-label">PLAYER</span><span class="h-cards"></span><span class="hz">閒</span><span class="h-score">–</span></div>' +
         '</div>' +
       '</div>' +
@@ -133,12 +135,12 @@ class GameTable {
     clearLastBetAction(this);
     this.clearTimers();
     this.phase = 'DEALING'; this.dealIdx = 0;
-    this.round = playRound(this.shoe);
-    this.reveal = { p:[0,0,0], b:[0,0,0] };
+    this.round = playRound(this.shoe,!!this.bankerMark);
+    this.reveal = { p:[0,0,0], b:this.bankerMark?[2,0,0]:[0,0,0] };
     this.animCard = null;
     const S = this.steps = [];
     S.push({ run: ()=>this.setCard('p',0,1), d: 200 });
-    S.push({ run: ()=>this.setCard('b',0,1), d: 200 });
+    if (!this.bankerMark) S.push({ run: ()=>this.setCard('b',0,1), d: 200 });
     S.push({ run: ()=>this.setCard('p',1,1), d: 200 });
     S.push({ run: ()=>this.setCard('b',1,1), d: 200 });
     S.push({ run: ()=>{}, d: 340 });                                            // nhịp nghỉ
@@ -182,7 +184,7 @@ class GameTable {
     this.phase = 'RESULT'; this.resLeft = CFG.resultTime;
     let uwin = 0;
     for (const k in this.user){
-      const m = multFor(k, res, this.nc), st = this.user[k];
+      const m = multFor(k, res, this.nc, this.payouts), st = this.user[k];
       if (m > 0){ balance += st + st*m; uwin += st*m; }
       else if (m === 0){ balance += st; }
     }
@@ -207,7 +209,7 @@ class GameTable {
   }
   getBtnCls(k){
     if (this.phase==='RESULT'){
-      const m = multFor(k, this.lastRes, this.nc);
+      const m = multFor(k, this.lastRes, this.nc, this.payouts);
       return m>0 ? 'win' : m<0 ? 'lose' : '';
     }
     return '';
@@ -257,13 +259,15 @@ class GameTable {
   }
   renderCards(){
     const ph = this.phase;
-    const src = ph==='BETTING' ? this.lastCards : this.round;
+    const preview = this.bankerMark ? {p:[],b:[BANKER_EIGHT_MARKER]} : null;
+    const src = ph==='BETTING' ? (this.lastCards || preview) : this.round;
     const anim = this.animCard;
     const ghost = '<span class="pcard ghost"></span><span class="pcard ghost"></span>';
     const mk = (side, cs, sts)=>{
-      if (!cs) return ghost;
+      if (!cs) return side==='b'&&this.bankerMark?'<span class="pcard ghost"></span>':ghost;
       let h = '';
       for (let j=0;j<cs.length;j++){
+        if (cs[j].fixed) continue;
         if (ph==='DEALING'){
           if (sts[j]===0) continue;                                                    // chưa chia đến
           if (sts[j]===1){
@@ -277,14 +281,15 @@ class GameTable {
           h += this.cardHtml(cs[j], ph==='BETTING' ? 'old' : '');
         }
       }
-      return h || ghost;
+      return h || (side==='b'&&this.bankerMark?'<span class="pcard ghost"></span>':ghost);
     };
     const sts = ph==='DEALING' ? this.reveal : null;
     this.$pCards.innerHTML = mk('p', src && src.p, sts ? sts.p : null);
-    this.$bCards.innerHTML = mk('b', src && src.b, sts ? sts.b : null);
+    const bankerMark = this.bankerMark ? '<span class="banker-mark" aria-hidden="true">' + this.bankerMark + '</span>' : '';
+    this.$bCards.innerHTML = bankerMark + mk('b', src && src.b, sts ? sts.b : null);
     const faceTot = (cs, st)=> cs.reduce((a,c,j)=> a + (st[j]===2 ? vOf(c.r) : 0), 0) % 10;
-    const sP = ph==='DEALING' ? faceTot(src.p, sts.p) : (src ? tot(src.p) : null);
-    const sB = ph==='DEALING' ? faceTot(src.b, sts.b) : (src ? tot(src.b) : null);
+    const sP = ph==='DEALING' ? faceTot(src.p, sts.p) : (src && src.p.length ? tot(src.p) : null);
+    const sB = ph==='DEALING' ? faceTot(src.b, sts.b) : (src && src.b.length ? tot(src.b) : null);
     this.$pScore.textContent = sP===null ? '–' : sP;
     this.$bScore.textContent = sB===null ? '–' : sB;
     this.animCard = null;
@@ -292,7 +297,7 @@ class GameTable {
     this.$pHand.classList.toggle('win', w==='P');
     this.$bHand.classList.toggle('win', w==='B');
   }
-  renderBetGrid(){ this.$betGrid.innerHTML = MAIN_OPTS.map(o=>this.btnHtml(o,false)).join(''); }
+  renderBetGrid(){ this.$betGrid.innerHTML = this.mainOpts.map(o=>this.btnHtml(o,false)).join(''); }
   renderSideGrid(){
     this.$sideGrid.innerHTML = SIDE_OPTS.filter(o=>!o.mini).map(o=>this.btnHtml(o,false)).join('');
     this.$miniGrid.innerHTML = SIDE_OPTS.filter(o=>o.mini && (o.ncOnly ? this.nc : true)).map(o=>this.btnHtml(o,true)).join('');

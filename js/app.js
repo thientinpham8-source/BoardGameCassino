@@ -56,5 +56,31 @@
     });
   }));
   document.querySelectorAll('.table-card.ab,.table-card.bb-table,.table-card.xd,.table-card.tx,.table-card.monopoly,.table-card.rl,.table-card.dt,.table-card.ft,.table-card.bo-table').forEach(c=>{ c.style.display = 'none'; });
+  const tables = document.getElementById('tables');
+  let roadDrag = null;
+  tables.addEventListener('pointerdown', e=>{
+    if (e.isPrimary===false || (e.pointerType==='mouse' && e.button!==0)) return;
+    const track = e.target.closest('.road.big, .bo-history');
+    if (!track || track.scrollWidth<=track.clientWidth) return;
+    roadDrag = { track, pointerId:e.pointerId, startX:e.clientX, startScrollLeft:track.scrollLeft };
+    track.classList.add('dragging');
+    track.setPointerCapture(e.pointerId);
+  });
+  tables.addEventListener('pointermove', e=>{
+    if (!roadDrag || e.pointerId!==roadDrag.pointerId) return;
+    const delta = e.clientX-roadDrag.startX;
+    if (Math.abs(delta)>3){
+      roadDrag.track.scrollLeft = roadDrag.startScrollLeft-delta;
+      e.preventDefault();
+    }
+  },{passive:false});
+  const stopRoadDrag = e=>{
+    if (!roadDrag || e.pointerId!==roadDrag.pointerId) return;
+    roadDrag.track.classList.remove('dragging');
+    roadDrag = null;
+  };
+  tables.addEventListener('pointerup',stopRoadDrag);
+  tables.addEventListener('pointercancel',stopRoadDrag);
+  tables.addEventListener('lostpointercapture',stopRoadDrag);
   setBalance();
 })();

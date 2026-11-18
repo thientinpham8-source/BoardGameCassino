@@ -37,6 +37,7 @@
   new DragonTigerTable({name:'Long Hổ T1',id:'186269811',players:24});
   new FantanTable({name:'Fantan T1',id:'186269901',players:24});
   new BinanceBOTable();
+  new BalloonCrashTable();
   document.querySelectorAll('.table-card').forEach(card=>{
     const status=card.querySelector('.f-status'),badge=card.querySelector('.pbadge');
     if(status&&badge)badge.after(status);
@@ -46,7 +47,7 @@
     sideTabs.forEach(x=>x.classList.toggle('active', x===tab));
     const category = tab.dataset.cat;
     document.querySelectorAll('.table-card').forEach(c=>{
-      const cardCategory = c.classList.contains('bo-table') ? 'bo' : c.classList.contains('ab') ? 'ab' : c.classList.contains('bb-table') ? 'bb' : c.classList.contains('dt') ? 'dt' : c.classList.contains('ft') ? 'ft' : c.classList.contains('rl') ? 'rl' : c.classList.contains('monopoly') ? 'monopoly' : c.classList.contains('tx') ? 'tx' : c.classList.contains('slot') ? 'xd-slot' : c.classList.contains('xd') ? 'xd' : 'bac';
+      const cardCategory = c.classList.contains('crash-table') ? 'crash' : c.classList.contains('bo-table') ? 'bo' : c.classList.contains('ab') ? 'ab' : c.classList.contains('bb-table') ? 'bb' : c.classList.contains('dt') ? 'dt' : c.classList.contains('ft') ? 'ft' : c.classList.contains('rl') ? 'rl' : c.classList.contains('monopoly') ? 'monopoly' : c.classList.contains('tx') ? 'tx' : c.classList.contains('slot') ? 'xd-slot' : c.classList.contains('xd') ? 'xd' : 'bac';
       const visible = category === cardCategory;
       c.style.display = visible ? '' : 'none';
       if (visible){
@@ -55,7 +56,7 @@
       }
     });
   }));
-  document.querySelectorAll('.table-card.ab,.table-card.bb-table,.table-card.xd,.table-card.tx,.table-card.monopoly,.table-card.rl,.table-card.dt,.table-card.ft,.table-card.bo-table').forEach(c=>{ c.style.display = 'none'; });
+  document.querySelectorAll('.table-card.ab,.table-card.bb-table,.table-card.xd,.table-card.tx,.table-card.monopoly,.table-card.rl,.table-card.dt,.table-card.ft,.table-card.bo-table,.table-card.crash-table').forEach(c=>{ c.style.display = 'none'; });
   const tables = document.getElementById('tables');
   let roadDrag = null;
   tables.addEventListener('pointerdown', e=>{

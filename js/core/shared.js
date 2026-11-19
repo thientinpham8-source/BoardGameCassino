@@ -53,6 +53,7 @@ function canChangeLastBet(){
 function updateBetActions(){
   const disabled=!canChangeLastBet();
   $('#undo-bet').disabled=disabled;
+  $('#cancel-bet').disabled=disabled;
   $('#double-bet').disabled=disabled;
 }
 function rememberBetAction(table,key,amount){
@@ -83,6 +84,21 @@ function undoLastBet(){
   setBalance(amount);
   renderUserBets(table);
   updateBetActions();
+}
+function cancelCurrentBets(){
+  if(!canChangeLastBet()){lastBetAction=null;updateBetActions();return;}
+  const {table}=lastBetAction;
+  const refund=Object.values(table.user).reduce((total,amount)=>total+(Number.isFinite(amount)&&amount>0?amount:0),0);
+  if(!refund){lastBetAction=null;updateBetActions();return;}
+  Object.keys(table.user).forEach(key=>{
+    if(typeof table.user[key]==='number')table.user[key]=0;
+  });
+  lastBetAction=null;
+  balance+=refund;
+  setBalance(refund);
+  renderUserBets(table);
+  updateBetActions();
+  toast('Đã hủy cược '+fmtMoney(refund));
 }
 function doubleLastBet(){
   if(!canChangeLastBet()){lastBetAction=null;updateBetActions();return;}

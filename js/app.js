@@ -26,6 +26,7 @@
     });
   });
   document.getElementById('undo-bet').addEventListener('click',undoLastBet);
+  document.getElementById('cancel-bet').addEventListener('click',cancelCurrentBets);
   document.getElementById('double-bet').addEventListener('click',doubleLastBet);
   TABLES.forEach(cfg => new GameTable(cfg));
   new BacBoTable({name:'Bac Bo T1',id:'186269901',players:24});
@@ -42,28 +43,103 @@
     const status=card.querySelector('.f-status'),badge=card.querySelector('.pbadge');
     if(status&&badge)badge.after(status);
   });
+  const gameHome = document.getElementById('game-home');
+  const tables = document.getElementById('tables');
+  const tableGridBack = document.getElementById('table-grid-back');
+  const tableCards = Array.from(document.querySelectorAll('.table-card'));
   const sideTabs = Array.from(document.querySelectorAll('.side-tab'));
-  sideTabs.forEach(tab => tab.addEventListener('click', ()=>{
-    sideTabs.forEach(x=>x.classList.toggle('active', x===tab));
-    const category = tab.dataset.cat;
-    document.querySelectorAll('.table-card').forEach(c=>{
-      const cardCategory = c.classList.contains('crash-table') ? 'crash' : c.classList.contains('bo-table') ? 'bo' : c.classList.contains('ab') ? 'ab' : c.classList.contains('bb-table') ? 'bb' : c.classList.contains('dt') ? 'dt' : c.classList.contains('ft') ? 'ft' : c.classList.contains('rl') ? 'rl' : c.classList.contains('monopoly') ? 'monopoly' : c.classList.contains('tx') ? 'tx' : c.classList.contains('slot') ? 'xd-slot' : c.classList.contains('xd') ? 'xd' : 'bac';
-      const visible = category === cardCategory;
-      c.style.display = visible ? '' : 'none';
-      if (visible){
-        const road = c.querySelector('.road.big');
-        if (road) road.scrollLeft = road.scrollWidth;
+  const homeIcon = document.querySelector('.side-ic[title="Trang chủ"]');
+  const gameIcon = document.querySelector('.side-ic[title="Game bàn"]');
+  const getCardCategory = c => c.classList.contains('crash-table') ? 'crash' : c.classList.contains('bo-table') ? 'bo' : c.classList.contains('ab') ? 'ab' : c.classList.contains('bb-table') ? 'bb' : c.classList.contains('dt') ? 'dt' : c.classList.contains('ft') ? 'ft' : c.classList.contains('rl') ? 'rl' : c.classList.contains('monopoly') ? 'monopoly' : c.classList.contains('tx') ? 'tx' : c.classList.contains('slot') ? 'xd-slot' : c.classList.contains('xd') ? 'xd' : 'bac';
+  let currentGameTab=null;
+  let suppressGridClick=false;
+  tableCards.forEach(card=>{
+    const name=card.querySelector('.t-name');
+    const openButton=document.createElement('button');
+    openButton.type='button';
+    openButton.className='table-open-button';
+    openButton.textContent='Mở bàn';
+    openButton.setAttribute('aria-label','Mở '+(name?name.textContent:'bàn game'));
+    card.appendChild(openButton);
+  });
+  let switchingGame=false;
+  let gameSwitchTimer=null;
+  const showHome = activeIcon => {
+    if(gameSwitchTimer!==null){
+      clearTimeout(gameSwitchTimer);
+      gameSwitchTimer=null;
+      switchingGame=false;
+      sideTabs.forEach(tab=>tab.classList.remove('launching'));
+    }
+    gameHome.hidden = false;
+    tables.hidden = true;
+    tables.classList.remove('preview-grid');
+    tableGridBack.hidden=true;
+    tableCards.forEach(card=>card.style.display='none');
+    homeIcon.classList.toggle('active', activeIcon===homeIcon);
+    gameIcon.classList.toggle('active', activeIcon===gameIcon);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  const showGame = tab => {
+    currentGameTab=tab;
+    const category=tab.dataset.cat;
+    gameHome.hidden=true;
+    tables.hidden=false;
+    tables.classList.add('preview-grid');
+    tableGridBack.hidden=true;
+    sideTabs.forEach(item=>item.classList.toggle('active',item===tab));
+    tableCards.forEach(card=>{
+      const visible=getCardCategory(card)===category;
+      card.style.display=visible?'':'none';
+      if(visible){
+        const road=card.querySelector('.road.big, .bo-history');
+        if(road)road.scrollLeft=road.scrollWidth;
       }
     });
-  }));
-  document.querySelectorAll('.table-card.ab,.table-card.bb-table,.table-card.xd,.table-card.tx,.table-card.monopoly,.table-card.rl,.table-card.dt,.table-card.ft,.table-card.bo-table,.table-card.crash-table').forEach(c=>{ c.style.display = 'none'; });
-  const tables = document.getElementById('tables');
+    homeIcon.classList.remove('active');
+    gameIcon.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  const openTable = selectedCard => {
+    tables.classList.remove('preview-grid');
+    tableGridBack.hidden=false;
+    tableCards.forEach(card=>card.style.display=card===selectedCard?'':'none');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  tableGridBack.addEventListener('click',()=>{ if(currentGameTab)showGame(currentGameTab); });
+  tables.addEventListener('click',event=>{
+    if(!tables.classList.contains('preview-grid'))return;
+    if(suppressGridClick){suppressGridClick=false;return;}
+    const card=event.target.closest('.table-card');
+    if(card&&card.style.display!=='none')openTable(card);
+  });
+  sideTabs.forEach(tab=>{
+    tab.classList.add('game-tile');
+    const icon=tab.querySelector('.st-ic');
+    if(icon)icon.classList.add('game-tile-icon');
+    gameHome.appendChild(tab);
+    tab.addEventListener('click',()=>{
+      if(switchingGame)return;
+      switchingGame=true;
+      sideTabs.forEach(item=>item.classList.toggle('active',item===tab));
+      tab.classList.add('launching');
+      gameSwitchTimer=setTimeout(()=>{
+        tab.classList.remove('launching');
+        showGame(tab);
+        switchingGame=false;
+        gameSwitchTimer=null;
+      },420);
+    });
+  });
+  homeIcon.addEventListener('click',()=>showHome(homeIcon));
+  gameIcon.addEventListener('click',()=>showHome(gameIcon));
+  showHome(homeIcon);
   let roadDrag = null;
   tables.addEventListener('pointerdown', e=>{
     if (e.isPrimary===false || (e.pointerType==='mouse' && e.button!==0)) return;
     const track = e.target.closest('.road.big, .bo-history');
     if (!track || track.scrollWidth<=track.clientWidth) return;
-    roadDrag = { track, pointerId:e.pointerId, startX:e.clientX, startScrollLeft:track.scrollLeft };
+    roadDrag = { track, pointerId:e.pointerId, startX:e.clientX, startScrollLeft:track.scrollLeft, didDrag:false };
     track.classList.add('dragging');
     track.setPointerCapture(e.pointerId);
   });
@@ -71,6 +147,7 @@
     if (!roadDrag || e.pointerId!==roadDrag.pointerId) return;
     const delta = e.clientX-roadDrag.startX;
     if (Math.abs(delta)>3){
+      roadDrag.didDrag=true;
       roadDrag.track.scrollLeft = roadDrag.startScrollLeft-delta;
       e.preventDefault();
     }
@@ -78,6 +155,10 @@
   const stopRoadDrag = e=>{
     if (!roadDrag || e.pointerId!==roadDrag.pointerId) return;
     roadDrag.track.classList.remove('dragging');
+    if(roadDrag.didDrag){
+      suppressGridClick=true;
+      setTimeout(()=>{suppressGridClick=false;},100);
+    }
     roadDrag = null;
   };
   tables.addEventListener('pointerup',stopRoadDrag);

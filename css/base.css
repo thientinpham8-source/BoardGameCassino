@@ -12,6 +12,8 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:
 .bet-action svg{width:19px;height:19px}
 #double-bet svg{width:23px;height:23px}
 .bet-action:hover:not(:disabled){background:#ffd75e;transform:translateY(-1px)}
+.bet-action.cancel-bet{color:#b33a35}
+.bet-action.cancel-bet:hover:not(:disabled){background:#ffe3e0;color:#9e2924}
 .bet-action:disabled{opacity:.45;cursor:not-allowed}
 .bet-action:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .chip{position:relative;width:38px;height:38px;flex:none;border:1px solid rgba(255,255,255,.65);border-radius:50%;cursor:pointer;display:grid;place-items:center;font-family:inherit;font-size:10px;font-weight:800;color:#fff;
@@ -28,7 +30,7 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:
 .balance{font-weight:600;font-size:13.5px;transition:color .3s}
 .balance.up{color:#7ee787}.balance.down{color:#ff9d9d}
 .sidebar{position:fixed;left:0;top:52px;bottom:0;width:76px;background:#fff;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:7px;overflow-y:auto;scrollbar-width:none;box-shadow:1px 0 4px rgba(0,0,0,.07);z-index:40}
-.side-ic{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#7a8a8f;cursor:pointer;transition:.15s}
+.side-ic{width:42px;height:42px;border:0;padding:0;border-radius:10px;background:transparent;display:flex;align-items:center;justify-content:center;color:#7a8a8f;cursor:pointer;transition:.15s;font:inherit}
 .side-ic:hover{background:#eef4f6;color:#16616c}
 .side-ic.active{background:#16616c;color:#fff}
 .side-sep{width:36px;height:1px;background:#e2e8ec;margin:2px 0}
@@ -37,7 +39,41 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:
 .side-tab.active{background:#16616c;color:#fff}
 .side-tab .st-ic{display:flex;align-items:center;justify-content:center;height:20px}
 .side-tab .st-lb{font-size:9px;font-weight:700;letter-spacing:.2px}
+.game-home{margin-left:76px;padding:24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;max-width:1750px}
+#game-home[hidden],#tables[hidden]{display:none}
+.game-home .side-tab{width:auto;min-width:0;height:124px;padding:14px;border:1px solid #dfe8eb;border-radius:14px;background:linear-gradient(180deg,#fff,#f8fbfc);box-shadow:0 2px 8px rgba(15,60,70,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#52666c;transition:transform .2s,box-shadow .2s,border-color .2s,background .2s}
+.game-home .side-tab:hover{background:#fff;border-color:#a9cbd0;color:#16616c;transform:translateY(-3px);box-shadow:0 7px 16px rgba(15,60,70,.16)}
+.game-home .side-tab.active{background:linear-gradient(180deg,#f1fbfb,#e5f3f4);border-color:#8fc0c6;color:#12535c}
+.game-home .st-ic{width:44px;height:44px;border-radius:12px;background:#edf5f6;color:#16616c;display:grid;place-items:center;transition:background .2s,color .2s}
+.game-home .st-ic svg{width:28px;height:28px}
+.game-home .side-tab:hover .st-ic,.game-home .side-tab.active .st-ic{background:#16616c;color:#fff}
+.game-home .side-tab .st-lb{font-size:13px;font-weight:700;letter-spacing:0;text-align:center}
+.game-home .side-tab.launching .st-ic{animation:gameTileIconPop .42s ease-in-out}
+@keyframes gameTileIconPop{40%{transform:scale(1.28) rotate(-8deg)}75%{transform:scale(.92) rotate(4deg)}}
 .main{margin-left:76px;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;max-width:1750px}
+#tables.preview-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));align-content:start}
+#tables.preview-grid .table-card{height:auto!important;min-height:0!important;max-height:none!important;flex:0 0 auto!important;cursor:pointer;transition:transform .18s,box-shadow .18s}
+#tables.preview-grid .table-card:hover{transform:translateY(-3px);box-shadow:0 7px 16px rgba(15,60,70,.18)}
+#tables.preview-grid .table-card>:not(.card-head):not(.table-open-button):not(.stats):not(.crash-round-footer){display:none!important}
+#tables.preview-grid .card-head{height:auto!important;min-height:86px;max-height:none!important;flex:none!important;flex-direction:column;align-items:stretch;justify-content:center;gap:7px;padding:12px}
+#tables.preview-grid .table-card .card-title{width:100%;flex:none}
+#tables.preview-grid .table-card .autobtn{display:none!important}
+#tables.preview-grid .table-card>.stats{display:block!important;height:84px!important;min-height:0!important;max-height:84px!important;flex:none!important;margin:0!important;padding:7px 10px 9px!important;overflow:hidden!important;border:0!important}
+#tables.preview-grid .table-card>.stats::before{content:'BIG ROAD';display:block;margin:0 0 5px;color:#52666c;font-size:9px;font-weight:800;letter-spacing:.35px}
+#tables.preview-grid .stats>:not(.road):not(.bo-history){display:none!important}
+#tables.preview-grid .stats>.road.big{display:grid!important;width:100%;height:60px!important;min-height:60px!important;max-height:60px!important;grid-template-rows:repeat(6,10px)!important;grid-auto-columns:10px!important;padding-right:50px!important;overflow-x:auto!important;overflow-y:hidden!important;border:2px solid #8fa5ad;border-radius:4px;background:repeating-linear-gradient(90deg,transparent 0 9px,#dbe3e7 9px 10px),repeating-linear-gradient(180deg,transparent 0 9px,#dbe3e7 9px 10px),#fff;cursor:grab;touch-action:pan-y}
+#tables.preview-grid .stats>.road.big .bead{width:8px!important;height:8px!important;font-size:4px}
+#tables.preview-grid .stats>.bo-history{display:grid!important;width:100%;height:60px!important;min-height:60px!important;max-height:60px!important;grid-template-rows:repeat(6,10px)!important;grid-auto-columns:10px!important;padding-right:50px!important;overflow-x:auto!important;overflow-y:hidden!important;border:2px solid #8fa5ad;border-radius:4px;cursor:grab;touch-action:pan-y}
+#tables.preview-grid .stats>.bo-history .bo-road-cell{width:8px!important;min-width:8px!important;max-width:8px!important;height:8px!important;min-height:8px!important;max-height:8px!important;font-size:6px}
+#tables.preview-grid .table-card>.crash-round-footer{height:84px!important;min-height:84px!important;max-height:84px!important;flex:none!important;margin:0!important;padding:7px 10px 9px!important}
+#tables.preview-grid .crash-round-footer .crash-history-grid{height:60px;grid-template-rows:repeat(2,26px);gap:3px}
+#tables.preview-grid .crash-history-grid span{height:26px;font-size:10px}
+#tables .table-open-button{display:none}
+#tables.preview-grid .table-open-button{height:36px;margin:0 10px 10px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:#e8f4f4;color:#12535c;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s}
+#tables.preview-grid .table-open-button:hover{background:#d2e8e9}
+#table-grid-back[hidden]{display:none}
+.table-grid-back{grid-column:1/-1;justify-self:start;padding:8px 13px;border:1px solid #cbdde1;border-radius:8px;background:#fff;color:#155a64;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.table-grid-back:hover{background:#e8f4f4}
 .table-card{min-width:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(15,60,70,.12);display:flex;flex-direction:column}
 .card-head{background:linear-gradient(180deg,#1a6670,#12535c);color:#fff;padding:8px 12px;height:51px;flex:none;display:flex;justify-content:space-between;align-items:center}
 .card-title{flex:1;min-width:0}
@@ -124,6 +160,8 @@ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#e9edf0;color:
   .chip{width:38px;height:38px;font-size:10px}
   .bet-actions{gap:4px}
   .main{width:100%;max-width:none;margin:0;padding:74px 10px calc(112px + env(safe-area-inset-bottom));grid-template-columns:minmax(0,1fr);gap:10px}
+  #tables.preview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .game-home{width:100%;max-width:none;margin:0;padding:74px 10px calc(112px + env(safe-area-inset-bottom));grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .sidebar{top:52px;right:0;bottom:auto;width:100%;height:64px;flex-direction:row;align-items:center;justify-content:flex-start;gap:4px;overflow-x:auto;overflow-y:hidden;padding:4px 8px;scrollbar-width:none;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;box-shadow:0 1px 5px rgba(0,0,0,.12);z-index:60}
   .sidebar::-webkit-scrollbar{display:none}
   .sidebar .side-ic{width:46px;height:46px;flex:0 0 46px}

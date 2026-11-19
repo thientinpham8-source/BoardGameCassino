@@ -8,7 +8,7 @@ class FantanTable{
     this.lastResult=null;
     this.statsTab='tx';
     this.hist=Array.from({length:60+Math.floor(Math.random()*33)},()=>ftAnalyze(txRoll()).result);
-    this.build();this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'),3,GLASS_SHAKE_DURATION,false);startTableWithRandomPhase(this);
+    this.build();this.sim=new GlassDiceSimulation(this.el.querySelector('.glass-stage'),3,GLASS_SHAKE_DURATION);startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }
   schedule(fn,ms){this.timers.push(setTimeout(fn,ms));}

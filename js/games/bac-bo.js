@@ -10,7 +10,7 @@ class BacBoTable {
     });
     this.build();
     this.simulations=[...this.el.querySelectorAll('.bb-cup .glass-stage')].map((stage,index)=>
-      new GlassDiceSimulation(stage,1,index%2===0?6:4,false));
+      new GlassDiceSimulation(stage,1,index%2===0?6:4));
     startTableWithRandomPhase(this);
     setInterval(()=>this.fluctuate(),15000);
   }

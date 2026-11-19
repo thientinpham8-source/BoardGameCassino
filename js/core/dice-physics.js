@@ -139,8 +139,7 @@ class GlassDiceSimulation {
   }
   straightenDice(){
     const up=new CANNON.Vec3(0,1,0);
-    let needsReposition=false;
-    this.bodies.forEach((body,i)=>{
+    this.bodies.forEach(body=>{
       let topFace=GLASS_FACES[0], highest=-Infinity;
       GLASS_FACES.forEach(face=>{
         const normal=new CANNON.Vec3(...face.normal);
@@ -148,18 +147,9 @@ class GlassDiceSimulation {
         if(normal.y>highest){highest=normal.y;topFace=face;}
       });
       body.quaternion.setFromVectors(new CANNON.Vec3(...topFace.normal),up);
-      if(Math.hypot(body.position.x,body.position.z)>.52)needsReposition=true;
-      for(let j=0;j<i;j++){
-        const other=this.bodies[j];
-        if(Math.abs(body.position.x-other.position.x)<.37&&Math.abs(body.position.z-other.position.z)<.37)needsReposition=true;
-      }
       body.position.y=.181;
       body.velocity.set(0,0,0); body.angularVelocity.set(0,0,0);
     });
-    if(needsReposition){
-      const positions=this.bodies.length===1?[[0,0]]:this.bodies.length===2?[[-.32,0],[.32,0]]:[[-.38,-.23],[.38,-.23],[0,.4]];
-      positions.forEach(([x,z],i)=>this.bodies[i].position.set(x,.181,z));
-    }
     this.bodies.forEach(body=>{
       body.aabbNeedsUpdate=true; body.sleep();
     });
@@ -181,7 +171,7 @@ class GlassDiceSimulation {
       if(!driveEnded&&this.time>=this.shakeDuration){driveEnded=true;onMotionChange();}
       if(!reduced||settled)this.render();
       if(settled){
-        if(this.snapOnSettle&&this.count<2)this.straightenDice();
+        if(this.snapOnSettle)this.straightenDice();
         else {this.bodies.forEach(body=>body.sleep());this.render();}
         this.running=false;this.frame=null;onSettled(this.readValues());
       } else this.frame=requestAnimationFrame(animate);

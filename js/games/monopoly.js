@@ -30,7 +30,7 @@ class MonopolyTable{
     this.$track.addEventListener('click',e=>{const tile=e.target.closest('.mono-number-bet');if(tile)this.placeBet(tile.dataset.number);});
     this.$tabs.addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(t){this.tab=t.dataset.tab;this.renderStats();}});
     this.renderTrack();
-    this.sim=new GlassDiceSimulation(el.querySelector('.mono-sim-stage'),2,GLASS_SHAKE_DURATION,false);
+    this.sim=new GlassDiceSimulation(el.querySelector('.mono-sim-stage'),2,GLASS_SHAKE_DURATION);
   }
   renderTrack(){
     this.$track.innerHTML=MONOPOLY_TRACK.map(tile=>{
